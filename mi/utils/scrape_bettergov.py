@@ -1,6 +1,8 @@
 '''
 Web-scrape BetterGov
 '''
+print('Web-scraping BetterGov')
+
 from functions import produce_soup_from_url, dataframe_builder, df_to_csv
 
 # BetterGov URL : https://www.bettergov.co.uk/

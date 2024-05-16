@@ -4,6 +4,8 @@ Capco webscrape
 
 # Capco URL: https://www.capco.com/Services
 
+print('Web-scraping Capco')
+
 from functions import produce_soup_from_url, dataframe_builder, df_to_csv
 
 profile_dict = {'practises_url': ['https://www.capco.com'], 'practises': [], 'services_url': [], 'services': []}
@@ -38,3 +40,6 @@ for row_i in services_html:
 
 
     profile_dict['services'] += services_list
+
+df = dataframe_builder(profile_dict)
+df_to_csv(df,filename='capco')

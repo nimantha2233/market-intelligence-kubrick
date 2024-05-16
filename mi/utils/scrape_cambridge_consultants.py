@@ -1,5 +1,7 @@
 # Cambridge Consultants URL : https://www.cambridgeconsultants.com/
 
+print('Web-scraping Cambridge Consultants')
+
 from functions import produce_soup_from_url, dataframe_builder, df_to_csv
 
 profile_dict = {'practises_url': ['https://www.cambridgeconsultants.com/'], 'practises': [], 'services_url': [], 'services': []}
