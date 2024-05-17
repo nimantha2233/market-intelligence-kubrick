@@ -22,7 +22,7 @@ for row_i in services_html:
     service_soup = produce_soup_from_url(service_url)
 
 
-    exclude_list = ['/Services/digital/knowable','/Services/digital/Further-Swiss-Solutions']
+    exclude_list = ['/Services/digital/knowable','/Services/digital/Further-Swiss-Solutions'] # Hard coded however was necessary
     services_list = []
 
 
