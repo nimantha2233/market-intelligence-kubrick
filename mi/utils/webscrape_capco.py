@@ -12,9 +12,9 @@ print('Web-scraping Capco')
 from functions import produce_soup_from_url, dataframe_builder, df_to_csv,sheet_exists, write_to_excel, compare_rows
 import os
 
-profile_dict = {'practises_url': ['https://www.capco.com'], 'practises': [], 'services_url': [], 'services': []}
+profile_dict = {'practices_url': ['https://www.capco.com'], 'practices': [], 'services_url': [], 'services': []}
 
-# output soup from main page to extract practises and links to practises page
+# output soup from main page to extract practices and links to practices page
 soup = produce_soup_from_url(r'https://www.capco.com')
 
 services_html = soup.find_all(lambda tag: tag.name == 'a' and '/Services/' in tag['href'] )
@@ -22,7 +22,7 @@ services_html = soup.find_all(lambda tag: tag.name == 'a' and '/Services/' in ta
 for row_i in services_html:
 
     # Get URLs 
-    service_url = profile_dict['practises_url'][0] + row_i['href']
+    service_url = profile_dict['practices_url'][0] + row_i['href']
 
     profile_dict['services_url'].append(service_url)
 
@@ -43,7 +43,7 @@ for row_i in services_html:
 
 
     services_list = list(set(services_list))
-    profile_dict['practises'] += [row_i.text]*len(services_list)
+    profile_dict['practices'] += [row_i.text]*len(services_list)
 
 
     profile_dict['services'] += services_list

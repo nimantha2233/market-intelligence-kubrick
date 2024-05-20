@@ -5,7 +5,7 @@ print('Web-scraping Cambridge Consultants')
 from functions import produce_soup_from_url, dataframe_builder, df_to_csv,sheet_exists, write_to_excel, compare_rows
 import os
 
-profile_dict = {'practises_url': ['https://www.cambridgeconsultants.com/'], 'practises': [], 'services_url': [], 'services': []}
+profile_dict = {'practices_url': ['https://www.cambridgeconsultants.com/'], 'practices': [], 'services_url': [], 'services': []}
 
 soup = produce_soup_from_url(r'https://www.cambridgeconsultants.com/')
 
@@ -24,7 +24,7 @@ for row_i in filtered_html:
 
     for row_j in raw_html:
 
-        profile_dict['practises'].append(row_i.text)
+        profile_dict['practices'].append(row_i.text)
         profile_dict['services'].append(row_j.text)
 
 

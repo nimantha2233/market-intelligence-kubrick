@@ -18,7 +18,7 @@ def produce_soup_from_url(url : str):
 
 def dataframe_builder(profile_dict : dict):
 
-    return pd.DataFrame({'practises' : profile_dict['practises'], 'services' : profile_dict['services']})
+    return pd.DataFrame({'practices' : profile_dict['practices'], 'services' : profile_dict['services']})
 
 
 def df_to_csv(df : pd.DataFrame, filename : str):

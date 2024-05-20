@@ -7,9 +7,9 @@ from functions import produce_soup_from_url, dataframe_builder, df_to_csv,sheet_
 import os
 # BetterGov URL : https://www.bettergov.co.uk/
 
-profile_dict = {'practises_url': [r'https://www.bettergov.co.uk/'], 'practises': [], 'services_url': [], 'services': []}
+profile_dict = {'practices_url': [r'https://www.bettergov.co.uk/'], 'practices': [], 'services_url': [], 'services': []}
 
-soup = produce_soup_from_url(profile_dict['practises_url'][0])
+soup = produce_soup_from_url(profile_dict['practices_url'][0])
 html = soup.find_all(lambda tag: tag.name == 'a' and tag.has_attr('href') and r'https://www.bettergov.co.uk/better-' in tag['href'] and tag.find('span'))
 html = list(set(html))
 
@@ -24,7 +24,7 @@ for row_i in html:
     
     for row_j in services:
         profile_dict['services'].append(row_j.text)
-        profile_dict['practises'].append(row_i.find('span', attrs = {'class': "nectar-menu-label nectar-pseudo-expand"}).text)
+        profile_dict['practices'].append(row_i.find('span', attrs = {'class': "nectar-menu-label nectar-pseudo-expand"}).text)
 
 df = dataframe_builder(profile_dict)
 

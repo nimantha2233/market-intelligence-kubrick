@@ -1,34 +1,27 @@
+
 '''
-Web-scrape Infosys
+Web-scrape Kubrick Group
 '''
 
-# Infosys
+# Kubrick Group
 
 from functions import produce_soup_from_url, dataframe_builder, df_to_csv,sheet_exists, write_to_excel, compare_rows
 import os
 
 
-profile_dict = {'practices_url': ['https://www.infosys.com/services/'], 'practices': [], 'services_url': [], 'services': []}
-soup = produce_soup_from_url(r'https://www.infosys.com/services/')
-practices_html = soup.find_all('li', attrs = {'class' : "col-lg-4 col-md-4 col-sm-4 col-xs-12"})
-practices_list = []
+profile_dict = {'practices_url': [r'https://www.kubrickgroup.com/uk/what-we-do'], 'practices': []
+                , 'services_url': [r'https://www.kubrickgroup.com/uk/what-we-do'], 'services': []}
+soup = produce_soup_from_url(profile_dict['practices_url'][0])
+practices_html_block = soup.find_all('section', attrs = {'id' : "our-practices"})[0]
 
-for row_i in practices_html:
-    for row_j in row_i.find_all('a'):
-        
-        service_url = profile_dict['practices_url'][0][:-10] + row_j['href']
-        profile_dict['services_url'].append(service_url)
+# Each element of list is a practices' html
+practices_html = [div for div in practices_html_block.find_all('div', attrs={'class': 'col-12'}) if div.find('p')]
 
-        services_soup = produce_soup_from_url(profile_dict['practices_url'][0][:-10] + row_j['href'])
-
-        soup.find_all('p', attrs = {'class' : 'offering-title'})
-        services_html = services_soup.find_all('div', attrs = {'class' : "offerings-row clearfix"})
-
-
-        for offering in services_html:
-            for service in offering.find_all('a'):
-                profile_dict['services'].append(service.text.strip())
-                profile_dict['practices'].append(row_j.text.strip())
+for practice in practices_html:
+    for service in practice.find_all('li'):
+        profile_dict['practices'].append(practice.find_all('h3')[0].text.strip())
+        profile_dict['services'].append(service.text.strip())
+        # print(f"{practice.find_all('h3')[0].text} ------- {service.text}")
 
 
 df = dataframe_builder(profile_dict)
