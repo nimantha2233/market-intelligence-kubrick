@@ -34,26 +34,28 @@ def produce_soup_from_url(url : str):
     return BeautifulSoup(r.content,'html5lib')
 
 
-def dataframe_builder(profile_dict : dict):
+def dataframe_builder(company_dict : dict):
 
-    return pd.DataFrame({ 'Practices_URL' : profile_dict['Practices_URL']
-                         ,'Practices' : profile_dict['Practices']
-                         ,'Services_URL' : profile_dict['Services_URL']
-                         ,'Services' : profile_dict['Services']
+    return pd.DataFrame({ 'Practices_URL' : company_dict['Practices_URL']
+                         ,'Practices' : company_dict['Practices']
+                         ,'Services_URL' : company_dict['Services_URL']
+                         ,'Services' : company_dict['Services']
+                         ,'Solutions_URL' : company_dict['Solutions_URL']
+                         ,'Solutions' : company_dict['Solutions']
                         })
 
 
 
-def dict_and_df_test(profile_dict : dict):
+def dict_and_df_test(company_dict : dict):
     '''
     Check dataframe and dict lengths 
     '''
 
     print('\n\n')
-    for k,v in profile_dict.items():
+    for k,v in company_dict.items():
         print(f'{k} ---- length: {len(v)}')
     pd.set_option('display.width', None)
-    print(f'\n\n {pd.DataFrame(profile_dict).to_markdown} \n\n')
+    print(f'\n\n {pd.DataFrame(company_dict).to_markdown} \n\n')
     return 0
 
 def write_to_file(file_path : str, df : pd.DataFrame):

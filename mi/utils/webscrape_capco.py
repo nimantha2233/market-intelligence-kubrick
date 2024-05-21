@@ -27,16 +27,17 @@ def main():
     soup = produce_soup_from_url(r'https://www.capco.com')
 
     practices_html = soup.find_all(lambda tag: tag.name == 'a' and '/Services/' in tag['href'] )
-
+    services_list = []
+    test_list = []
+    cnt = 0
     for practice in practices_html:
 
-        services_list = []
         
         # Get URLs 
         services_url = company_dict['Practices_URL'][0] + practice['href']
         services_soup = produce_soup_from_url(services_url)
         services_html = services_soup.find_all('div', attrs = {'class' : 'article-content'})
-        
+        services_html = list(set(services_html))
         # Hard coded so was necessary
         exclude_list = ['/Services/digital/knowable','/Services/digital/Further-Swiss-Solutions'] 
 
@@ -44,24 +45,47 @@ def main():
 
             if service.find('h2'):
                 if service.find('a')['href'] not in exclude_list:
-                    services_list.append(service.find('h2').text)
+                    # services_list.append(service.find('h2').text.strip())
+                    # company_dict['Solutions_URL'].append(practices_url + service.find('a')['href'])
+                    solutions_soup = produce_soup_from_url(practices_url + service.find('a')['href'])
+                    filtered_solutions_soup = solutions_soup.find_all("li", class_ = "article article-no-btn")
+                    # li_with_h2 = list(set([li.find('h2').text.strip() for li in filtered_solutions_soup if li.find("h2")]))
+
+                    for solution in filtered_solutions_soup:
+
+                        company_dict['Solutions_URL'].append(practices_url + service.find('a')['href'])
+                        company_dict['Solutions'].append(solution.find('h2').text.strip())
+                        company_dict['Practices'].append(practice.text)
+                        company_dict['Services'].append(service.find('h2').text.strip())
+                        company_dict['Services_URL'].append(services_url)
+                        
+
+                    # if service.find('h2').text.strip() == 'DIGITAL ENGINEERING':
+                    #     solutions_soup = produce_soup_from_url(practices_url + service.find('a')['href'])
+                    #     # solutions_soup.find_all("li", class_ = "article article-no-btn")
+                    #     li_with_h2 = list(set([li.find('h2').text.strip() for li in filtered_solutions_soup if li.find("h2")]))
+                    #     # print(f'\n{li_with_h2[0]}\n')
                     
         # Remove duplicates
-        services_list = list(set(services_list))
+        # services_list = list(set(services_list))
 
-        company_dict['Practices'] += [practice.text]*len(services_list)
-        company_dict['Services'] += services_list
-        company_dict['Services_URL'] = company_dict['Services_URL'] + len(services_list)*[services_url]
+        # company_dict['Practices'] += [practice.text]*len(services_list)
+        # company_dict['Services'] += services_list
+        #company_dict['Services_URL'] = company_dict['Services_URL'] + len(services_list)*[services_url]
+    
+   
+
 
 
 
     company_dict['Practices_URL'] = len(company_dict['Practices'])*company_dict['Practices_URL']
 
 
-
+    #dict_and_df_test(company_dict)
     df = dataframe_builder(company_dict)
+    df.to_csv(r'./test.csv')
 
-    # dict_and_df_test(profile_dict)
+    
 
     # Writing to excel file
     # File path remains the same
