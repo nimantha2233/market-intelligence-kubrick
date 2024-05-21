@@ -4,41 +4,55 @@ Web-scrape IQVIA
 
 # IQVIA 
 
-from .functions import produce_soup_from_url, dataframe_builder, df_to_csv,sheet_exists, write_to_excel, compare_rows
+if __name__ == '__main__':
+    # This allows for testing this individual script
+    from functions import produce_soup_from_url, dataframe_builder,sheet_exists, write_to_excel, compare_rows, profile_dict_generator, dict_and_df_test
+
+else:        
+    # To run the script from app.py as an import
+    from .functions import produce_soup_from_url, dataframe_builder,sheet_exists, write_to_excel, compare_rows, profile_dict_generator, dict_and_df_test
+
 import os
 import pandas as pd
-
+from collections import defaultdict
 
 def main():
     
-    profile_dict = {'practices_url': [r'https://jobs.iqvia.com/en'], 'practices': [], 'services_url': [], 'services': []}
-    soup = produce_soup_from_url(profile_dict['practices_url'][0])
-    practices_html_block = soup.find_all(lambda tag: tag.name =='div' and tag.has_attr('class') and tag.get('class') == "fs-12 fs-m-12 fs-l-9")
-    # practices_html_block = soup.find_all('div', attrs = {'class' : "fs-12 fs-m-12 fs-l-9"}, href = True)
-
-    practices_html_block = soup.find_all('div', attrs = {'class' : "fs-12 fs-m-6 fs-l-3 w-25 subnav-item"},)
-
-
-    #print(practices_html_block[].find_all(lambda tag: tag.name == 'a' and tag.has_attr('href') and 'careers' in tag.get('href')))#, href = lambda href: href and 'careers' in href))
+    # profile_dict = profile_dict_generator([r'https://jobs.iqvia.com/en'])
+    practices_url = r'https://jobs.iqvia.com/en'
+    company_dict = defaultdict(list)
+    company_dict['Practices_URL'].append(practices_url)
+    soup = produce_soup_from_url(company_dict['Practices_URL'][0])
+    # practices_html_block = soup.find_all(lambda tag: tag.name =='div' and tag.has_attr('class') and tag.get('class') == "fs-12 fs-m-12 fs-l-9")
+    practices_html = soup.find_all('div', attrs = {'class' : "fs-12 fs-m-6 fs-l-3 w-25 subnav-item"},)
 
 
-    for practice in practices_html_block:
+    for practice in practices_html:
+        
         service_url = practice.find_all(lambda tag: tag.name == 'a' and tag.has_attr('href') and 'careers' in tag.get('href'))
         practice = practice.find_all('span', {'class' : 'heading-h3'})
 
         if len(service_url) > 0: # If len = 0 then it isnt about services or practices (e.g. about DEI)
-            # profile_dict['practices'].append(practice[0].text)
-            profile_dict['services_url'].append(profile_dict['practices_url'][0] + service_url[0]['href'])
-            services_url = profile_dict['practices_url'][0] + service_url[0]['href']
+
+            # profile_dict['Services_URL'].append(profile_dict['Practices_URL'][0] + service_url[0]['href'])
+            services_url = company_dict['Practices_URL'][0] + service_url[0]['href']
             service_soup = produce_soup_from_url(services_url)
 
             services_filtered_html = service_soup.find_all('button', attrs = {'class' : 'tab-accordion__button'})
             for service in services_filtered_html:
                 # print(f"{service.get_text(strip = True).replace(service.find('strong').get_text(strip=True), '')} ------ {practice[0].text.strip()}")
-                profile_dict['practices'].append(practice[0].text.strip())
-                profile_dict['services'].append(service.get_text(strip = True).replace(service.find('strong').get_text(strip=True), ''))
+                
+                company_dict['Practices'].append(practice[0].text.strip())
+                company_dict['Services'].append(service.get_text(strip = True).replace(service.find('strong').get_text(strip=True), ''))
+                company_dict['Services_URL'].append(company_dict['Practices_URL'][0] + service_url[0]['href'])
 
-    df = dataframe_builder(profile_dict)
+
+    company_dict['Practices_URL'] = len(company_dict['Practices'])*company_dict['Practices_URL']
+
+    # dict_and_df_test(profile_dict)
+
+    df = dataframe_builder(company_dict)
+    # df.to_csv(r'.\test.csv')
     # print(df.to_markdown())
 
     # File path remains the same
@@ -66,3 +80,7 @@ def main():
 
 
     return print(os.path.basename(__file__))
+
+
+if __name__ == '__main__':
+    main()

@@ -6,34 +6,47 @@ Web-scrape Cognizant
 
 
 
-from .functions import produce_soup_from_url, dataframe_builder, df_to_csv,sheet_exists, write_to_excel, compare_rows
-import os
+if __name__ == '__main__':
+    # This allows for testing this individual script
+    from functions import produce_soup_from_url, dataframe_builder,sheet_exists, write_to_excel, compare_rows, profile_dict_generator, dict_and_df_test
 
+else:        
+    # To run the script from app.py as an import
+    from .functions import produce_soup_from_url, dataframe_builder,sheet_exists, write_to_excel, compare_rows, profile_dict_generator, dict_and_df_test
+
+import os
+from collections import defaultdict
 
 def main():
-    profile_dict = {'practices_url': ['https://www.cognizant.com'], 'practices': [], 'services_url': [], 'services': []}
+    # profile_dict = {'practices_URL': [r'https://www.cognizant.com'], 'practices': [], 'services_URL': [], 'services': []}
 
+    # profile_dict = profile_dict_generator([r'https://www.cognizant.com']) 
+    practices_url = r'https://www.cognizant.com'
+    company_dict = defaultdict(list)
+    company_dict['Practices_URL'].append(practices_url)
     soup = produce_soup_from_url(r'https://www.cognizant.com')
     practices_html = soup.find_all('a', href = lambda href: href and "/uk/en/services/" in href, target = True, class_ = False) #<a class="p-half d-block fw-normal text-white cog-header__megamenu-item" href="/uk/en/services/ai" role="link" aria-label="Data & AI" target="_self" data-cmp-data-layer="{"dropDownMenuTag-c33be6f82d":{"xdm:trackingType":"dropDownMenuTag","xdm:location":"Header","dc:title":"Data & AI","xdm:linkURL":"/content/cognizant-dot-com/uk/en/services/ai"}}" data-cmp-clickable>
 
-    cnt = 0
-    for row_i in practices_html:
-        cnt += 1
-        # print(f'Percentage of practices scraped: {100*cnt/len(practices_html)}')
-        profile_dict['services_url'].append(row_i['href'])
 
-        services_soup = produce_soup_from_url(profile_dict['practices_url'][0] + row_i['href'])
+    for practice in practices_html:
+        
+        services_url = company_dict['Practices_URL'][0] + practice['href']
+        services_soup = produce_soup_from_url(services_url)
         services_html = services_soup.find_all('span', attrs = {'class' : 'cmp-accordion__title'})
-    
-
-    
-        for row_j in services_html:
+      
+        for service in services_html:
             
-            profile_dict['services'].append(row_j.text)
-            profile_dict['practices'].append(row_i.text.strip())
+            company_dict['Services'].append(service.text)
+            company_dict['Practices'].append(practice.text.strip())
+            company_dict['Services_URL'].append(practice['href'])
+            
 
+    company_dict['Practices_URL'] = len(company_dict['Practices'])*company_dict['Practices_URL']
+    # dict_and_df_test(profile_dict)
 
-    df = dataframe_builder(profile_dict)
+    df = dataframe_builder(company_dict)
+    # df.to_csv(r'.\test.csv')
+
     # File path remains the same
     file_path = r"C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\mi\utils\Kubrick MI Data.xlsx"
 
@@ -58,3 +71,6 @@ def main():
             print(f"No changes required for '{sheet_name}' sheet in '{file_path}'.")
 
     return print(os.path.basename(__file__))    
+
+if __name__ == '__main__':
+    main()

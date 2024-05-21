@@ -4,49 +4,64 @@ Capco webscrape
 
 # Capco URL: https://www.capco.com/Services
 
-from .functions import produce_soup_from_url, dataframe_builder, df_to_csv,sheet_exists, write_to_excel, compare_rows
-import os
+if __name__ == '__main__':
+    # This allows for testing this individual script
+    from functions import produce_soup_from_url, dataframe_builder,sheet_exists, write_to_excel, compare_rows, profile_dict_generator, dict_and_df_test
 
+else:        
+    # To run the script from app.py as an import
+    from .functions import produce_soup_from_url, dataframe_builder,sheet_exists, write_to_excel, compare_rows, profile_dict_generator, dict_and_df_test
+
+import os
+from collections import defaultdict
 
 def main():
     
-    profile_dict = {'practices_url': ['https://www.capco.com'], 'practices': [], 'services_url': [], 'services': []}
+    #profile_dict = {'practices_URL': ['https://www.capco.com'], 'practices': [], 'services_URL': [], 'services': []}
+    profile_dict = profile_dict_generator([r'https://www.capco.com'])
+    practices_url = r'https://www.capco.com'
+    company_dict = defaultdict(list)
+    company_dict['Practices_URL'].append(practices_url)
 
     # output soup from main page to extract practices and links to practices page
     soup = produce_soup_from_url(r'https://www.capco.com')
 
-    services_html = soup.find_all(lambda tag: tag.name == 'a' and '/Services/' in tag['href'] )
+    practices_html = soup.find_all(lambda tag: tag.name == 'a' and '/Services/' in tag['href'] )
 
-    for row_i in services_html:
+    for practice in practices_html:
 
-        # Get URLs 
-        service_url = profile_dict['practices_url'][0] + row_i['href']
-
-        profile_dict['services_url'].append(service_url)
-
-        service_soup = produce_soup_from_url(service_url)
-
-
-        exclude_list = ['/Services/digital/knowable','/Services/digital/Further-Swiss-Solutions'] # Hard coded however was necessary
         services_list = []
+        
+        # Get URLs 
+        services_url = company_dict['Practices_URL'][0] + practice['href']
+        services_soup = produce_soup_from_url(services_url)
+        services_html = services_soup.find_all('div', attrs = {'class' : 'article-content'})
+        
+        # Hard coded so was necessary
+        exclude_list = ['/Services/digital/knowable','/Services/digital/Further-Swiss-Solutions'] 
 
+        for service in services_html:
 
-        html = service_soup.find_all('div', attrs = {'class' : 'article-content'})
-
-        for row_j in html:
-
-            if row_j.find('h2'):
-                if row_j.find('a')['href'] not in exclude_list:
-                    services_list.append(row_j.find('h2').text)
-
-
+            if service.find('h2'):
+                if service.find('a')['href'] not in exclude_list:
+                    services_list.append(service.find('h2').text)
+                    
+        # Remove duplicates
         services_list = list(set(services_list))
-        profile_dict['practices'] += [row_i.text]*len(services_list)
+
+        company_dict['Practices'] += [practice.text]*len(services_list)
+        company_dict['Services'] += services_list
+        company_dict['Services_URL'] = company_dict['Services_URL'] + len(services_list)*[services_url]
 
 
-        profile_dict['services'] += services_list
 
-    df = dataframe_builder(profile_dict)
+    company_dict['Practices_URL'] = len(company_dict['Practices'])*company_dict['Practices_URL']
+
+
+
+    df = dataframe_builder(company_dict)
+
+    # dict_and_df_test(profile_dict)
 
     # Writing to excel file
     # File path remains the same
@@ -73,3 +88,6 @@ def main():
             print(f"No changes required for '{sheet_name}' sheet in '{file_path}'.")
 
     return print(os.path.basename(__file__))
+
+if __name__ == '__main__':
+    main() 

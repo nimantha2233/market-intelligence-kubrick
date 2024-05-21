@@ -1,38 +1,57 @@
 '''
 Web-scrape BetterGov
+BetterGov URL : https://www.bettergov.co.uk/
 '''
-# print('Web-scraping BetterGov')
 
-from .functions import produce_soup_from_url, dataframe_builder, df_to_csv,sheet_exists, write_to_excel, compare_rows
+
+if __name__ == '__main__':
+    # This allows for testing this individual script
+    from functions import produce_soup_from_url, dataframe_builder,sheet_exists, write_to_excel, compare_rows, profile_dict_generator, dict_and_df_test
+
+else:        
+    # To run the script from app.py as an import
+    from .functions import produce_soup_from_url, dataframe_builder,sheet_exists, write_to_excel, compare_rows, profile_dict_generator, dict_and_df_test
+
 import os
-# BetterGov URL : https://www.bettergov.co.uk/
+from collections import defaultdict
 
 
 def main():
 
-    profile_dict = {'practices_url': [r'https://www.bettergov.co.uk/'], 'practices': [], 'services_url': [], 'services': []}
+    practices_url = r'https://www.bettergov.co.uk/'
+    # profile_dict = profile_dict_generator([r'https://www.bettergov.co.uk/'])
+    company_dict = defaultdict(list)
+    company_dict['Practices_URL'].append(practices_url)
+    
 
-    soup = produce_soup_from_url(profile_dict['practices_url'][0])
-    html = soup.find_all(lambda tag: tag.name == 'a' and tag.has_attr('href') and r'https://www.bettergov.co.uk/better-' in tag['href'] and tag.find('span'))
-    html = list(set(html))
+    soup = produce_soup_from_url(company_dict['Practices_URL'][0])
 
-    for row_i in html:
+    # list where each element is html containing data about a unique practice
+    practices_html = soup.find_all(lambda tag: tag.name == 'a' and tag.has_attr('href') 
+                    and r'https://www.bettergov.co.uk/better-' in tag['href'] and tag.find('span'))
+    
+    # Each practices' html is duplicated so use set() to remove dupes.
+    practices_html = list(set(practices_html))
+    # Iterate through each practice
+    for practice in practices_html:
         
-        service_url = row_i['href']
-        profile_dict['services_url'].append(service_url)
-
-        service_soup = produce_soup_from_url(service_url)
-
-        services = service_soup.find_all('h5')[1::]
+        services_url = practice['href']
+        services_soup = produce_soup_from_url(services_url)
+        services = services_soup.find_all('h5')
         
-        for row_j in services:
-            profile_dict['services'].append(row_j.text)
-            profile_dict['practices'].append(row_i.find('span', attrs = {'class': "nectar-menu-label nectar-pseudo-expand"}).text)
+        # 1st element excluded as it is the practice restated (we want services here)
+        services = services[1::]
 
-    df = dataframe_builder(profile_dict)
+        for service in services:
+            company_dict['Services'].append(service.text)
+            company_dict['Practices'].append(practice.find('span', attrs = {'class': "nectar-menu-label nectar-pseudo-expand"}).text)
+            company_dict['Services_URL'].append(services_url)
 
+    company_dict['Practices_URL'] = len(company_dict['Practices'])*company_dict['Practices_URL']
+    df = dataframe_builder(company_dict)
     file_path = r"C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\mi\utils\Kubrick MI Data.xlsx"
 
+    # write_to_file(file_path, df)
 
     # Derive sheet_name from the script name
     script_name = os.path.basename(__file__)
@@ -54,3 +73,7 @@ def main():
             print(f"No changes required for '{sheet_name}' sheet in '{file_path}'.")
 
     return print(os.path.basename(__file__))
+
+
+if __name__ == '__main__':
+    main() 

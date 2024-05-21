@@ -1,36 +1,47 @@
-# Cambridge Consultants URL : https://www.cambridgeconsultants.com/
+'''
+ Cambridge Consultants URL : https://www.cambridgeconsultants.com/
+'''
 
-# print('Web-scraping Cambridge Consultants')
+if __name__ == '__main__':
+    # This allows for testing this individual script
+    from functions import produce_soup_from_url, dataframe_builder,sheet_exists, write_to_excel, compare_rows, profile_dict_generator, dict_and_df_test
 
-from .functions import produce_soup_from_url, dataframe_builder, df_to_csv,sheet_exists, write_to_excel, compare_rows
+else:        
+    # To run the script from app.py as an import
+    from .functions import produce_soup_from_url, dataframe_builder,sheet_exists, write_to_excel, compare_rows, profile_dict_generator, dict_and_df_test
+
 import os
+from collections import defaultdict
 
 def main():
 
-    profile_dict = {'practices_url': ['https://www.cambridgeconsultants.com/'], 'practices': [], 'services_url': [], 'services': []}
+    practices_url = 'https://www.cambridgeconsultants.com/'
+    # profile_dict = profile_dict_generator([r'https://www.cambridgeconsultants.com/'])
+    company_dict = defaultdict(list)
+    company_dict['Practices_URL'].append(practices_url)
 
     soup = produce_soup_from_url(r'https://www.cambridgeconsultants.com/')
 
-    filtered_html = soup.find_all('ul', attrs = {'id' : 'menu-deep-tech'})[0].select('a') # extracts all rows with links correspondong to dropdown menu "deep tech"
+    practices_html = soup.find_all('ul', attrs = {'id' : 'menu-deep-tech'})[0].select('a') # extracts all rows with links correspondong to dropdown menu "deep tech"
 
-    for row_i in filtered_html:
+    for practice in practices_html:
 
-        service_url = row_i['href']
-        profile_dict['services_url'].append(service_url)
+        services_url = practice['href']
+        services_soup = produce_soup_from_url(services_url)
+        services_html = services_soup.find_all('ul', attrs = {'class' : "et_pb_tabs_controls clearfix"})[0].select('li') # using the initial attrs means we can access the specific children we need to as
 
+        for service in services_html:
 
-        service_soup = produce_soup_from_url(service_url)
+            company_dict['Practices'].append(practice.text)
+            company_dict['Services'].append(service.text)
+            company_dict['Services_URL'].append(services_url)
 
-
-        raw_html = service_soup.find_all('ul', attrs = {'class' : "et_pb_tabs_controls clearfix"})[0].select('li') # using the initial attrs means we can access the specific children we need to as
-
-        for row_j in raw_html:
-
-            profile_dict['practices'].append(row_i.text)
-            profile_dict['services'].append(row_j.text)
+    company_dict['Practices_URL'] = len(company_dict['Practices'])*company_dict['Practices_URL']
 
 
-    df = dataframe_builder(profile_dict)
+    df = dataframe_builder(company_dict)
+    # df.to_csv(path_or_buf = r'.\test.csv')
+    
     # File path remains the same
     file_path = r"C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\mi\utils\Kubrick MI Data.xlsx"
 
@@ -55,3 +66,6 @@ def main():
             print(f"No changes required for '{sheet_name}' sheet in '{file_path}'.")
 
     return print(os.path.basename(__file__))
+
+if __name__ == '__main__':
+    main() 

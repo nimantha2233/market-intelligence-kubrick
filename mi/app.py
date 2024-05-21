@@ -19,6 +19,16 @@ def app():
         if filename.endswith('.py') and filename != '__init__.py' and filename != 'functions.py':
             # Construct the module name (utils.script1, utils.script2, etc.)
             module_name = f"{folder_run_scripts}.{filename[:-3]}"
+
+            ## Import the module dynamically
+            # module = importlib.import_module(module_name)
+            
+            # # Call a function named 'main' in the module if it exists
+            # if hasattr(module, 'main'):
+            #     print(f"\nRunning {module_name}.main()")
+            #     module.main()
+            # else:
+            #     print(f"{module_name} does not have a main() function")
             
             try:
                 # Import the module dynamically

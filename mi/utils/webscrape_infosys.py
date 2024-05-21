@@ -4,36 +4,59 @@ Web-scrape Infosys
 
 # Infosys
 
-from .functions import produce_soup_from_url, dataframe_builder, df_to_csv,sheet_exists, write_to_excel, compare_rows
-import os
 
+if __name__ == '__main__':
+    # This allows for testing this individual script
+    from functions import produce_soup_from_url, dataframe_builder,sheet_exists, write_to_excel, compare_rows, profile_dict_generator, dict_and_df_test
+
+else:        
+    # To run the script from app.py as an import
+    from .functions import produce_soup_from_url, dataframe_builder,sheet_exists, write_to_excel, compare_rows, profile_dict_generator, dict_and_df_test
+
+import os
+from collections import defaultdict
 
 def main():
-    
-    profile_dict = {'practices_url': ['https://www.infosys.com/services/'], 'practices': [], 'services_url': [], 'services': []}
+    cnt = 0
+    # profile_dict = {'practices_URL': ['https://www.infosys.com/services/'], 'practices': [], 'services_URL': [], 'services': []}
+    practices_url = r'https://www.infosys.com/services/'
+    #profile_dict = profile_dict_generator([r'https://www.infosys.com/services/'])
+    company_dict = defaultdict(list)
+    company_dict['Practices_URL'].append(practices_url)
     soup = produce_soup_from_url(r'https://www.infosys.com/services/')
     practices_html = soup.find_all('li', attrs = {'class' : "col-lg-4 col-md-4 col-sm-4 col-xs-12"})
-    practices_list = []
+    # practices_list = []
 
-    for row_i in practices_html:
-        for row_j in row_i.find_all('a'):
-            
-            service_url = profile_dict['practices_url'][0][:-10] + row_j['href']
-            profile_dict['services_url'].append(service_url)
+    # multiple practices html code for a practices_subgroup
+    for practices_subgroup in practices_html:
+        # An individual practice
+        for practice in practices_subgroup.find_all('a'):
 
-            services_soup = produce_soup_from_url(profile_dict['practices_url'][0][:-10] + row_j['href'])
+            # URL where services of a practice are located
+            service_url = company_dict['Practices_URL'][0][:-10] + practice['href']
 
-            soup.find_all('p', attrs = {'class' : 'offering-title'})
+            # GET request and soup from the site for a practice (contains info about those services)
+            services_soup = produce_soup_from_url(company_dict['Practices_URL'][0][:-10] + practice['href'])
+
+            # Each element 
             services_html = services_soup.find_all('div', attrs = {'class' : "offerings-row clearfix"})
 
-
+            # Each offering is a sub-group of services under a specific practice
             for offering in services_html:
                 for service in offering.find_all('a'):
-                    profile_dict['services'].append(service.text.strip())
-                    profile_dict['practices'].append(row_j.text.strip())
+                    company_dict['Services'].append(service.text.strip())
+                    company_dict['Practices'].append(practice.text.strip())
+                    company_dict['Services_URL'].append(service_url)
 
+    
 
-    df = dataframe_builder(profile_dict)
+    company_dict['Practices_URL'] = len(company_dict['Practices'])*company_dict['Practices_URL']
+
+    # dict_and_df_test(profile_dict)
+
+    df = dataframe_builder(company_dict)
+    # df.to_csv(r'.\test.csv')
+
     # File path remains the same
     file_path = r"C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\mi\utils\Kubrick MI Data.xlsx"
 
@@ -58,3 +81,6 @@ def main():
             print(f"No changes required for '{sheet_name}' sheet in '{file_path}'.")
 
     return print(os.path.basename(__file__))
+
+if __name__ == '__main__':
+    main()
