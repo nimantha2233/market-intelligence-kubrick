@@ -2,7 +2,7 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 import os
-from copyDF_to_Excel import sheet_exists, write_to_excel, compare_rows
+from SupportFunctions import sheet_exists, write_to_excel, compare_rows
 
 url = "https://www.spartaglobal.com/careers/"
 expertise_dict = {'Practices': [], 'Expertise_url': [], 'Expertise': []}

@@ -2,6 +2,7 @@ import pandas as pd
 import os
 import yfinance as yf
 import json
+import datetime
 
 # Function to check if the sheet exists in the Excel file
 def sheet_exists(file_path, sheet_name):
@@ -20,12 +21,12 @@ def write_to_excel(df, file_path, sheet_name):
 def read_from_excel(file_path, sheet_name):
     return pd.read_excel(file_path, sheet_name=sheet_name)
 
-# Function to compare number of rows between DataFrame and Excel table
+# Function to compare DataFrame and Excel table
 def compare_rows(df, file_path, sheet_name):
     if not sheet_exists(file_path, sheet_name):
         return True
     excel_df = read_from_excel(file_path, sheet_name)
-    return len(df) != len(excel_df)
+    return not df.equals(excel_df)
 
 def read_template():
     try:
@@ -74,3 +75,48 @@ def get_company_details(symbol):
             return json.dumps({"error": str(e)})
     else:
         return json.dumps({"error": status})
+
+def create_final_df(company_name, url, json_data, df):
+    # Define column list
+    columns_list = read_template().columns.tolist()
+
+    # Load JSON data
+    data = json.loads(json_data)
+
+    # Initialize an empty list to store dictionaries representing rows
+    rows = []
+
+    # Get the current date
+    date_of_collection = datetime.date.today()
+
+    # Iterate over each row in the expertise dataframe
+    for index, row in df.iterrows():
+        # Create a dictionary to store data for the current row
+        row_data = {'Date of Collection': date_of_collection,
+                    'Company Name': company_name,
+                    'Website_URL': url}
+
+        # Add other data from the row
+        row_data['Practices'] = row['Practices']
+        row_data['Practices_URL'] = row['Expertise_url']
+        row_data['Solutions'] = row['Expertise']  # Assuming Expertise is equivalent to Solutions
+
+        # Add data from JSON
+        for key, value in data.items():
+            row_data[key] = value
+
+        # Add other columns from columns_list
+        for col in columns_list:
+            if col not in row_data:
+                row_data[col] = None
+
+        # Append the row_data to the list of rows
+        rows.append(row_data)
+
+    # Create the final dataframe from the list of rows
+    final_df = pd.DataFrame(rows)
+
+    # Reorder the columns according to column_names list
+    final_df = final_df[columns_list]
+
+    return final_df
