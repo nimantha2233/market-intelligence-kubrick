@@ -18,6 +18,9 @@ from bs4 import BeautifulSoup
 import requests
 
 def scraper_bettergov() -> pd.DataFrame:
+    '''
+    BetterGov URL: https://www.bettergov.co.uk/
+    '''
     practices_url = r'https://www.bettergov.co.uk/'
     company_longname = r''
     url = practices_url
