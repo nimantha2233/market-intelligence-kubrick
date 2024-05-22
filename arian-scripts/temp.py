@@ -1,177 +1,116 @@
-import pandas as pd
-from SupportFunctions import sheet_exists, write_to_excel, compare_rows, read_template, get_company_status, get_company_details
-import yfinance
-from openpyxl import load_workbook
-import json
-# Define the data
+import yfinance as yf
+from datetime import datetime
+import openpyxl
 
-df = read_template()
+def get_company_info_pricereport(company_name, ticker):
 
-file_path = "Kubrick MI Data.xlsx"
-sheet_name = "bob"
+    file_path = "Kubrick MI Data.xlsx"
+    sheet_name = "Price Report"
 
-
-data = {
-    'Date of Collection': ['2024-05-20'] * 6,
-    'Company Name': ['meshAI'] * 6,
-    'Website_URL': ['https://www.mesh-ai.com/services'] * 6,
-    'Public/Private': ['Public'] * 6,
-    'Practices': ['Strategy & Consulting'] * 6,
-    'Practices_URL': ['https://www.mesh-ai.com/services/strategy-and-services'] * 6,
-    'Services': ['', '', '', '', '', ''],
-    'Services_URL': ['', '', '', '', '', ''],
-    'Solutions': [
-        'Business case discovery and validation',
-        'Define and accelerate your strategy',
-        'Align with business outcomes',
-        'Roadmaps for extracting value from data',
-        'Design and implement regulatory frameworks',
-        'Foster a data-driven culture and increase data literacy'
-    ],
-    'Solutions_URL': ['', '', '', '', '', ''],
-    'Previous Close': [189.87] * 6,
-    '52 Week Range': ['N/A'] * 6,
-    'Sector': ['Technology'] * 6,
-    'Industry': ['Consumer Electronics'] * 6,
-    'Full Time Employees': [150000] * 6,
-    'Market Cap': [2.93809E+12] * 6,
-    'Fiscal Year Ends': ['N/A'] * 6,
-    'Revenue': [3.81623E+11] * 6,
-    'EBITDA': [1.29629E+11] * 6
-}
-
-df = pd.DataFrame(data)
-
-def dataframes_equal(df1, df2):
-    if df1.shape != df2.shape:
-        return False
-    return df1.to_dict() == df2.to_dict()
-
-def update_excel_with_dataframe(file_path, sheet_name, final_df):
+    if ticker == "":
+        return {
+            "Date of Collection": datetime.now().strftime("%Y-%m-%d"),
+            "Company Name": company_name,
+            "Previous Close": "Private",
+            "%-Change": "Private",
+            "Sector": "Private",
+            "52 Week Range": "Private"
+        }
+    
     try:
-        # Load the existing workbook
-        workbook = load_workbook(file_path)
-        sheet_exists = sheet_name in workbook.sheetnames
-    except FileNotFoundError:
-        # If the file does not exist, create a new workbook
-        workbook = None
-        sheet_exists = False
-
-    if sheet_exists:
-        # Load the existing sheet into a DataFrame
-        existing_df = pd.read_excel(file_path, sheet_name=sheet_name)
+        # Fetch company data from Yahoo Finance
+        stock = yf.Ticker(ticker)
+        info = stock.info
+        # Check if the returned info indicates data not found
+        if 'trailingPegRatio' in info and info['trailingPegRatio'] is None:
+            return {
+                "Date of Collection": datetime.now().strftime("%Y-%m-%d"),
+                "Company Name": company_name,
+                "Previous Close": "Private",
+                "%-Change": "Private",
+                "Sector": "Private",
+                "52 Week Range": "Private"
+            }
+        # Try to get historical data
+        hist = stock.history(period="1mo")
         
-        # Compare the existing DataFrame with the new DataFrame
-        if not dataframes_equal(existing_df, final_df):
-            # Replace the sheet with the new DataFrame
-            with pd.ExcelWriter(file_path, engine='openpyxl', mode='a', if_sheet_exists='replace') as writer:
-                final_df.to_excel(writer, sheet_name=sheet_name, index=False)
-                print(f'Sheet "{sheet_name}" updated with new data.')
+        if not hist.empty:
+            last_close = hist['Close'].iloc[-2]
+            prev_close = hist['Close'].iloc[-1]
+            percent_change = round(((prev_close - last_close) / last_close) * 100, 4)
         else:
-            print(f'Sheet "{sheet_name}" is already up to date.')
-    else:
-        # Create a new sheet with the new DataFrame
-        with pd.ExcelWriter(file_path, engine='openpyxl', mode='a') as writer:
-            final_df.to_excel(writer, sheet_name=sheet_name, index=False)
-            print(f'Sheet "{sheet_name}" created and data added.')
+            prev_close = info.get("previousClose", "N/A")
+            # Open the Excel file and check for previous close
+            wb = openpyxl.load_workbook(file_path)
+            if sheet_name in wb.sheetnames:
+                ws = wb[sheet_name]
+                last_close = None
+                for row in ws.iter_rows(min_row=2, max_col=ws.max_column):
+                    if row[1].value == company_name and isinstance(row[2].value, (int, float)):
+                        last_close = row[2].value
+                        break
+                if last_close is None:
+                    percent_change = 0
+                else:
+                    percent_change = round(((prev_close - last_close) / last_close) * 100, 4)
+            else:
+                percent_change = 0
+            wb.close()
 
+        return {
+            "Date of Collection": datetime.now().strftime("%Y-%m-%d"),
+            "Company Name": company_name,
+            "Previous Close": info.get("previousClose", "N/A"),
+            "%-Change": percent_change,
+            "Sector": info.get("sector", "N/A"),
+            "52 Week Range": f'{info.get("fiftyTwoWeekLow", "N/A")} - {info.get("fiftyTwoWeekHigh", "N/A")}'
+        }
+    except:
+        print(f"Error while retrieving financial data for: {ticker}.")
+        return {
+            "Date of Collection": datetime.now().strftime("%Y-%m-%d"),
+            "Company Name": company_name,
+            "Previous Close": "Private",
+            "%-Change": "Private",
+            "Sector": "Private",
+            "52 Week Range": "Private"
+        }
 
-import pandas as pd
+def update_excel(data):
 
-def find_new_and_modified_rows(df1, df2):
-    """
-    Find rows that are new or modified in df1 compared to df2.
-    
-    Args:
-    df1 (pd.DataFrame): The most up-to-date dataframe.
-    df2 (pd.DataFrame): The older dataframe to compare against.
+    file_path = "Kubrick MI Data.xlsx"
+    sheet_name = "Price Report"
 
-    Returns:
-    pd.DataFrame: A dataframe containing new or modified rows in df1.
-    """
-    # First, we reset the index to ensure the comparison is done row-wise
-    df1_reset = df1.reset_index(drop=True)
-    df2_reset = df2.reset_index(drop=True)
+    try:
+        # Load workbook and check for sheet
+        wb = openpyxl.load_workbook(file_path)
+        if sheet_name not in wb.sheetnames:
+            ws = wb.create_sheet(sheet_name)
+            # Add headers
+            headers = list(data.keys())
+            ws.append(headers)
+        else:
+            ws = wb[sheet_name]
+        
+        # Find if the company already exists and remove the row if it does
+        company_col = 2  # Assuming "Company Name" is in column B (index 1)
+        for row in ws.iter_rows(min_row=2, max_col=ws.max_column):
+            if row[company_col - 1].value == data["Company Name"]:
+                ws.delete_rows(row[0].row)
+                break
+        
+        # Append new data
+        ws.append(list(data.values()))
 
-    # Merge to find new and modified rows
-    merged_df = df1_reset.merge(df2_reset, how='left', indicator=True)
-    
-    # Select new rows
-    new_rows = merged_df[merged_df['_merge'] == 'left_only'].drop(columns='_merge')
+        # Save workbook
+        wb.save(file_path)
+    except Exception as e:
+        print(f"Error updating Excel file: {e}")
 
-    # Select potentially modified rows (those that are in both dataframes)
-    common_rows = merged_df[merged_df['_merge'] == 'both'].drop(columns='_merge')
+ticker = "BetterGov"
+company_name = "BetterGov"
 
-    # Identify rows that have changes by comparing the content
-    modified_mask = (df1_reset.loc[common_rows.index] != df2_reset.loc[common_rows.index]).any(axis=1)
-    modified_rows = df1_reset.loc[common_rows.index][modified_mask]
+company_info = get_company_info_pricereport(company_name, ticker)
+if company_info:
+    update_excel(company_info)
 
-    # Combine new and modified rows
-    new_and_modified_df = pd.concat([new_rows, modified_rows])
-
-    return new_and_modified_df
-
-# Example dataframes
-df1 = pd.DataFrame({
-    'Date of Collection': ['2024-05-20'] * 6,
-    'Company Name': ['meshAI'] * 6,
-    'Website_URL': ['https://www.mesh-ai.com/services'] * 6,
-    'Public/Private': ['Public'] * 6,
-    'Practices': ['Strategy & Consulting'] * 6,
-    'Practices_URL': ['https://www.mesh-ai.com/services/strategy-and-services'] * 6,
-    'Services': ['', '', '', '', '', ''],
-    'Services_URL': ['', '', '', '', '', ''],
-    'Solutions': [
-        'Business case discovery and validation',
-        'Define and accelerate your strategy',
-        'Align with business outcomes',
-        'Roadmaps for extracting value from data',
-        'Design and implement regulatory frameworks',
-        'Foster a data-driven culture and increase data literacy'
-    ],
-    'Solutions_URL': ['', '', '', '', '', ''],
-    'Previous Close': [189.87] * 6,
-    '52 Week Range': ['N/A'] * 6,
-    'Sector': ['Technology'] * 6,
-    'Industry': ['Consumer Electronics'] * 6,
-    'Full Time Employees': [150000] * 6,
-    'Market Cap': [2.93809E+12] * 6,
-    'Fiscal Year Ends': ['N/A'] * 6,
-    'Revenue': [3.81623E+11] * 6,
-    'EBITDA': [1.29629E+11] * 6
-})
-
-df2 = pd.DataFrame({
-    'Date of Collection': ['2024-05-20'] * 6,
-    'Company Name': ['meshAI'] * 6,
-    'Website_URL': ['https://www.mesh-ai.com/services'] * 6,
-    'Public/Private': ['Public'] * 6,
-    'Practices': ['Strategy & Consulting'] * 6,
-    'Practices_URL': ['https://www.mesh-ai.com/services/strategy-and-services'] * 6,
-    'Services': ['', '', '', '', '', ''],
-    'Services_URL': ['', '', '', '', '', ''],
-    'Solutions': [
-        'Business case discovery and validation',
-        'Define and accelerate your strategy. Or maybe not',
-        'Align with business outcomes',
-        'Roadmaps for extracting value from data',
-        'Design and implement regulatory frameworks',
-        'Foster a data-driven culture and increase data literacy. New information'
-    ],
-    'Solutions_URL': ['', '', '', '', '', ''],
-    'Previous Close': [189.87] * 6,
-    '52 Week Range': ['N/A'] * 6,
-    'Sector': ['Technology'] * 6,
-    'Industry': ['Consumer Electronics'] * 6,
-    'Full Time Employees': [150000] * 6,
-    'Market Cap': [2.93809E+12] * 6,
-    'Fiscal Year Ends': ['N/A'] * 6,
-    'Revenue': [3.81623E+11] * 6,
-    'EBITDA': [1.29629E+11] * 6
-})
-
-# Find new and modified rows in df1
-new_and_modified_df = find_new_and_modified_rows(df1, df2)
-
-# Display new_and_modified_df
-print(new_and_modified_df)
