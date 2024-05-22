@@ -7,10 +7,11 @@ Cognizant URL: https://www.cognizant.com
 if __name__ == '__main__':
     # This allows for testing this individual script
     from SupportFunctions import write_to_excel, read_from_excel, get_company_details, log_new_and_modified_rows, create_final_df, remove_duplicates
-
+    from config import config
 else:        
     # To run the script from app.py as an import
     from .SupportFunctions import write_to_excel, read_from_excel, get_company_details, log_new_and_modified_rows, create_final_df, remove_duplicates
+    from .config import config
 
 import os
 from collections import defaultdict
@@ -23,7 +24,7 @@ def main():
     practices_url = r'https://www.cognizant.com'
     url = practices_url
     company_longname = r''
-    file_path = r"C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\mi\utils\Kubrick MI Data.xlsx"
+    file_path = config.FILEPATH
     company_dict = defaultdict(list)
     company_dict['Practices_URL'].append(practices_url)
 

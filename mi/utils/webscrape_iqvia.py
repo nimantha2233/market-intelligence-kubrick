@@ -1,29 +1,33 @@
 '''
-Web-scrape IQVIA
+Web-scrape IQVIA URL: https://jobs.iqvia.com/en
 '''
 
-# IQVIA 
 
 if __name__ == '__main__':
     # This allows for testing this individual script
     from SupportFunctions import write_to_excel, read_from_excel, get_company_details, log_new_and_modified_rows, create_final_df, remove_duplicates
+    from config import config
 else:        
     # To run the script from app.py as an import
     from .SupportFunctions import write_to_excel, read_from_excel, get_company_details, log_new_and_modified_rows, create_final_df, remove_duplicates
+    from .config import config
 
 import os
 from collections import defaultdict
+import pandas as pd
+from bs4 import BeautifulSoup 
+import requests
 
 def main():
     
     practices_url = r'https://jobs.iqvia.com/en'
     company_longname = r''
     url = practices_url
-    file_path = r"C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\mi\utils\Kubrick MI Data.xlsx"
+    file_path = config.FILEPATH
     company_dict = defaultdict(list)
     company_dict['Practices_URL'].append(practices_url)
 
-    soup = produce_soup_from_url(company_dict['Practices_URL'][0])
+    soup = BeautifulSoup(requests.get(company_dict['Practices_URL'][0]).content, 'html5lib')
     practices_html = soup.find_all('div', attrs = {'class' : "fs-12 fs-m-6 fs-l-3 w-25 subnav-item"},)
 
 
@@ -36,11 +40,10 @@ def main():
 
             # profile_dict['Services_URL'].append(profile_dict['Practices_URL'][0] + service_url[0]['href'])
             services_url = company_dict['Practices_URL'][0] + service_url[0]['href']
-            service_soup = produce_soup_from_url(services_url)
+            service_soup = BeautifulSoup(requests.get(services_url).content, 'html5lib')
 
             services_filtered_html = service_soup.find_all('button', attrs = {'class' : 'tab-accordion__button'})
             for service in services_filtered_html:
-                # print(f"{service.get_text(strip = True).replace(service.find('strong').get_text(strip=True), '')} ------ {practice[0].text.strip()}")
                 
                 company_dict['Practices'].append(practice[0].text.strip())
                 company_dict['Services'].append(service.get_text(strip = True).replace(service.find('strong').get_text(strip=True), ''))
@@ -51,7 +54,7 @@ def main():
 
     # dict_and_df_test(profile_dict)
 
-    df = dataframe_builder(company_dict)
+    df = pd.DataFrame(company_dict)
     # df.to_csv(r'.\test.csv')
     # print(df.to_markdown())
 
