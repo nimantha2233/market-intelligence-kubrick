@@ -1,6 +1,5 @@
-
 '''
-Web-scrape Kubrick Group: https://www.kubrickgroup.com/uk/what-we-do
+Code testing file
 '''
 
 
@@ -14,6 +13,12 @@ else:
 
 import os
 from collections import defaultdict
+
+# Construct the relative path
+relative_path_to_database = os.path.join(os.path.dirname(__file__), '../../database')
+
+# If you need to access a specific file in the database directory, e.g., 'example.db':
+database_file_path = os.path.join(relative_path_to_database, 'example.db')
 
 def main():
 
