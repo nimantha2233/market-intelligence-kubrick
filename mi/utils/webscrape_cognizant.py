@@ -1,26 +1,25 @@
 '''
-Web-scrape Cognizant
+Cognizant URL: https://www.cognizant.com
 '''
-
 # Cognizant Technology Solutions Corp
-
 
 
 if __name__ == '__main__':
     # This allows for testing this individual script
-    from functions import produce_soup_from_url, dataframe_builder,sheet_exists, write_to_excel, compare_rows, profile_dict_generator, dict_and_df_test
     from SupportFunctions import write_to_excel, read_from_excel, get_company_details, log_new_and_modified_rows, create_final_df, remove_duplicates
+
 else:        
     # To run the script from app.py as an import
-    from .functions import produce_soup_from_url, dataframe_builder,sheet_exists, write_to_excel, compare_rows, profile_dict_generator, dict_and_df_test
     from .SupportFunctions import write_to_excel, read_from_excel, get_company_details, log_new_and_modified_rows, create_final_df, remove_duplicates
 
 import os
 from collections import defaultdict
+import pandas as pd
+from bs4 import BeautifulSoup 
+import requests
 
 def main():
 
-    
     practices_url = r'https://www.cognizant.com'
     url = practices_url
     company_longname = r''
@@ -28,16 +27,14 @@ def main():
     company_dict = defaultdict(list)
     company_dict['Practices_URL'].append(practices_url)
 
-
-
-    soup = produce_soup_from_url(r'https://www.cognizant.com')
+    soup = BeautifulSoup(requests.get(company_dict['Practices_URL'][0]).content, 'html5lib')
     practices_html = soup.find_all('a', href = lambda href: href and "/uk/en/services/" in href, target = True, class_ = False) #<a class="p-half d-block fw-normal text-white cog-header__megamenu-item" href="/uk/en/services/ai" role="link" aria-label="Data & AI" target="_self" data-cmp-data-layer="{"dropDownMenuTag-c33be6f82d":{"xdm:trackingType":"dropDownMenuTag","xdm:location":"Header","dc:title":"Data & AI","xdm:linkURL":"/content/cognizant-dot-com/uk/en/services/ai"}}" data-cmp-clickable>
 
 
     for practice in practices_html:
         
         services_url = company_dict['Practices_URL'][0] + practice['href']
-        services_soup = produce_soup_from_url(services_url)
+        services_soup = BeautifulSoup(requests.get(services_url).content, 'html5lib')
         services_html = services_soup.find_all('span', attrs = {'class' : 'cmp-accordion__title'})
       
         for service in services_html:
@@ -48,13 +45,7 @@ def main():
             
 
     company_dict['Practices_URL'] = len(company_dict['Practices'])*company_dict['Practices_URL']
-    # dict_and_df_test(profile_dict)
-
-    df = dataframe_builder(company_dict)
-    # df.to_csv(r'.\test.csv')
-
-    # File path remains the same
-
+    df = pd.DataFrame(company_dict)
 
     # Derive sheet_name from the script name
     script_name = os.path.basename(__file__)

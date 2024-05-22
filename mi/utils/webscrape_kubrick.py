@@ -21,7 +21,7 @@ def main():
 
     practices_url = r'https://www.kubrickgroup.com/uk/what-we-do'
     company_longname = r''
-    url = practices_url
+    url = r'https://www.kubrickgroup.com/uk/'
     company_dict = defaultdict(list)
     company_dict['Practices_URL'].append(practices_url)
     company_dict['Services_URL'].append(practices_url)

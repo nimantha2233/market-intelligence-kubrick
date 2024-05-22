@@ -20,7 +20,7 @@ def main():
 
     practices_url = r'https://www.infosys.com/services/'
     company_longname = r''
-    url = practices_url
+    url = r'https://www.infosys.com/'
     file_path = r"C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\mi\utils\Kubrick MI Data.xlsx"
     company_dict = defaultdict(list)
     company_dict['Practices_URL'].append(practices_url)

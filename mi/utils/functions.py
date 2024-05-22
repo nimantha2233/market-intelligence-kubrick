@@ -4,26 +4,25 @@ Functions used across multiple companies
 import requests
 import pandas as pd
 from bs4 import BeautifulSoup 
-import pandas as pd
 import os
 
 
 
-def profile_dict_generator(practices_url=None, practices=None, services_url=None, services=None) -> dict:
-    '''
-    Create by default an empty dict to store company data
-    '''
-    practices_url = practices_url or []
-    practices = practices or []
-    services_url = services_url or []
-    services = services or []
+# def profile_dict_generator(practices_url=None, practices=None, services_url=None, services=None) -> dict:
+#     '''
+#     Create by default an empty dict to store company data
+#     '''
+#     practices_url = practices_url or []
+#     practices = practices or []
+#     services_url = services_url or []
+#     services = services or []
 
-    return {
-        'Practices_URL': practices_url,
-        'Practices': practices,
-        'Services_URL': services_url,
-        'Services': services
-    }
+#     return {
+#         'Practices_URL': practices_url,
+#         'Practices': practices,
+#         'Services_URL': services_url,
+#         'Services': services
+#     }
 
 
 

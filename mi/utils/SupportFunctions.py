@@ -326,3 +326,5 @@ def remove_duplicates(soup_list) -> list:
             unique_soups.append(soup)
             unique_strings.add(soup_str)
     return unique_soups
+
+
