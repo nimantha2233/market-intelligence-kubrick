@@ -11,8 +11,7 @@ def main():
     temp_dict = defaultdict(list)
     url = 'https://ten10.com'
     company_longname = ""
-    file_path = "Kubrick MI Data.xlsx"
-
+    file_path =r"C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\mi\utils\Kubrick MI Data.xlsx"
 
     # Obtain request and parse HTML using bs4
     r = requests.get(url)

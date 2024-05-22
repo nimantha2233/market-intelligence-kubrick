@@ -169,7 +169,7 @@ def create_final_df(company_name, url, json_data, df):
     rows = []
 
     # Get the current date
-    date_of_collection = date.today()
+    date_of_collection = str(date.today())
 
     # Iterate over each row in the expertise dataframe
     for index, row in df.iterrows():
@@ -255,29 +255,36 @@ def log_new_and_modified_rows(df1, df2, sheet_name):
     sheet_name (str): The name of the sheet to update or delete.
     """
     # Convert columns to the same data type
-    df1['Date of Collection'] = pd.to_datetime(df1['Date of Collection'])
-    df2['Date of Collection'] = pd.to_datetime(df2['Date of Collection'])
+    # df1['Date of Collection'] = pd.to_datetime(df1['Date of Collection'])
+    # df2['Date of Collection'] = pd.to_datetime(df2['Date of Collection'])
 
 
     # First, we reset the index to ensure the comparison is done row-wise
     df1_reset = df1.reset_index(drop=True)
     df2_reset = df2.reset_index(drop=True)
+    df1_reset.to_csv(r'./df1.csv')
+    df2_reset.to_csv(r'./df2.csv')
 
     excel_file = "Kubrick MI Diff.xlsx"
 
     # Merge to find new and modified rows
     merged_df = df1_reset.merge(df2_reset, how='left', indicator=True)
-    
+
     # Select new rows
     new_rows = merged_df[merged_df['_merge'] == 'left_only'].drop(columns='_merge')
+    # new_rows.to_csv(r'./new_rows.csv') # empty
 
     # Select potentially modified rows (those that are in both dataframes)
     common_rows = merged_df[merged_df['_merge'] == 'both'].drop(columns='_merge')
+
+    common_rows.to_csv(r'./common_rows.csv')
 
     # Identify rows that have changes by comparing the content
     modified_mask = (df1_reset.loc[common_rows.index] != df2_reset.loc[common_rows.index]).any(axis=1)
     modified_rows = df1_reset.loc[common_rows.index][modified_mask]
 
+
+    
     # Combine new and modified rows
     new_and_modified_df = pd.concat([new_rows, modified_rows])
 
@@ -302,3 +309,20 @@ def log_new_and_modified_rows(df1, df2, sheet_name):
             # If the file doesn't exist, do nothing
             pass
         log_differences("No differences found", sheet_name, 0)
+
+
+def remove_duplicates(soup_list) -> list:
+    """
+    Find duplicate soup objects and remove them 
+    
+    Args:
+    soup_list (list): list of bs4.element.ResultSet objects 
+    """
+    unique_soups = []
+    unique_strings = set()
+    for soup in soup_list:
+        soup_str = str(soup)
+        if soup_str not in unique_strings:
+            unique_soups.append(soup)
+            unique_strings.add(soup_str)
+    return unique_soups

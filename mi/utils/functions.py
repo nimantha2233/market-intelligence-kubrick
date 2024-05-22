@@ -35,14 +35,9 @@ def produce_soup_from_url(url : str):
 
 
 def dataframe_builder(company_dict : dict):
+    cols = company_dict.keys()
 
-    return pd.DataFrame({ 'Practices_URL' : company_dict['Practices_URL']
-                         ,'Practices' : company_dict['Practices']
-                         ,'Services_URL' : company_dict['Services_URL']
-                         ,'Services' : company_dict['Services']
-                         ,'Solutions_URL' : company_dict['Solutions_URL']
-                         ,'Solutions' : company_dict['Solutions']
-                        })
+    return pd.DataFrame(company_dict)
 
 
 
