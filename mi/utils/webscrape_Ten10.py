@@ -1,9 +1,17 @@
+if __name__ == '__main__':
+    # This allows for testing this individual script
+    from SupportFunctions import write_to_excel, read_from_excel, get_company_details, log_new_and_modified_rows, create_final_df, remove_duplicates
+    from config import config
+else:        
+    # To run the script from app.py as an import
+    from .SupportFunctions import write_to_excel, read_from_excel, get_company_details, log_new_and_modified_rows, create_final_df, remove_duplicates
+    from .config import config
+
 import os
-import requests
-import pandas as pd
-from bs4 import BeautifulSoup
 from collections import defaultdict
-from SupportFunctions import write_to_excel, read_from_excel, get_company_details, log_new_and_modified_rows, create_final_df
+import pandas as pd
+from bs4 import BeautifulSoup 
+import requests
 
 
 def main():
@@ -11,7 +19,7 @@ def main():
     temp_dict = defaultdict(list)
     url = 'https://ten10.com'
     company_longname = ""
-    file_path =r"C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\mi\utils\Kubrick MI Data.xlsx"
+    file_path = config.FILEPATH
 
     # Obtain request and parse HTML using bs4
     r = requests.get(url)
