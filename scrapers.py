@@ -1,4 +1,5 @@
 import requests
+import os
 import pandas as pd
 from bs4 import BeautifulSoup 
 from collections import defaultdict
@@ -7,14 +8,325 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-def scrape_fjord(url, xpath_list):
+def scraper_credera():
+    temp_dict = defaultdict(list)
+    url = 'https://www.credera.com/en-gb/services'
+    r = requests.get(url)
+
+    # Parse the HTML using BeautifulSoup with specified encoding
+    soup = BeautifulSoup(r.content, 'lxml', from_encoding='utf-8')
+
+    
+    # Find the container with offerings (assuming the provided HTML snippet)
+    offerings_container = soup.find('div', id='offerings')
+
+
+    # Extract all 'a' elements within the offerings container
+    links = offerings_container.find_all('a', class_='offering-card__WrapperLink-sc-hezxic-1')
+
+    # Iterate over each link to extract the name and href
+    for link in links:
+        href = link.get('href')
+        # Find the <h5> element within the link to get the block name
+        block_name = link.find('h5').get_text(strip=True)
+        temp_dict[block_name] = 'https://www.credera.com' + href
+
+    # Initialize a dictionary to store the extracted titles
+    extracted_titles = {}
+
+    # Iterate over each link in names_and_links and extract the specified elements
+    for block_name, block_url in temp_dict.items():
+        # Send request to block_url
+        response = requests.get(block_url)
+        temp_dict2 = {}
+        # Check if request was successful
+        if response.status_code == 200:
+            # Parse the HTML of the response with specified encoding
+            block_soup = BeautifulSoup(response.content, 'lxml', from_encoding='utf-8')
+
+            # Find the grid container with the specified class
+            grid_container = block_soup.find('div', class_='grid__StyledGrid-sc-1a5mbbv-1')
+
+            # Extract the h5 titles within the grid container
+            if grid_container:
+                block2 = grid_container.find_all('div', class_='grid-item__StyledGridItem-sc-1brxic3-0 jvOmPs')
+                for item in block2:
+                    title = item.find('h5', class_='heading-sc-idhpcb-4 eagIbe').get_text(strip=True)
+                    href = item.find('a', class_='offering-card__WrapperLink-sc-hezxic-1 qYBqN').get('href')
+                    temp_dict2[title] = 'https://www.credera.com' + href
+                extracted_titles[block_name] = temp_dict2
+            else:
+                print(f"No grid container found for {block_name}")
+        else:
+            print(f"Failed to retrieve data from {block_url}")
+
+    # Initialize an empty list to store the extracted data
+    data = []
+
+    # Iterate over each block and its links
+    for practice, services in extracted_titles.items():
+        for service, url in services.items():
+            # Send request to the service URL
+            response = requests.get(url)
+            # Check if request was successful
+            if response.status_code == 200:
+                # Parse the HTML of the response with BeautifulSoup
+                soup = BeautifulSoup(response.content, 'html.parser')
+                # Find all elements matching the specified container
+                containers = soup.find_all('div', class_='grid__StyledGrid-sc-1a5mbbv-1 bHpvzP')[0]
+                # Extract h5 elements within each container
+                for container in containers:
+                    title = container.find('h5').get_text(strip=True)
+                    # Append the extracted data to the list
+                    data.append([practice, temp_dict[practice], service, url, title])
+            else:
+                print(f"Failed to retrieve data from {url}")
+
+    # Create a DataFrame from the extracted data
+    df = pd.DataFrame(data, columns=['Practices', 'Practices_URL', 'Services', 'Services_URL', 'Solutions'])
+
+    # Clean DataFrame to remove non-printable characters
+    df = df.map(lambda x: ''.join(filter(lambda char: char.isprintable(), str(x))))
+
+    return df
+
+def scraper_infinitelambda():
+    company_dict = defaultdict(list)
+    url = 'https://infinitelambda.com'
+    temp_dict = defaultdict(list)
+    r = requests.get(url)
+
+    # Parse the HTML using BeautifulSoup
+    soup = BeautifulSoup(r.text, 'lxml')
+    # Find the specific section with the given class and data-id
+    section = soup.find('section', {'data-id': '00bb98d'})
+    # Find all div elements with the class 'elementor-column' that are clickable
+    columns = section.find_all('div', class_='make-column-clickable-elementor')
+
+    for column in columns:
+        # Extract the URL from the data-column-clickable attribute
+        practice_url = column.get('data-column-clickable')
+        if not practice_url:
+            continue
+
+        # Find the icon box within the column
+        icon_box = column.find('div', class_='elementor-widget-icon-box')
+
+        if not icon_box:
+            continue
+        # Extract the practice name
+        practice_name = icon_box.find('h3', class_='elementor-icon-box-title').get_text(separator=' ', strip=True).replace('&amp;', '&')
+
+        # If practice_name is Training & In-Housing, skip as this isn't a practice.
+        if practice_name == "Training & In-Housing":
+            continue
+        # Append the extracted data to the dictionary
+        temp_dict[practice_name] = url + practice_url
+
+    # Iterate through temp_dict and send requests to each URL
+    for practice_name, practice_url in temp_dict.items():
+        driver = webdriver.Chrome()
+        try:
+            # Open the URL using Selenium
+            driver.get(practice_url)
+            # Wait for the page to load completely
+            WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
+            # Get the HTML of the page
+            page_source = driver.page_source
+            # Close the driver after getting the page source
+            driver.quit()
+
+            # Parse the HTML using BeautifulSoup
+            temp_soup = BeautifulSoup(page_source, 'lxml')
+            # Find elements similar to practice_heading
+            practice_heading = temp_soup.find_all('h3', class_='elementor-heading-title elementor-size-default')
+
+            # Print the found elements
+            for heading in practice_heading:
+                company_dict["Practices"].append(practice_name)
+                company_dict["Expertise_url"].append(practice_url)
+                company_dict['Expertise'].append(heading.text.strip())
+
+        except Exception as e:
+            print(f"An error occurred while processing {practice_name}: {e}")
+            driver.quit()  # Ensure the driver is closed in case of an error
+
+    # Transform expertise_dict into a DataFrame
+    df = pd.DataFrame(company_dict)
+    return df
+
+def scraper_meshai():
+    company_dict = defaultdict(list)
+    url = 'https://www.mesh-ai.com/services'
+    r = requests.get(url)
+
+    # Initialize dictionary to store data
+    names_and_links = {}
+
+    # Parse the HTML using BeautifulSoup
+    soup = BeautifulSoup(r.text, 'lxml') # Ensure lxml is installed via pip
+
+    # Find all div elements with class starting with "services-wrapper-3"
+    divs_with_class = soup.find_all('div', class_=lambda c: c and c.startswith('services-wrapper-3'))
+
+    for div in divs_with_class:
+        name = div.find('h4', class_='services-title').text.strip()
+        link = div.find('a')['href']
+        names_and_links[name] = "https://www.mesh-ai.com" + link
+
+    for name, link in names_and_links.items():
+        try:
+            r = requests.get(link)
+            soup = BeautifulSoup(r.text, 'html.parser')
+            
+            # Find all li elements with class starting with "wwd-list-item"
+            lis_with_class = soup.find_all('li', class_=lambda c: c and c.startswith('wwd-list-item'))
+            
+            for li in lis_with_class:
+                company_dict['Practices'].append(name)
+                company_dict['Practices_URL'].append(link)
+                company_dict['Services'].append(li.text.strip())
+                
+        except Exception as e:
+            print(f"Error processing link: {link}. Error: {e}")
+
+    # Convert expertise_dict to DataFrame
+    df = pd.DataFrame(company_dict)
+
+    return df
+
+
+def scraper_spartaglobal():
+    company_dict = defaultdict(list)
+    url = "https://www.spartaglobal.com/careers/"
+
+    r = requests.get(url)
+
+    # Parse the HTML using BeautifulSoup
+    soup = BeautifulSoup(r.text, 'lxml') # Ensure lxml is isntalled via pip
+
+    # Find all div elements with specified classes
+    div_elements = soup.find_all('div', class_=lambda x: x and 'item' in x.split() and 'slick-cloned' not in x.split())
+
+    for div in div_elements:
+        a_tag = div.find('a')
+        if a_tag:
+            href = a_tag.get('href')
+            expertise_name = href.rsplit('/', 2)[-2].replace('-', ' ').title()
+            full_url = f"https://www.spartaglobal.com{href}"
+            company_dict['Practices'].append(expertise_name)
+            company_dict['Practices_URL'].append(full_url)
+
+    # Convert dictionary to DataFrame
+    df = pd.DataFrame(company_dict)
+    return df
+
+def scraper_ten10():
+    company_dict = defaultdict(list)
+    temp_dict = defaultdict(list)
+    url = 'https://ten10.com'
+
+    # Obtain request and parse HTML using bs4
+    r = requests.get(url)
+    soup = BeautifulSoup(r.text, 'lxml') # Ensure lxml is installed via pip
+                                        #     this is needed for Ten10
+
+    # Find the parent li element & iterate over child li elements
+    parent_li = soup.find('li', id='menu-item-7126')
+    for child_li in parent_li.find_all('li'):
+        # Extract text and URL
+        expertise = child_li.a.text
+        expertise_url = child_li.a['href']
+        
+        # Append to temporary dictionary
+        temp_dict['Practices'].append(expertise)
+        temp_dict['Practices_URL'].append(expertise_url)
+
+    # Iterate through temp_dict and parse through every website.
+    for i, url in enumerate(temp_dict['Practices_URL']):
+        r = requests.get(url)
+        soup = BeautifulSoup(r.text, 'html.parser')
+
+        # Each website is different, so we need to use if statement and parse them.
+        if url == 'https://ten10.com/consultancy/quality-engineering/':
+
+            first_block = soup.find('div', class_='row wpb_row vc_inner row-fluid max_width vc_custom_1646740140406')
+            divs = first_block.find_all('div', class_='vc_column-inner')
+            for div in divs:
+                h3_tag = div.find('h3')
+                if h3_tag:
+                    company_dict['Practices'].append(temp_dict['Practices'][i])
+                    company_dict['Practices_URL'].append(url)
+                    company_dict['Services'].append(h3_tag.text.strip())
+
+            second_block = soup.find('div', class_='wpb_column columns medium-12 thb-dark-column small-12')
+            p_tags = second_block.find_all('p', style='text-align: center;')
+            for p_tag in p_tags:
+                a_tag = p_tag.find('a')
+                if a_tag:
+                    company_dict['Practices'].append(temp_dict['Practices'][i])
+                    company_dict['Practices_URL'].append(url)
+                    company_dict['Services'].append(a_tag.text.strip())
+
+        elif url == 'https://ten10.com/consultancy/software-testing-services/':
+
+            first_block = soup.find('div', class_='row wpb_row row-fluid full-width-row vc_custom_1646675101199')
+            h3_elements = first_block.find_all('h3')
+            for element in h3_elements:
+                company_dict['Practices'].append(temp_dict['Practices'][i])
+                company_dict['Practices_URL'].append(url)
+                company_dict['Services'].append(element.text.strip())
+
+        elif url == 'https://ten10.com/consultancy/cloud-devops/':
+
+            first_block = soup.find_all('div', class_='row wpb_row vc_inner row-fluid row-o-content-top row-flex')
+            for row in first_block:
+                expertices = row.find_all('div', class_='blue wpb_column columns medium-4 thb-dark-column small-12')
+                for expertice in expertices:
+                    if expertice.text.strip():
+                        company_dict['Practices'].append(temp_dict['Practices'][i])
+                        company_dict['Practices_URL'].append(url)
+                        company_dict['Services'].append(expertice.text.strip())
+            
+            second_block = soup.find_all('div', class_='row wpb_row row-fluid no-column-padding row-o-content-middle row-flex')
+            for expertices2 in second_block:
+                expertice = expertices2.find('h3')
+                company_dict['Practices'].append(temp_dict['Practices'][i])
+                company_dict['Practices_URL'].append(url)
+                company_dict['Services'].append(expertice.text.strip())
+        
+        elif url == 'https://ten10.com/consultancy/automation-services/':
+
+            first_block = soup.find('div', class_='row wpb_row row-fluid full-width-row vc_custom_1646675074344')
+            h3_elements = first_block.find_all('h3')
+            for element in h3_elements:
+                company_dict['Practices'].append(temp_dict['Practices'][i])
+                company_dict['Practices_URL'].append(url)
+                company_dict['Services'].append(element.text.strip())
+
+        else:
+            company_dict['Practices'].append(temp_dict['Practices'][i])
+            company_dict['Practices_URL'].append(url)
+            company_dict['Services'].append(" ")
+
+    df = pd.DataFrame(company_dict)
+    return df
+
+def scraper_fjord():
     # Start the WebDriver
     driver = webdriver.Chrome()
+    url = 'https://fjordconsultinggroup.com/services/'
+    xpath_list = [
+    '//*[@id="post-91"]/div/div/section[5]/div/div/div/section/div/div[1]',
+    '//*[@id="post-91"]/div/div/section[6]/div/div/div/section/div/div[2]',
+    '//*[@id="post-91"]/div/div/section[7]/div/div/div/section/div/div[1]'
+    ]
+    dfs = []
 
     # Open the website
     driver.get(url)
 
-    result_dict = {}
+    company_dict = defaultdict(list)
 
     for xpath in xpath_list:
         # Find the element by XPath
@@ -35,12 +347,21 @@ def scrape_fjord(url, xpath_list):
         list_items = [li.text.strip() for li in soup.find_all("li")]
 
         # Add the scraped data to the result dictionary
-        result_dict[title] = list_items
+        company_dict[title] = list_items
 
     # Close the browser window
     driver.quit
 
-    return result_dict
+    for practice, services in company_dict.items():
+        df = pd.DataFrame({'Practices': [practice] * len(services),
+                        'Practices_URL': [url] * len(services),
+                        'Services': services})
+        dfs.append(df)
+
+    # Concatenate DataFrames
+    result_df = pd.concat(dfs, ignore_index=True)
+        
+    return result_df
 
 def scraper_capgemini():
     company_dict = defaultdict(list)
