@@ -3,16 +3,15 @@ import requests
 import pandas as pd
 from bs4 import BeautifulSoup
 from collections import defaultdict
-from SupportFunctions import write_to_excel, read_from_excel, get_company_details, log_new_and_modified_rows, create_final_df
+from SupportFunctions import write_to_excel, read_from_excel, get_company_details, log_new_and_modified_rows, create_final_df, get_company_info_pricereport, update_excel
 
 
 def main():
     company_dict = defaultdict(list)
-    temp_dict = defaultdict(list)
     url = "https://www.spartaglobal.com/careers/"
-    company_longname = "" # SpartaGlobal is a private company - so no ticker symbol for this.
+    company_name = "SpartaGlobal" # SpartaGlobal is a private company - so no ticker symbol for this.
+    company_ticker = ""
     file_path = "Kubrick MI Data.xlsx"
-    
 
     r = requests.get(url)
 
@@ -35,14 +34,14 @@ def main():
     # Convert dictionary to DataFrame
     df = pd.DataFrame(company_dict)
 
-    # Block of code with functions from SupportFunctions to save data and create diff report
-    script_name = os.path.basename(__file__)
-    sheet_name = script_name.split('webscrape_')[-1].split('.')[0]
-    financial_json = get_company_details(company_longname) # Obtains yfinance data
-    company_df = create_final_df(sheet_name, url, financial_json, df)
-    old_df = read_from_excel(file_path, sheet_name) # Obtains old records
-    log_new_and_modified_rows(company_df, old_df, sheet_name) # Creates a df with differences
-    write_to_excel(company_df, file_path, sheet_name)
+
+    financial_json = get_company_details(company_ticker) # Obtains yfinance data
+    company_df = create_final_df(company_name, url, financial_json, df)
+    old_df = read_from_excel(file_path, company_name) # Obtains old records
+    log_new_and_modified_rows(company_df, old_df, company_name) # Creates a df with differences
+    write_to_excel(company_df, file_path, company_name)
+    company_price_report = get_company_info_pricereport(company_name, company_ticker)
+    update_excel(company_price_report)
 
 if __name__ == "__main__":
     main()

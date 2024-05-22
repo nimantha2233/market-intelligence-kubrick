@@ -123,7 +123,19 @@ def get_company_details(symbol):
 
     status = get_company_status(symbol)
     if status == "Private":
-        return json.dumps({"Public/Private": "Private"})
+        company_details = {
+                "Public/Private": "Private",
+                "Previous Close": "Private",
+                "52 Week Range": "Private",
+                "Sector": "Private",
+                "Industry": "Private",
+                "Full Time Employees": "Private",
+                "Market Cap": "Private",
+                "Fiscal Year Ends": "Private",
+                "Revenue": "Private",
+                "EBITDA": "Private",
+        }
+        return json.dumps(company_details)
     elif status == "Public":
         try:
             stock = yf.Ticker(symbol)
@@ -131,7 +143,7 @@ def get_company_details(symbol):
             company_details = {
                 "Public/Private": "Public",
                 "Previous Close": info.get("previousClose", "N/A"),
-                "52 Week Range": info.get("fiftyTwoWeekRange", "N/A"),
+                "52 Week Range": f'{info.get("fiftyTwoWeekLow", "N/A")} - {info.get("fiftyTwoWeekHigh", "N/A")}',
                 "Sector": info.get("sector", "N/A"),
                 "Industry": info.get("industry", "N/A"),
                 "Full Time Employees": info.get("fullTimeEmployees", "N/A"),
@@ -186,25 +198,25 @@ def create_final_df(company_name, url, json_data, df):
         if 'Services' in row:
             row_data['Services'] = row['Services']
         else:
-            row_data['Services'] = " "  # or any default value you prefer
+            row_data['Services'] = "No Services"  # or any default value you prefer
 
         # Check if 'Services_URL' key exists in the row
         if 'Services_URL' in row:
             row_data['Services_URL'] = row['Services_URL']
         else:
-            row_data['Services_URL'] = " "  # or any default value you prefer
+            row_data['Services_URL'] = "No Services URL"  # or any default value you prefer
 
         # Check if 'Solutions' key exists in the row
         if 'Solutions' in row:
             row_data['Solutions'] = row['Solutions']
         else:
-            row_data['Solutions'] = " "  # or any default value you prefer
+            row_data['Solutions'] = "No Solutions"  # or any default value you prefer
         
                 # Check if 'Solutions_URL' key exists in the row
         if 'Solutions_URL' in row:
             row_data['Solutions_URL'] = row['Solutions_URL']
         else:
-            row_data['Solutions_URL'] = " "  # or any default value you prefer
+            row_data['Solutions_URL'] = "No Solutions URL"  # or any default value you prefer
 
 
         # Add data from JSON
@@ -236,12 +248,13 @@ def log_differences(action, sheet_name, num_differences):
     sheet_name (str): The name of the sheet.
     num_differences (int): The number of differences found.
     """
+    time_today = datetime.now().strftime("%Y-%m-%d")
     if num_differences == 0:
-        log_message = f"{datetime.now().timestamp()}: No new data for company: '{sheet_name}'"
+        log_message = f"{time_today}: No new data for company: '{sheet_name}'"
     elif num_differences == 1:
-        log_message = f"{datetime.now().timestamp()}: {action} {num_differences} new data row for company: '{sheet_name}'"
+        log_message = f"{time_today}: {action} {num_differences} new data row for company: '{sheet_name}'"
     else:
-        log_message = f"{datetime.now().timestamp()}: {action} {num_differences} new data rows for company: '{sheet_name}'"
+        log_message = f"{time_today}: {action} {num_differences} new data rows for company: '{sheet_name}'"
     with open('log_diff.txt', 'a') as log_file:
         log_file.write(log_message + '\n')
 
@@ -302,3 +315,124 @@ def log_new_and_modified_rows(df1, df2, sheet_name):
             # If the file doesn't exist, do nothing
             pass
         log_differences("No differences found", sheet_name, 0)
+
+def get_company_info_pricereport(company_name, ticker):
+    """
+    Produces price report for a given company
+    
+    Args:
+    company_name (str): Full company name
+    ticker (str): Company ticker. This can be an empty string if the company is private.
+
+    Return:
+    (json) : Financial Data to produce the price report
+    """
+    file_path = "Kubrick MI Data.xlsx"
+    sheet_name = "Price Report"
+
+    if ticker == "":
+        return {
+            "Date of Collection": datetime.now().strftime("%Y-%m-%d"),
+            "Company Name": company_name,
+            "Previous Close": "Private",
+            "%-Change": "Private",
+            "Sector": "Private",
+            "52 Week Range": "Private"
+        }
+    
+    try:
+        # Fetch company data from Yahoo Finance
+        stock = yf.Ticker(ticker)
+        info = stock.info
+        # Check if the returned info indicates data not found
+        if 'trailingPegRatio' in info and info['trailingPegRatio'] is None:
+            return {
+                "Date of Collection": datetime.now().strftime("%Y-%m-%d"),
+                "Company Name": company_name,
+                "Previous Close": "Private",
+                "%-Change": "Private",
+                "Sector": "Private",
+                "52 Week Range": "Private"
+            }
+        # Try to get historical data
+        hist = stock.history(period="1mo")
+        
+        if not hist.empty:
+            last_close = hist['Close'].iloc[-2]
+            prev_close = hist['Close'].iloc[-1]
+            percent_change = round(((prev_close - last_close) / last_close) * 100, 4)
+        else:
+            prev_close = info.get("previousClose", "N/A")
+            # Open the Excel file and check for previous close
+            wb = openpyxl.load_workbook(file_path)
+            if sheet_name in wb.sheetnames:
+                ws = wb[sheet_name]
+                last_close = None
+                for row in ws.iter_rows(min_row=2, max_col=ws.max_column):
+                    if row[1].value == company_name and isinstance(row[2].value, (int, float)):
+                        last_close = row[2].value
+                        break
+                if last_close is None:
+                    percent_change = 0
+                else:
+                    percent_change = round(((prev_close - last_close) / last_close) * 100, 4)
+            else:
+                percent_change = 0
+            wb.close()
+
+        return {
+            "Date of Collection": datetime.now().strftime("%Y-%m-%d"),
+            "Company Name": company_name,
+            "Previous Close": info.get("previousClose", "N/A"),
+            "%-Change": percent_change,
+            "Sector": info.get("sector", "N/A"),
+            "52 Week Range": f'{info.get("fiftyTwoWeekLow", "N/A")} - {info.get("fiftyTwoWeekHigh", "N/A")}'
+        }
+    except:
+        print(f"Error while retrieving financial data for: {ticker}.")
+        return {
+            "Date of Collection": datetime.now().strftime("%Y-%m-%d"),
+            "Company Name": company_name,
+            "Previous Close": "Private",
+            "%-Change": "Private",
+            "Sector": "Private",
+            "52 Week Range": "Private"
+        }
+
+def update_excel(data):
+
+    """
+    Updates the sheet "Price Report" with the financial data from a company
+    
+    Args:
+    data (json) : Financial Company data
+    """
+
+    file_path = "Kubrick MI Data.xlsx"
+    sheet_name = "Price Report"
+
+    try:
+        # Load workbook and check for sheet
+        wb = openpyxl.load_workbook(file_path)
+        if sheet_name not in wb.sheetnames:
+            ws = wb.create_sheet(sheet_name)
+            # Add headers
+            headers = list(data.keys())
+            ws.append(headers)
+        else:
+            ws = wb[sheet_name]
+        
+        # Find if the company already exists and remove the row if it does
+        company_col = 2  # Assuming "Company Name" is in column B (index 1)
+        for row in ws.iter_rows(min_row=2, max_col=ws.max_column):
+            if row[company_col - 1].value == data["Company Name"]:
+                ws.delete_rows(row[0].row)
+                break
+        
+        # Append new data
+        ws.append(list(data.values()))
+
+        # Save workbook
+        wb.save(file_path)
+    except Exception as e:
+        print(f"Error updating Excel file: {e}")
