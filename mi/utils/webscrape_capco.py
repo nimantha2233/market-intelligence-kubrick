@@ -1,75 +1,84 @@
 '''
-Capco webscrape
+Capco URL: https://www.capco.com/Services
 '''
 
-# Capco URL: https://www.capco.com/Services
+if __name__ == '__main__':
+    # This allows for testing this individual script
+    from SupportFunctions import write_to_excel, read_from_excel, get_company_details, log_new_and_modified_rows, create_final_df, remove_duplicates
+    from config import config
+else:        
+    # To run the script from app.py as an import
+    from .SupportFunctions import write_to_excel, read_from_excel, get_company_details, log_new_and_modified_rows, create_final_df, remove_duplicates
+    from .config import config
 
-from .functions import produce_soup_from_url, dataframe_builder, df_to_csv,sheet_exists, write_to_excel, compare_rows
 import os
-
+from collections import defaultdict
+import pandas as pd
+from bs4 import BeautifulSoup 
+import requests
 
 def main():
-    
-    profile_dict = {'practices_url': ['https://www.capco.com'], 'practices': [], 'services_url': [], 'services': []}
+  
+    practices_url = r'https://www.capco.com'
+    company_dict = defaultdict(list)
+    company_dict['Practices_URL'].append(practices_url)
+    file_path = config.FILEPATH
+    company_longname = r''
+    url = practices_url
 
     # output soup from main page to extract practices and links to practices page
-    soup = produce_soup_from_url(r'https://www.capco.com')
+    soup = BeautifulSoup(requests.get(company_dict['Practices_URL'][0]).content, 'html5lib')
+    practices_html = soup.find_all(lambda tag: tag.name == 'a' and '/Services/' in tag['href'] )
 
-    services_html = soup.find_all(lambda tag: tag.name == 'a' and '/Services/' in tag['href'] )
-
-    for row_i in services_html:
+    for practice in practices_html:
 
         # Get URLs 
-        service_url = profile_dict['practices_url'][0] + row_i['href']
+        services_url = company_dict['Practices_URL'][0] + practice['href']
+        services_soup = BeautifulSoup(requests.get(services_url).content, 'html5lib')
+        services_html = services_soup.find_all('div', attrs = {'class' : 'article-content'})
+        services_html = remove_duplicates(services_html)
+       
 
-        profile_dict['services_url'].append(service_url)
+        # Hard coded so was necessary
+        exclude_list = ['/Services/digital/knowable','/Services/digital/Further-Swiss-Solutions'] 
 
-        service_soup = produce_soup_from_url(service_url)
+        for service in services_html:
+
+            if service.find('h2'):
+                if service.find('a')['href'] not in exclude_list:
+                    solutions_soup = BeautifulSoup(requests.get(practices_url + service.find('a')['href']).content, 'html5lib')
+                    filtered_solutions_soup = solutions_soup.find_all("li", class_ = "article article-no-btn")
+                    # li_with_h2 = list(set([li.find('h2').text.strip() for li in filtered_solutions_soup if li.find("h2")]))
+
+                    for solution in filtered_solutions_soup:
+
+                        company_dict['Solutions_URL'].append(practices_url + service.find('a')['href'])
+                        company_dict['Solutions'].append(solution.find('h2').text.strip())
+                        company_dict['Practices'].append(practice.text)
+                        company_dict['Services'].append(service.find('h2').text.strip())
+                        company_dict['Services_URL'].append(services_url)
+
+    company_dict['Practices_URL'] = len(company_dict['Practices'])*company_dict['Practices_URL']
 
 
-        exclude_list = ['/Services/digital/knowable','/Services/digital/Further-Swiss-Solutions'] # Hard coded however was necessary
-        services_list = []
+    #dict_and_df_test(company_dict)
+    df = pd.DataFrame(company_dict)
 
-
-        html = service_soup.find_all('div', attrs = {'class' : 'article-content'})
-
-        for row_j in html:
-
-            if row_j.find('h2'):
-                if row_j.find('a')['href'] not in exclude_list:
-                    services_list.append(row_j.find('h2').text)
-
-
-        services_list = list(set(services_list))
-        profile_dict['practices'] += [row_i.text]*len(services_list)
-
-
-        profile_dict['services'] += services_list
-
-    df = dataframe_builder(profile_dict)
 
     # Writing to excel file
     # File path remains the same
-    file_path = r"C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\mi\utils\Kubrick MI Data.xlsx"
 
 
     # Derive sheet_name from the script name
     script_name = os.path.basename(__file__)
-    # Extract the part after "webscrape_" to use as the sheet name
     sheet_name = script_name.split('webscrape_')[-1].split('.')[0]
-
-    # Check if the Excel file exists
-    if not os.path.exists(file_path):
-        # If the file doesn't exist, create a new Excel file with the DataFrame
-        write_to_excel(df, file_path, sheet_name)
-        print(f"New Excel file '{file_path}' created with '{sheet_name}' sheet.")
-    else:
-        # If the file exists, check if the sheet exists and compare rows
-        if not sheet_exists(file_path, sheet_name) or compare_rows(df, file_path, sheet_name):
-            # If the sheet doesn't exist or the number of rows is different, write to Excel
-            write_to_excel(df, file_path, sheet_name)
-            print(f"Data written to '{sheet_name}' sheet in '{file_path}'.")
-        else:
-            print(f"No changes required for '{sheet_name}' sheet in '{file_path}'.")
+    financial_json = get_company_details(company_longname) # Obtains yfinance data
+    company_df = create_final_df(sheet_name, url, financial_json, df)
+    old_df = read_from_excel(file_path, sheet_name) # Obtains old records
+    log_new_and_modified_rows(company_df, old_df, sheet_name) # Creates a df with differences
+    write_to_excel(company_df, file_path, sheet_name)
 
     return print(os.path.basename(__file__))
+
+if __name__ == '__main__':
+    main() 

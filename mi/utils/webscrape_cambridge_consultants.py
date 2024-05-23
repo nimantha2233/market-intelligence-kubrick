@@ -1,57 +1,61 @@
-# Cambridge Consultants URL : https://www.cambridgeconsultants.com/
+'''
+ Cambridge Consultants URL : https://www.cambridgeconsultants.com/
+'''
 
-# print('Web-scraping Cambridge Consultants')
+if __name__ == '__main__':
+    # This allows for testing this individual script
+    from SupportFunctions import write_to_excel, read_from_excel, get_company_details, log_new_and_modified_rows, create_final_df, remove_duplicates
+    from config import config
+else:        
+    # To run the script from app.py as an import
+    from .SupportFunctions import write_to_excel, read_from_excel, get_company_details, log_new_and_modified_rows, create_final_df, remove_duplicates
+    from .config import config
 
-from .functions import produce_soup_from_url, dataframe_builder, df_to_csv,sheet_exists, write_to_excel, compare_rows
 import os
+from collections import defaultdict
+import pandas as pd
+from bs4 import BeautifulSoup 
+import requests
 
 def main():
 
-    profile_dict = {'practices_url': ['https://www.cambridgeconsultants.com/'], 'practices': [], 'services_url': [], 'services': []}
+    practices_url = r'https://www.cambridgeconsultants.com/'
+    company_longname = r''
+    url = practices_url
+    company_dict = defaultdict(list)
+    file_path = config.FILEPATH
+    company_dict['Practices_URL'].append(practices_url)
 
-    soup = produce_soup_from_url(r'https://www.cambridgeconsultants.com/')
+    soup = BeautifulSoup(requests.get(company_dict['Practices_URL'][0]).content, 'html5lib')
 
-    filtered_html = soup.find_all('ul', attrs = {'id' : 'menu-deep-tech'})[0].select('a') # extracts all rows with links correspondong to dropdown menu "deep tech"
+    practices_html = soup.find_all('ul', attrs = {'id' : 'menu-deep-tech'})[0].select('a') # extracts all rows with links correspondong to dropdown menu "deep tech"
 
-    for row_i in filtered_html:
+    for practice in practices_html:
 
-        service_url = row_i['href']
-        profile_dict['services_url'].append(service_url)
+        services_url = practice['href']
+        services_soup = BeautifulSoup(requests.get(services_url).content, 'html5lib')
+        services_html = services_soup.find_all('ul', attrs = {'class' : "et_pb_tabs_controls clearfix"})[0].select('li') # using the initial attrs means we can access the specific children we need to as
 
+        for service in services_html:
 
-        service_soup = produce_soup_from_url(service_url)
+            company_dict['Practices'].append(practice.text)
+            company_dict['Services'].append(service.text)
+            company_dict['Services_URL'].append(services_url)
 
+    company_dict['Practices_URL'] = len(company_dict['Practices'])*company_dict['Practices_URL']
 
-        raw_html = service_soup.find_all('ul', attrs = {'class' : "et_pb_tabs_controls clearfix"})[0].select('li') # using the initial attrs means we can access the specific children we need to as
+    df = pd.DataFrame(company_dict)
 
-        for row_j in raw_html:
-
-            profile_dict['practices'].append(row_i.text)
-            profile_dict['services'].append(row_j.text)
-
-
-    df = dataframe_builder(profile_dict)
-    # File path remains the same
-    file_path = r"C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\mi\utils\Kubrick MI Data.xlsx"
-
-
-    # Derive sheet_name from the script name
+    # Make this into a function
     script_name = os.path.basename(__file__)
-    # Extract the part after "webscrape_" to use as the sheet name
     sheet_name = script_name.split('webscrape_')[-1].split('.')[0]
-
-    # Check if the Excel file exists
-    if not os.path.exists(file_path):
-        # If the file doesn't exist, create a new Excel file with the DataFrame
-        write_to_excel(df, file_path, sheet_name)
-        print(f"New Excel file '{file_path}' created with '{sheet_name}' sheet.")
-    else:
-        # If the file exists, check if the sheet exists and compare rows
-        if not sheet_exists(file_path, sheet_name) or compare_rows(df, file_path, sheet_name):
-            # If the sheet doesn't exist or the number of rows is different, write to Excel
-            write_to_excel(df, file_path, sheet_name)
-            print(f"Data written to '{sheet_name}' sheet in '{file_path}'.")
-        else:
-            print(f"No changes required for '{sheet_name}' sheet in '{file_path}'.")
+    financial_json = get_company_details(company_longname) # Obtains yfinance data
+    company_df = create_final_df(sheet_name, url, financial_json, df)
+    old_df = read_from_excel(file_path, sheet_name) # Obtains old records
+    log_new_and_modified_rows(company_df, old_df, sheet_name) # Creates a df with differences
+    write_to_excel(company_df, file_path, sheet_name)
 
     return print(os.path.basename(__file__))
+
+if __name__ == '__main__':
+    main() 
