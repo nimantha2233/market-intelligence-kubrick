@@ -5,6 +5,7 @@ import json
 import datetime
 import openpyxl
 from datetime import datetime, date
+import scrapers
 import numpy as np
 
 def sheet_exists(file_path, sheet_name):
@@ -66,6 +67,7 @@ def read_from_excel(file_path, sheet_name):
     """
     try:
         df = pd.read_excel(file_path, sheet_name=sheet_name)
+        df = table_sorter(df)
     except ValueError:
         return read_template()
     return df
@@ -81,7 +83,7 @@ def read_template():
     """
     try:
         # Read the Excel file into a DataFrame
-        df = pd.read_excel(r"C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\mi\utils\Template.xlsx", sheet_name='Template')
+        df = pd.read_excel(r"Template.xlsx", sheet_name='Template')
         return df
     except FileNotFoundError:
         print("Template.xlsx not found. Make sure the file exists in the current directory.")
@@ -125,7 +127,6 @@ def get_company_details(symbol):
     status = get_company_status(symbol)
     if status == "Private":
         company_details = {
-                "Public/Private": "Private",
                 "Previous Close": "Private",
                 "52 Week Range": "Private",
                 "Sector": "Private",
@@ -142,7 +143,6 @@ def get_company_details(symbol):
             stock = yf.Ticker(symbol)
             info = stock.info
             company_details = {
-                "Public/Private": "Public",
                 "Previous Close": info.get("previousClose", np.nan),
                 "52 Week Range": f'{info.get("fiftyTwoWeekLow", np.nan)} - {info.get("fiftyTwoWeekHigh", np.nan)}',
                 "Sector": info.get("sector", np.nan),
@@ -156,8 +156,11 @@ def get_company_details(symbol):
             return json.dumps(company_details)
         except Exception as e:
             return json.dumps({"error": str(e)})
+            #return f'Error, check {symbol} is a valid ticker'
     else:
         return json.dumps({"error": status})
+    #return company_details
+    
 
 def create_final_df(company_name, url, json_data, df):
     """
@@ -443,3 +446,104 @@ def update_excel(data):
         wb.save(file_path)
     except Exception as e:
         print(f"Error updating Excel file: {e}")
+
+def get_scraped_company_data(scraper):
+    function_name = scraper
+    func = getattr(scrapers, function_name)
+    return func()
+
+def column_cleaner(df):
+    for column in df.columns:
+        column_clean = column.replace('_', ' ')
+        df[column] = [f'No {column_clean} Data Available' if data in ('', ' ', None, 'nan', np.nan) else data for data in df[column]]
+    
+    return df
+
+def table_sorter(df):
+    return df.sort_values(by=df.columns.tolist()).reset_index(drop=True)
+
+def create_final_df2(company_name, url, status, json_data, df):
+    """
+    Creates the final dataframe to be stored using data from webscrape + financial data
+    
+    Args:
+    company_name (str) : Name of company
+    url (str) : URL of company
+    json_data (json) : Financial data of company
+    df (pd.Dataframe) : Webscrape data of comapny
+
+    Returns:
+    final_df (pd.Dataframe) : Dataframe with all data in the Template table format
+    """
+    # Get the current date, company name, and website url metadata
+    meta_dict = {'Date of Collection':date.today(), 'Company Name':company_name, 'Website_URL':url, 'Public/Private':status}
+
+    df_copy = df
+
+    columns_list = read_template().columns.tolist()
+    for column in columns_list:
+        if column in df_copy.columns:
+            pass
+        elif column in meta_dict.keys():
+            df_copy[column] = meta_dict[column]
+        elif column in json_data.keys():
+            df_copy[column] = json_data[column]
+        else:
+            df_copy[column] = ' '
+
+    df_clean = column_cleaner(df_copy)
+    final_df = df_clean[columns_list]
+    final_df_sorted = table_sorter(final_df)
+
+    return final_df_sorted
+
+def get_company_details2(status, symbol):
+    """
+    Obtains yfinance data if company is public.
+    
+    Args:
+    symbol (str) : Company symbol to obtain yfinance data. This could be blank if company doesn't have a symbol
+
+    Returns:
+    (json) : Company information
+    """
+
+    if status == "Private":
+        company_details = {
+                "Previous Close": "Private",
+                "52 Week Range": "Private",
+                "Sector": "Private",
+                "Industry": "Private",
+                "Full Time Employees": "Private",
+                "Market Cap": "Private",
+                "Fiscal Year Ends": "Private",
+                "Revenue": "Private",
+                "EBITDA": "Private",
+        }
+    elif status == "Public":
+        try:
+            stock = yf.Ticker(symbol)
+            info = stock.info
+            company_details = {
+                "Previous Close": info.get("previousClose", np.nan),
+                "52 Week Range": f'{info.get("fiftyTwoWeekLow", np.nan)} - {info.get("fiftyTwoWeekHigh", np.nan)}',
+                "Sector": info.get("sector", np.nan),
+                "Industry": info.get("industry", np.nan),
+                "Full Time Employees": info.get("fullTimeEmployees", np.nan),
+                "Market Cap": info.get("marketCap", np.nan),
+                "Fiscal Year Ends": info.get("fiscalYearEnd", np.nan),
+                "Revenue": info.get("totalRevenue", np.nan),
+                "EBITDA": info.get("ebitda", np.nan),
+            }
+        except Exception as e:
+            return f'Error, check {symbol} is a valid ticker'
+    return company_details
+
+def get_company_metadata(company_name, company_df):
+    company_slice = company_df[(company_df['company_name']==company_name)]
+    company_url = company_slice.iloc[0]['company_url']
+    scraper = company_slice.iloc[0]['scraper']
+    status = company_slice.iloc[0]['status']
+    ticker = company_slice.iloc[0]['ticker']
+
+    return company_url, scraper, status, ticker

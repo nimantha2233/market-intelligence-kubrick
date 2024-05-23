@@ -508,7 +508,7 @@ def scraper_slalom():
 
     table_practises = soup.find('div', attrs = {'id':'services-overview-deaa04af28'})
     practises = [row.span.text for row in table_practises.findAll('a', attrs = {'class':'cmp-image__link'})]
-    links = [f"https://www.slalom.com{row.get('href')}" for row in table_practises.findAll('a', attrs = {'class':'cmp-image__link'})]
+    links = [f"https://www.slalom.com{row.get('href')}".replace('www.slalom.comhttps://', '') for row in table_practises.findAll('a', attrs = {'class':'cmp-image__link'})]
 
     for i in range(len(practises)):
         url = links[i]
