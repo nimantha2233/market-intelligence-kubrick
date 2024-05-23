@@ -344,7 +344,7 @@ def scraper_fjord():
 
         # Extract the list items
         list_items = [li.text.strip() for li in soup.find_all("li")]
-
+        
         # Add the scraped data to the result dictionary
         company_dict[title] = list_items
 
@@ -972,7 +972,7 @@ def scraper_adlittle() -> pd.DataFrame:
     '''
 
     company_longname = r'ARTHUR D. LITTLE LIMITED'
-    url = r'https://www.adlittle.com/en'
+    url = r'https://www.adlittle.com'
     company_dict = defaultdict(list)
 
     services_url = 'https://www.adlittle.com/en/hub/services'
@@ -984,7 +984,7 @@ def scraper_adlittle() -> pd.DataFrame:
     for service in services_html_block:
 
         # [:-3] to remove '/en' as it is also present in service.find('a', href = True)['href']
-        service_url = url[:-3] + service.find('a', href = True)['href']
+        service_url = url + service.find('a', href = True)['href']
 
         # Go to service and scrape solutions
         sol_soup = BeautifulSoup(requests.get(service_url).content, 'html5lib')
@@ -995,5 +995,81 @@ def scraper_adlittle() -> pd.DataFrame:
             company_dict['Services'].append(service.find('h5').text.strip())
             company_dict['Solutions'].append(solution.text.strip())
             company_dict['Services_URL'].append(service_url)
+        
+    return pd.DataFrame(company_dict)
+
+
+def scraper_avanade() -> pd.DataFrame:
+    '''
+    Avanade Inc.
+    _____________________________
+    Note: Subsidiary of Accenture
+
+    Available on website out of Practices/Services/Solutions:
+    1. Services
+    2. Solutions
+        
+    Scrape services from services page: https://www.avanade.com/en-gb/services
+
+    Use selenium to scrape from drop down menu
+ 
+    '''
+
+    company_longname = r'Avanade Inc.'
+    url = r'https://www.avanade.com'
+    company_dict = defaultdict(list)
+    temp_dict = defaultdict(list)
+
+    services_url = 'https://www.avanade.com/en-gb/services'
+
+    # Set up Chrome options
+    options = webdriver.ChromeOptions()
+    options.add_experimental_option("detach", True)
+    chrome_driver_path = r'C:\Users\NimanthaFernando\chromedriver-win64\chromedriver.exe'
+    service = Service(chrome_driver_path)
+    driver=webdriver.Chrome(service=service,options=options)
+    driver.get(url=url)
+    services_menu = driver.find_element(By.LINK_TEXT, "Services")
+
+    actions = ActionChains(driver)
+    actions.move_to_element(services_menu).perform()
+
+    WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.LINK_TEXT, "Services")))
+
+    # Locate the dropdown items (example for the first item)
+    dropdown_items = driver.find_elements(By.XPATH, "//li[@class ='low-lvl-menu__list-item low-lvl-menu__list-item--lvl-3']")
+
+
+    for item in dropdown_items:
+        
+        soup =  BeautifulSoup(item.get_attribute('outerHTML'), 'html5lib')
+        temp_dict['Services'].append(soup.find_all('li')[0].text.strip())
+        temp_dict['Services_URL'].append(url + soup.find_all('a')[0]['href'].strip())
+
+    driver.close()
+
+    for service_idx in range(len(temp_dict['Services_URL'])):
+        service = temp_dict['Services'][service_idx]
+        service_url = temp_dict['Services_URL'][service_idx]
+        
+        sols_soup = BeautifulSoup(requests.get(service_url).content, 'html5lib')
+        solutions_html = sols_soup.find_all('div', title = "accordion")
+        for solution in solutions_html:
+            if solution.find('a'):
+                company_dict['Services'].append(service)
+                company_dict['Services_URL'].append(service_url)
+                company_dict['Solution'].append(solution.find('h4').text)          
+                company_dict['Solutions_URL'].append(solution.find('a')['href'])
+                
+            else:
+                company_dict['Services'].append(service)
+                company_dict['Services_URL'].append(service_url)
+                company_dict['Solution'].append(solution.find('h4').text)          
+                company_dict['Solutions_URL'].append('No Solutions URL')
+
+    # Some URLs dont have the beginning portion so append it to them
+    for i in range(len(company_dict['Solutions_URL'])):
+        if company_dict['Solutions_URL'][i] != 'No Solutions URL' and 'https' not in company_dict['Solutions_URL'][i]:
+            company_dict['Solutions_URL'][i] = url + company_dict['Solutions_URL'][i]
         
     return pd.DataFrame(company_dict)
