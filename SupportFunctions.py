@@ -5,6 +5,7 @@ import json
 import datetime
 import openpyxl
 from datetime import datetime, date
+import numpy as np
 
 def sheet_exists(file_path, sheet_name):
     """
@@ -142,15 +143,15 @@ def get_company_details(symbol):
             info = stock.info
             company_details = {
                 "Public/Private": "Public",
-                "Previous Close": info.get("previousClose", "N/A"),
-                "52 Week Range": f'{info.get("fiftyTwoWeekLow", "N/A")} - {info.get("fiftyTwoWeekHigh", "N/A")}',
-                "Sector": info.get("sector", "N/A"),
-                "Industry": info.get("industry", "N/A"),
-                "Full Time Employees": info.get("fullTimeEmployees", "N/A"),
-                "Market Cap": info.get("marketCap", "N/A"),
-                "Fiscal Year Ends": info.get("fiscalYearEnd", "N/A"),
-                "Revenue": info.get("totalRevenue", "N/A"),
-                "EBITDA": info.get("ebitda", "N/A"),
+                "Previous Close": info.get("previousClose", np.nan),
+                "52 Week Range": f'{info.get("fiftyTwoWeekLow", np.nan)} - {info.get("fiftyTwoWeekHigh", np.nan)}',
+                "Sector": info.get("sector", np.nan),
+                "Industry": info.get("industry", np.nan),
+                "Full Time Employees": info.get("fullTimeEmployees", np.nan),
+                "Market Cap": info.get("marketCap", np.nan),
+                "Fiscal Year Ends": info.get("fiscalYearEnd", np.nan),
+                "Revenue": info.get("totalRevenue", np.nan),
+                "EBITDA": info.get("ebitda", np.nan),
             }
             return json.dumps(company_details)
         except Exception as e:
@@ -268,6 +269,12 @@ def log_new_and_modified_rows(df1, df2, sheet_name):
     sheet_name (str): The name of the sheet to update or delete.
     """
     # Convert columns to the same data type
+    for column in df1.columns:
+        df1[column] = df1[column].astype(str)
+
+    for column in df2.columns:
+        df2[column] = df2[column].astype(str)
+
     df1['Date of Collection'] = pd.to_datetime(df1['Date of Collection'])
     df2['Date of Collection'] = pd.to_datetime(df2['Date of Collection'])
 
@@ -362,7 +369,7 @@ def get_company_info_pricereport(company_name, ticker):
             prev_close = hist['Close'].iloc[-1]
             percent_change = round(((prev_close - last_close) / last_close) * 100, 4)
         else:
-            prev_close = info.get("previousClose", "N/A")
+            prev_close = info.get("previousClose", np.nan)
             # Open the Excel file and check for previous close
             wb = openpyxl.load_workbook(file_path)
             if sheet_name in wb.sheetnames:
@@ -383,10 +390,10 @@ def get_company_info_pricereport(company_name, ticker):
         return {
             "Date of Collection": datetime.now().strftime("%Y-%m-%d"),
             "Company Name": company_name,
-            "Previous Close": info.get("previousClose", "N/A"),
+            "Previous Close": info.get("previousClose", np.nan),
             "%-Change": percent_change,
-            "Sector": info.get("sector", "N/A"),
-            "52 Week Range": f'{info.get("fiftyTwoWeekLow", "N/A")} - {info.get("fiftyTwoWeekHigh", "N/A")}'
+            "Sector": info.get("sector", np.nan),
+            "52 Week Range": f'{info.get("fiftyTwoWeekLow", np.nan)} - {info.get("fiftyTwoWeekHigh", np.nan)}'
         }
     except:
         print(f"Error while retrieving financial data for: {ticker}.")

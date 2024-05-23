@@ -76,11 +76,12 @@ def scraper_capgemini():
                 solutions = [row.text for row in table.findAll('p')]
 
             for solution in solutions:
-                company_dict['Practises'].append(practises[i])
-                company_dict['Expertise_url'].append(links[i])
-                company_dict['Expertise'].append(expertise[j])
-                company_dict['Solution_url'].append(links2[j])
-                company_dict['Solution'].append(solution)
+                company_dict['Practices'].append(practises[i])
+                company_dict['Practices_URL'].append(links[i])
+                company_dict['Services'].append(expertise[j])
+                company_dict['Services_URL'].append(links2[j])
+                company_dict['Solutions'].append(solution)
+                company_dict['Solutions_URL'].append(links2[j])
 
     return pd.DataFrame(company_dict)
 
@@ -102,19 +103,21 @@ def scraper_digital():
         soup = BeautifulSoup(r.content, 'html5lib') # If this line causes an error, run 'pip install html5lib' or install html5lib 
         table_expertise = soup.find('div', attrs = {'class':'m-service-cards__grid'})
         if table_expertise == None:
-            company_dict['Practises'].append(practises[i])
-            company_dict['Expertise_url'].append(url)
-            company_dict['Expertise'].append(None)
-            company_dict['Solution_url'].append(None)
-            company_dict['Solution'].append(None)
+            company_dict['Practices'].append(practises[i])
+            company_dict['Practices_URL'].append(url)
+            company_dict['Services'].append(None)
+            company_dict['Services_URL'].append(None)
+            company_dict['Solutions'].append(None)
+            company_dict['Solutions_URL'].append(None)
         
         else:
             for row in table_expertise.findAll('div', attrs = {'class':'c-card__body'}):
-                company_dict['Practises'].append(practises[i])
-                company_dict['Expertise_url'].append(url)
-                company_dict['Expertise'].append(row.h3.text)
-                company_dict['Solution_url'].append(url)
-                company_dict['Solution'].append(row.p.text)
+                company_dict['Practices'].append(practises[i])
+                company_dict['Practices_URL'].append(url)
+                company_dict['Services'].append(row.h3.text)
+                company_dict['Services_URL'].append(url)
+                company_dict['Solutions'].append(row.p.text)
+                company_dict['Solutions_URL'].append(url)
 
     return pd.DataFrame(company_dict)
 
@@ -135,11 +138,12 @@ def scraper_dufrain():
         links2 = [row.a.get('href') for row in soup2.findAll('div', attrs = {'class':'km-intro-rp-card'})]
 
         for j in range(len(links2)):
-                company_dict['Practises'].append(practises[i])
-                company_dict['Expertise_url'].append('')
-                company_dict['Expertise'].append('')
-                company_dict['Solution_url'].append(url)
-                company_dict['Solution'].append(solutions[j])
+                company_dict['Practices'].append(practises[i])
+                company_dict['Practices_URL'].append(url)
+                company_dict['Services'].append('')
+                company_dict['Services_URL'].append('')
+                company_dict['Solutions'].append(solutions[j])
+                company_dict['Solutions_URL'].append(url)
 
     return pd.DataFrame(company_dict)
 
@@ -166,11 +170,12 @@ def scraper_fdmgroup():
             
         else:
             for row in table_expertise:
-                company_dict['Practises'].append(practises[i])
-                company_dict['Expertise_url'].append(url)
-                company_dict['Expertise'].append(row.h4.text)
-                company_dict['Solution_url'].append('')
-                company_dict['Solution'].append('')
+                company_dict['Practices'].append(practises[i])
+                company_dict['Practices_URL'].append(url)
+                company_dict['Services'].append(row.h4.text)
+                company_dict['Services_URL'].append(url)
+                company_dict['Solutions'].append('')
+                company_dict['Solutions_URL'].append('')
 
     return pd.DataFrame(company_dict)
 
@@ -193,11 +198,12 @@ def scraper_slalom():
         expertise = [row.text for row in table_expertise.findAll('h4')]
         solution = [row.text for row in table_expertise.findAll('p')]
         for j in range(len(expertise)):
-            company_dict['Practises'].append(practises[i])
-            company_dict['Expertise_url'].append(url)
-            company_dict['Expertise'].append(expertise[j])
-            company_dict['Solution_url'].append(url)
-            company_dict['Solution'].append(solution[j])
+            company_dict['Practices'].append(practises[i])
+            company_dict['Practices_URL'].append(url)
+            company_dict['Services'].append(expertise[j])
+            company_dict['Services_URL'].append(url)
+            company_dict['Solutions'].append(solution[j])
+            company_dict['Solutions_URL'].append(url)
 
     return pd.DataFrame(company_dict)
 
@@ -233,12 +239,12 @@ def scraper_tcs():
             links2 = max(links2_a, links2_b)
     
         for j in range(len(links2)):
-                company_dict['Practises'].append(practises[i])
-                company_dict['Practises_url'].append(url)
-                company_dict['Expertise_url'].append('')
-                company_dict['Expertise'].append('')
-                company_dict['Solution_url'].append(url if links2[j] == '' else links2[j])
-                company_dict['Solution'].append(solutions[j])
+                company_dict['Practices'].append(practises[i])
+                company_dict['Practices_URL'].append(url)
+                company_dict['Services'].append('No Services')
+                company_dict['Services_URL'].append('No Services URL')
+                company_dict['Solutions'].append(solutions[j])
+                company_dict['Solutions_URL'].append(url if links2[j] == 'No Solutions URL' else links2[j])
 
     return pd.DataFrame(company_dict)
 
@@ -301,10 +307,11 @@ def scraper_wipro():
                 links3.remove('')
             
             for k in range(len(links3)):
-                company_dict['Practises'].append(practises[i])
-                company_dict['Expertise_url'].append(links2[j])
-                company_dict['Expertise'].append(expertise[j])
-                company_dict['Solution_url'].append(links3[k])
-                company_dict['Solution'].append(solutions[k])
+                company_dict['Practices'].append(practises[i])
+                company_dict['Practices_URL'].append(links[i])
+                company_dict['Services'].append(expertise[j])
+                company_dict['Services_URL'].append(links2[j])
+                company_dict['Solutions'].append(solutions[k])
+                company_dict['Solutions_URL'].append(links3[k])
 
     return pd.DataFrame(company_dict)

@@ -2,7 +2,7 @@ company_name,company_url,is_private,ticker,scraper
 Capgemini SE,https://www.capgemini.com/,Public,CAP.PA,scraper_capgemini
 AND Digital,https://www.and.digital/,Private,,scraper_digital
 Dufrain,https://www.dufrain.co.uk/,Private,,scraper_dufrain
-FDM Group,https://www.fdmgroup.com/,Public,FDM.L,scaper_fdmgroup
+FDM Group (Holdings) Ltd,https://www.fdmgroup.com/,Public,FDM.L,scaper_fdmgroup
 Slalom,https://www.slalom.com/,Private,,scraper_slalom
 Tata Consultancy Services Limited,https://www.tcs.com,Public,TCS.BO,scraper_tcs
 Wipro Limited,https://www.wipro.com/,Public,WIT,scraper_wipro
