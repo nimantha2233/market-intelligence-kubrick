@@ -645,7 +645,7 @@ def scraper_bettergov() -> pd.DataFrame:
     practices_url = r'https://www.bettergov.co.uk/'
     company_longname = r''
     url = practices_url
-    file_path = config.FILEPATH
+    
     company_dict = defaultdict(list)
     company_dict['Practices_URL'].append(practices_url)
 
@@ -682,12 +682,11 @@ def scraper_cambridge() -> pd.DataFrame:
     '''
     Cambridge consultants
     '''
-
     practices_url = r'https://www.cambridgeconsultants.com/'
     company_longname = r''
     url = practices_url
     company_dict = defaultdict(list)
-    file_path = config.FILEPATH
+    
     company_dict['Practices_URL'].append(practices_url)
 
     soup = BeautifulSoup(requests.get(company_dict['Practices_URL'][0]).content, 'html5lib')
@@ -718,7 +717,6 @@ def scraper_capco() -> pd.DataFrame:
     practices_url = r'https://www.capco.com'
     company_dict = defaultdict(list)
     company_dict['Practices_URL'].append(practices_url)
-    file_path = config.FILEPATH
     company_longname = r''
     url = practices_url
 
@@ -763,7 +761,6 @@ def scraper_cognizant() -> pd.DataFrame:
     practices_url = r'https://www.cognizant.com'
     url = practices_url
     company_longname = r''
-    file_path = config.FILEPATH
     company_dict = defaultdict(list)
     company_dict['Practices_URL'].append(practices_url)
 
@@ -797,10 +794,9 @@ def scraper_infosys() -> pd.DataFrame:
     practices_url = r'https://www.infosys.com/services/'
     company_longname = r'Infosys Limited'
     url = r'https://www.infosys.com/'
-    file_path = config.FILEPATH
+    
     company_dict = defaultdict(list)
     company_dict['Practices_URL'].append(practices_url)
-
 
     soup = BeautifulSoup(requests.get(company_dict['Practices_URL'][0]).content, 'html5lib')
     practices_html = soup.find_all('li', attrs = {'class' : "col-lg-4 col-md-4 col-sm-4 col-xs-12"})
@@ -841,7 +837,6 @@ def scraper_iqvia() -> pd.DataFrame:
     practices_url = r'https://jobs.iqvia.com/en'
     company_longname = r''
     url = practices_url
-    file_path = config.FILEPATH
     company_dict = defaultdict(list)
     company_dict['Practices_URL'].append(practices_url)
 
@@ -884,7 +879,6 @@ def scraper_kubrick() -> pd.DataFrame:
     company_dict = defaultdict(list)
     company_dict['Practices_URL'].append(practices_url)
     company_dict['Services_URL'].append(practices_url)
-    file_path = config.FILEPATH
 
     soup = BeautifulSoup(requests.get(company_dict['Practices_URL'][0]).content, 'html5lib')
     practices_html_block = soup.find_all('section', attrs = {'id' : "our-practices"})[0]
@@ -901,4 +895,105 @@ def scraper_kubrick() -> pd.DataFrame:
     company_dict['Practices_URL'] = len(company_dict['Practices'])*company_dict['Practices_URL']
     company_dict['Services_URL'] = len(company_dict['Practices'])*company_dict['Services_URL']
     
+    return pd.DataFrame(company_dict)
+
+
+def scraper_adatis() -> pd.DataFrame:
+    '''
+    Adatis Consulting Limited
+
+    Available on website out of Practices/Services/Solutions:
+    1. Services
+
+    Scrape services directly from homepage: https://adatis.co.uk/
+ 
+    '''
+
+    company_longname = r'Adatis Consulting Limited'
+    url = r'https://adatis.co.uk/'
+    company_dict = defaultdict(list)
+
+    soup = BeautifulSoup(requests.get(url).content, 'html5lib')
+    li_tags = soup.find_all('li')
+
+    for li in li_tags:
+        
+        # Want only a blocks which include services (not other tabs e.g. about)
+        if li.find('a') and li.find('a').text.strip() == 'Services':
+            for services in li.find_all('ul', class_ = "sub-menu nav-column nav-dropdown-default"):
+                for service in services:
+                    if service.text.strip() :
+                        company_dict['Services'].append(service.text.strip())
+                        company_dict['Services_URL'].append(service.find('a')['href'])
+    
+    return pd.DataFrame(company_dict)
+
+
+def scraper_alchemmy() -> pd.DataFrame:
+    '''
+    ALCHEMMY CONSULTING LIMITED
+
+    Available on website out of Practices/Services/Solutions:
+    1. Services
+        - Under "What we do" not explicitly called services
+        
+    Scrape services from what-we-do page: 'https://alchemmy.com/what-we-do/
+ 
+    '''
+
+    company_longname = r'ALCHEMMY CONSULTING LIMITED'
+    url = r'https://alchemmy.com/'
+    company_dict = defaultdict(list)
+
+    services_url = 'https://alchemmy.com/what-we-do/'
+
+    soup = BeautifulSoup(requests.get(url).content, 'html5lib')
+    # 'what-we-do' html block
+    services_html_block = soup.find_all('div', class_ = "elementor-column elementor-col-20 elementor-top-column elementor-element elementor-element-633f0a1")
+
+    for service in services_html_block[0].find_all('a'):
+        company_dict['Services'].append(service.text.strip())
+        company_dict['Services_URL'].append(service['href'])
+        
+    return pd.DataFrame(company_dict)
+
+
+
+def scraper_adlittle() -> pd.DataFrame:
+    '''
+    ARTHUR D. LITTLE LIMITED
+
+    Available on website out of Practices/Services/Solutions:
+    1. Services
+    2. Solutions
+        
+    Scrape services from services page: https://www.adlittle.com/en/hub/services
+ 
+    '''
+
+    company_longname = r'ARTHUR D. LITTLE LIMITED'
+    url = r'https://www.adlittle.com/en'
+    company_dict = defaultdict(list)
+
+    services_url = 'https://www.adlittle.com/en/hub/services'
+
+    soup = BeautifulSoup(requests.get(services_url).content, 'html5lib')
+    services_html_block = soup.find_all('div', id = 'block-views-block-hub-category-items-block-2')
+    services_html_block = services_html_block[0].find_all('div', class_ = 'views-row')
+
+    for service in services_html_block:
+
+        # [:-3] to remove '/en' as it is also present in service.find('a', href = True)['href']
+        service_url = url[:-3] + service.find('a', href = True)['href']
+
+        # Go to service and scrape solutions
+        sol_soup = BeautifulSoup(requests.get(service_url).content, 'html5lib')
+        sols_html_block = sol_soup.find_all('span', class_ = 'row pars')
+        sols_html_block = sols_html_block[0].find_all('div', class_ = "field field--name-field-title field--type-string field--label-hidden field__item")
+
+        for solution in sols_html_block:
+            company_dict['Services'].append(service.find('h5').text.strip())
+            company_dict['Solutions'].append(solution.text.strip())
+            company_dict['Services_URL'].append(service_url)
+        
     return pd.DataFrame(company_dict)
