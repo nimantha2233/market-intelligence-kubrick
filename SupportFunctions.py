@@ -406,6 +406,22 @@ def get_company_info_pricereport(company_name, ticker):
             "52 Week Range": "Private"
         }
 
+def remove_duplicates(soup_list) -> list:
+        """
+        Find duplicate soup objects and remove them 
+        
+        Args:
+        soup_list (list): list of bs4.element.ResultSet objects 
+        """
+        unique_soups = []
+        unique_strings = set()
+        for soup in soup_list:
+            soup_str = str(soup)
+            if soup_str not in unique_strings:
+                unique_soups.append(soup)
+                unique_strings.add(soup_str)
+        return unique_soups
+
 def update_excel(data):
 
     """
@@ -443,3 +459,5 @@ def update_excel(data):
         wb.save(file_path)
     except Exception as e:
         print(f"Error updating Excel file: {e}")
+
+
