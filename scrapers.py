@@ -711,7 +711,7 @@ def scraper_cambridge() -> pd.DataFrame:
 
         services_url = service['href']
         solutions_soup = BeautifulSoup(requests.get(services_url).content, 'html5lib')
-        solutions_html = solutions_soup.find_all('ul', attrs = {'class' : "et_pb_tabs_controls clearfix"})[0].select('li') # using the initial attrs means we can access the specific children we need to as
+        solutions_html = solutions_soup.find_all('ul', attrs = {'class' : "et_pb_tabs_controls clearfix"})[0].select('li') 
 
         for solution in solutions_html:
 
@@ -763,15 +763,15 @@ def scraper_capco() -> pd.DataFrame:
 
                     for solution2 in filtered_solutions2_soup:
 
-                        company_dict['Solutions_URL'].append(url + solution.find('a')['href'])
-                        company_dict['Solutions_lvl2'].append(solution2.find('h2').text.strip())
-                        company_dict['Services'].append(service.text)
-                        company_dict['Solutions'].append(solution.find('h2').text.strip())
-                        company_dict['Services_URL'].append(solutions_url)
-                        company_dict['Solutions_lvl2_URL'].append('No URL')
+                        company_dict['Services_URL'].append(url + solution.find('a')['href'])
+                        company_dict['Solutions'].append(solution2.find('h2').text.strip())
+                        company_dict['Practices'].append(service.text)
+                        company_dict['Services'].append(solution.find('h2').text.strip())
+                        company_dict['Practices_URL'].append(solutions_url)
+                        company_dict['Solutions_URL'].append('No URL')
 
     # Two more cols exist (a level deeper from solutions) but omitted until we decide how to label it
-    return pd.DataFrame(company_dict)[['Services', 'Services_URL','Solutions', 'Solutions_URL']]
+    return pd.DataFrame(company_dict)
 
 
 def scraper_cognizant() -> pd.DataFrame:
@@ -859,39 +859,26 @@ def scraper_infosys() -> pd.DataFrame:
 
 def scraper_iqvia() -> pd.DataFrame:
     '''
-    IQVIA URL: https://jobs.iqvia.com/en
-    '''
+    IQVIA: https://www.iqvia.com/
 
-    practices_url = r'https://jobs.iqvia.com/en'
-    company_longname = r''
-    url = practices_url
-    company_dict = defaultdict(list)
-    company_dict['Practices_URL'].append(practices_url)
-
-    soup = BeautifulSoup(requests.get(company_dict['Practices_URL'][0]).content, 'html5lib')
-    practices_html = soup.find_all('div', attrs = {'class' : "fs-12 fs-m-6 fs-l-3 w-25 subnav-item"},)
-
-
-    for practice in practices_html:
+    Available on website out of Practices/Services/Solutions:
+    1. Solutions (stated explicitly)
+    2. Services (some of these explicitly have 'service' in their name but have no explicit category)
         
-        service_url = practice.find_all(lambda tag: tag.name == 'a' and tag.has_attr('href') and 'careers' in tag.get('href'))
-        practice = practice.find_all('span', {'class' : 'heading-h3'})
+    Scrape solutions (level 1) and services (level 2) from solutions page
+    on homepage: https://www.iqvia.com/solutions
+    '''
+    url = r'https://www.iqvia.com/solutions'
+    company_dict = defaultdict(list)
 
-        if len(service_url) > 0: # If len = 0 then it isnt about services or practices (e.g. about DEI)
+    soup = BeautifulSoup(requests.get(url).content, 'html5lib')
 
-            # profile_dict['Services_URL'].append(profile_dict['Practices_URL'][0] + service_url[0]['href'])
-            services_url = company_dict['Practices_URL'][0] + service_url[0]['href']
-            service_soup = BeautifulSoup(requests.get(services_url).content, 'html5lib')
-
-            services_filtered_html = service_soup.find_all('button', attrs = {'class' : 'tab-accordion__button'})
-            for service in services_filtered_html:
-                
-                company_dict['Practices'].append(practice[0].text.strip())
-                company_dict['Services'].append(service.get_text(strip = True).replace(service.find('strong').get_text(strip=True), ''))
-                company_dict['Services_URL'].append(company_dict['Practices_URL'][0] + service_url[0]['href'])
-
-
-    company_dict['Practices_URL'] = len(company_dict['Practices'])*company_dict['Practices_URL']
+    for solution_idx in range(len(soup.select('div.multi-card__wrapper'))):
+        for service in soup.select('div.multi-card__wrapper')[solution_idx].select('a.card-title'):
+            company_dict['Solutions'].append(soup.select('div.multi-card__wrapper')[solution_idx].select('h2')[0].text.strip())
+            company_dict['Solutions_URL'].append(soup.select('a.cta-btn-redesign[href*="iqvia"]')[solution_idx]['href'])
+            company_dict['Services'].append(service.text.strip())
+            company_dict['Services_URL'].append(service['href'])
 
     return pd.DataFrame(company_dict)
 
@@ -1125,7 +1112,8 @@ def scraper_billigence() -> pd.DataFrame:
     url = r'https://billigence.com'
     company_dict = defaultdict(list)
     # No access allowed unless user-agent used
-    HEADERS = {'User-Agent': 'Google Nexus: Mozilla/5.0 (Linux; U; Android-4.0.2; en-us; Galaxy Nexus Build/IML74K) AppleWebKit/535.7 (KHTML, like Gecko) CrMo/16.0.912.75 Mobile Safari/535.7'}
+    HEADERS = {'User-Agent': 'Google Nexus: Mozilla/5.0 (Linux; U; Android-4.0.2;\
+                en-us; Galaxy Nexus Build/IML74K) AppleWebKit/535.7 (KHTML, like Gecko) CrMo/16.0.912.75 Mobile Safari/535.7'}
     services_url = r'https://billigence.com/services/'
     r = requests.get(services_url, headers=HEADERS)
 
@@ -1145,4 +1133,60 @@ def scraper_billigence() -> pd.DataFrame:
             company_dict['Solutions'].append(solution.find('h2').text.strip())
             company_dict['Solutions_URL'].append(solution['href'].strip())
         
+    return pd.DataFrame(company_dict)
+
+
+
+def scraper_bmc() -> pd.DataFrame:
+    '''
+    BMC: https://www.bmc.com
+
+    Available on website out of Practices/Services/Solutions:
+    1. Solutions/Services
+        
+    Scrape Solutions/services from https://www.bmc.com/it-solutions/products-all.html
+
+    '''
+
+    url = r'https://www.bmc.com/it-solutions/products-all.html'
+    company_dict = defaultdict(list)
+
+    soup = BeautifulSoup(requests.get(url).content, 'html5lib')
+    solutions_html = soup.find_all('ul', class_ = 'results product-results')[0].find_all('a', href = True)
+
+    for solution in solutions_html:
+        if "what’s new" not in solution.text.strip().lower():
+            company_dict['Solution'].append(solution.text.strip())
+            company_dict['Solution_URL'].append(solution['href'].strip())
+
+    return pd.DataFrame(company_dict)
+
+
+def scraper_box() -> pd.DataFrame:
+    '''
+    Box UK: https://www.boxuk.com
+
+    Available on website out of Practices/Services/Solutions:
+    1. Services
+    2. Solutions
+        
+    Scrape services and solutions from homepage dropdown menu.
+
+    '''
+
+    url = r'https://www.boxuk.com'
+    company_dict = defaultdict(list)
+
+    soup = BeautifulSoup(requests.get(url).content, 'html5lib')
+    services_html = soup.select('div.dropdownmenu')
+
+    for service in services_html:
+
+        for solution in service.select('li[class] > a'):
+
+            company_dict['Services'].append(service.select('a.dropdownmenu__title')[0].text.strip())
+            company_dict['Services_URL'].append(service.select('a.dropdownmenu__title')[0]['href'].strip())
+            company_dict['Solutions_URL'].append(solution['href'].strip())
+            company_dict['Solutions'].append(solution.text.strip())
+
     return pd.DataFrame(company_dict)

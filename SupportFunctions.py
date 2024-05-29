@@ -410,7 +410,7 @@ def remove_duplicates(soup_list) -> list:
         """
         Find duplicate soup objects and remove them 
         
-        Args:
+        Args:        
         soup_list (list): list of bs4.element.ResultSet objects 
         """
         unique_soups = []
