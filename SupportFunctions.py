@@ -53,7 +53,7 @@ def write_to_excel(df, file_path, sheet_name):
         with pd.ExcelWriter(file_path, engine='openpyxl', mode='a') as writer:
             df.to_excel(writer, sheet_name=sheet_name, index=False)
 
-def read_from_excel(file_path, sheet_name):
+def read_from_excel(file_path, sheet_name, template_file_path):
     """
     Reads a specific sheet from the excel workbook and
     returns it as a dataframe
@@ -69,10 +69,10 @@ def read_from_excel(file_path, sheet_name):
         df = pd.read_excel(file_path, sheet_name=sheet_name)
         df = table_sorter(df)
     except ValueError:
-        return read_template()
+        return read_template(template_file_path)
     return df
 
-def read_template():
+def read_template(template_file_path):
     """
     Imports the template table from Template.xlsx
     
@@ -83,7 +83,7 @@ def read_template():
     """
     try:
         # Read the Excel file into a DataFrame
-        df = pd.read_excel(r"Template.xlsx", sheet_name='Template')
+        df = pd.read_excel(template_file_path, sheet_name='Template')
         return df
     except FileNotFoundError:
         print("Template.xlsx not found. Make sure the file exists in the current directory.")
@@ -162,7 +162,7 @@ def get_company_details(symbol):
     #return company_details
     
 
-def create_final_df(company_name, url, json_data, df):
+def create_final_df(company_name, url, json_data, df, template_file_path):
     """
     Creates the final dataframe to be stored using data from webscrape + financial data
     
@@ -176,7 +176,7 @@ def create_final_df(company_name, url, json_data, df):
     final_df (pd.Dataframe) : Dataframe with all data in the Template table format
     """
     # Define column list
-    columns_list = read_template().columns.tolist()
+    columns_list = read_template(template_file_path).columns.tolist()
 
     # Load JSON data
     data = json.loads(json_data)
@@ -262,6 +262,10 @@ def log_differences(action, sheet_name, num_differences):
     with open('log_diff.txt', 'a') as log_file:
         log_file.write(log_message + '\n')
 
+def log_error(message):
+    with open("log.txt", "a") as log_file:
+        log_file.write(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - {message}\n")
+
 def log_new_and_modified_rows(df1, df2, sheet_name):
     """
     Find rows that are new or modified in df1 compared to df2 and handle Excel file updates.
@@ -326,7 +330,63 @@ def log_new_and_modified_rows(df1, df2, sheet_name):
             pass
         log_differences("No differences found", sheet_name, 0)
 
-def get_company_info_pricereport(company_name, ticker):
+def log_new_and_modified_rows2(final_df, old_df, sheet_name, excel_file):
+    """
+    Find rows that are new or modified in df1 compared to df2 and handle Excel file updates.
+    
+    Args:
+    df1 (pd.DataFrame): The most up-to-date dataframe.
+    df2 (pd.DataFrame): The older dataframe to compare against.
+    sheet_name (str): The name of the sheet to update or delete.
+    """
+    # Convert columns to the same data type
+    df1 = final_df.copy()
+    df2 = old_df.copy()
+
+    cols = list(df1.columns)
+    for column in cols:
+        df1[column] = df1[column].astype(str)
+
+    df1['Status'] = 'Added'
+
+    for column in cols:
+        df2[column] = df2[column].astype(str)
+
+    df2['Status'] = 'Removed'
+
+    new_and_modified_df = pd.concat([df1, df2]).reset_index(drop=True)
+    new_and_modified_df.set_index('Status', inplace=True)
+    new_and_modified_df['Date of Collection'] = pd.to_datetime(new_and_modified_df['Date of Collection'])
+    #df = pd.DataFrame(new_df.groupby(cols).value_counts())
+
+    new_and_modified_df.drop_duplicates(subset=cols, keep=False,inplace=True)
+    new_and_modified_df.reset_index(inplace=True)
+
+
+
+    if not os.path.exists(excel_file):
+        # Create an empty Excel file with just the specified sheet
+        with pd.ExcelWriter(excel_file, engine='openpyxl', mode='w') as writer:
+            pd.DataFrame().to_excel(writer, sheet_name="Sheet 1", index=False)
+
+    if not new_and_modified_df.empty:
+        # If there are new or modified rows, write them to the specified sheet
+        with pd.ExcelWriter(excel_file, engine='openpyxl', mode='a', if_sheet_exists='replace') as writer:
+            new_and_modified_df.to_excel(writer, sheet_name=sheet_name, index=False)
+        log_differences("Changed", sheet_name, len(new_and_modified_df))
+    else:
+        # If there are no new or modified rows, remove the sheet if it exists
+        try:
+            workbook = openpyxl.load_workbook(excel_file)
+            if sheet_name in workbook.sheetnames:
+                del workbook[sheet_name]
+                workbook.save(excel_file)
+        except FileNotFoundError:
+            # If the file doesn't exist, do nothing
+            pass
+        log_differences("No differences found", sheet_name, 0)
+
+def get_company_info_pricereport(company_name, ticker, file_path):
     """
     Produces price report for a given company
     
@@ -337,7 +397,6 @@ def get_company_info_pricereport(company_name, ticker):
     Return:
     (json) : Financial Data to produce the price report
     """
-    file_path = "Kubrick MI Data.xlsx"
     sheet_name = "Price Report"
 
     if ticker == "":
@@ -409,7 +468,108 @@ def get_company_info_pricereport(company_name, ticker):
             "52 Week Range": "Private"
         }
 
-def update_excel(data):
+def get_company_info_pricereport2(company_name, ticker, file_path):
+    """
+    Produces price report for a given company
+    
+    Args:
+    company_name (str): Full company name
+    ticker (str): Company ticker. This can be an empty string if the company is private.
+
+    Return:
+    (json) : Financial Data to produce the price report
+    """
+    sheet_name = "Price Report"
+
+    if ticker == "":
+        return {
+            "Date of Collection": datetime.now().strftime("%Y-%m-%d"),
+            "Company Name": company_name,
+            "Previous Close": "Private",
+            "%-Change": "Private",
+            "Sector": "Private",
+            "Currency": "Private",
+            "52 Week Range": "Private",
+            "Error" : False
+        }
+    
+    try:
+        # Fetch company data from Yahoo Finance
+        stock = yf.Ticker(ticker)
+        info = stock.info
+        # Check if the returned info indicates data not found
+        if len(info) <= 1:
+            error_message = f"Issue with ticker: {company_name} : {info}"
+            log_error(error_message)
+            return {
+                "Date of Collection": datetime.now().strftime("%Y-%m-%d"),
+                "Company Name": company_name,
+                "Previous Close": "Private",
+                "%-Change": "Private",
+                "Sector": "Private",
+                "Currency": "Private",
+                "52 Week Range": "Private",
+                "Error" : True
+                
+            }
+        # Try to get historical data
+        previous_close = info.get("previousClose", "N/A")
+        if previous_close == "N/A":
+            error_message = f"Error while retrieving financial data for: {ticker}."
+            log_error(error_message)
+            return {
+                "Date of Collection": datetime.now().strftime("%Y-%m-%d"),
+                "Company Name": company_name,
+                "Previous Close": "Private",
+                "%-Change": "Private",
+                "Sector": "Private",
+                "Currency": "Private",
+                "52 Week Range": "Private",
+                "Error" : True
+            }
+        
+
+        # Open the Excel file and check for previous close
+        wb = openpyxl.load_workbook(file_path)
+        if sheet_name in wb.sheetnames:
+            ws = wb[sheet_name]
+            last_close = None
+            for row in ws.iter_rows(min_row=2, max_col=ws.max_column):
+                if row[1].value == company_name and isinstance(row[2].value, (int, float)):
+                    last_close = row[2].value
+                    break
+            if last_close is None:
+                percent_change = 0
+            else:
+                percent_change = abs(round(((previous_close - last_close) / last_close) * 100, 4))
+        else:
+            percent_change = 0
+        wb.close()
+        return {
+            "Date of Collection": datetime.now().strftime("%Y-%m-%d"),
+            "Company Name": company_name,
+            "Previous Close": previous_close,
+            "%-Change": percent_change,
+            "Sector": info.get("sector", "No Sector Available"),
+            "Currency": info.get('currency', "No Currency Available"),
+            "52 Week Range": f'{info.get("fiftyTwoWeekLow", "No 52 Week Low Available")} - {info.get("fiftyTwoWeekHigh", "No 52 Week High Available")}',
+            "Error" : False
+        }
+    except Exception as e:
+        error_message = f"Error while retrieving financial data for: {company_name}. Exception: {str(e)}"
+        log_error(error_message)
+        return {
+            "Date of Collection": datetime.now().strftime("%Y-%m-%d"),
+            "Company Name": company_name,
+            "Previous Close": "Private",
+            "%-Change": "Private",
+            "Sector": "Private",
+            "Currency": "Private",
+            "52 Week Range": "Private",
+            "Error" : True
+        }
+
+def update_excel(data, file_path):
 
     """
     Updates the sheet "Price Report" with the financial data from a company
@@ -418,7 +578,6 @@ def update_excel(data):
     data (json) : Financial Company data
     """
 
-    file_path = "Kubrick MI Data.xlsx"
     sheet_name = "Price Report"
 
     try:
@@ -462,7 +621,7 @@ def column_cleaner(df):
 def table_sorter(df):
     return df.sort_values(by=df.columns.tolist()).reset_index(drop=True)
 
-def create_final_df2(company_name, url, status, json_data, df):
+def create_final_df2(company_name, url, status, json_data, df, template_file_path):
     """
     Creates the final dataframe to be stored using data from webscrape + financial data
     
@@ -480,7 +639,7 @@ def create_final_df2(company_name, url, status, json_data, df):
 
     df_copy = df
 
-    columns_list = read_template().columns.tolist()
+    columns_list = read_template(template_file_path).columns.tolist()
     for column in columns_list:
         if column in df_copy.columns:
             pass

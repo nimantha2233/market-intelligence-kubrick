@@ -501,6 +501,7 @@ def scraper_fdmgroup():
 
 def scraper_slalom():
     company_dict = defaultdict(list)
+    home_url = 'https://www.slalom.com'
     url = 'https://www.slalom.com/gb/en/services'
     r = requests.get(url)
 
@@ -508,7 +509,7 @@ def scraper_slalom():
 
     table_practises = soup.find('div', attrs = {'id':'services-overview-deaa04af28'})
     practises = [row.span.text for row in table_practises.findAll('a', attrs = {'class':'cmp-image__link'})]
-    links = [f"https://www.slalom.com{row.get('href')}".replace('www.slalom.comhttps://', '') for row in table_practises.findAll('a', attrs = {'class':'cmp-image__link'})]
+    links = [clean_url(row.get('href'), home_url) for row in table_practises.findAll('a', attrs = {'class':'cmp-image__link'})]
 
     for i in range(len(practises)):
         url = links[i]
@@ -561,32 +562,37 @@ def scraper_tcs():
         for j in range(len(links2)):
                 company_dict['Practices'].append(practises[i])
                 company_dict['Practices_URL'].append(url)
-                company_dict['Services'].append('No Services')
-                company_dict['Services_URL'].append('No Services URL')
+                company_dict['Services'].append('')
+                company_dict['Services_URL'].append('')
                 company_dict['Solutions'].append(solutions[j])
-                company_dict['Solutions_URL'].append(url if links2[j] == 'No Solutions URL' else links2[j])
+                company_dict['Solutions_URL'].append(url if links2[j] == '' else links2[j])
 
     return pd.DataFrame(company_dict)
 
 def scraper_wipro():
     company_dict = defaultdict(list)
-    url = 'https://www.wipro.com/'
-    r = requests.get(url)
+    home_url = 'https://www.wipro.com'
+    r = requests.get(home_url)
 
     soup = BeautifulSoup(r.content, 'html5lib') # If this line causes an error, run 'pip install html5lib' or install html5lib 
 
     table_practises = soup.find('div', attrs = {'class':'dropdown-subnav'})
     practises = [row.text for row in table_practises.findAll('a')]
-    links = [row.get('href') for row in table_practises.findAll('a')]
+    links = [clean_url(row.get('href'), home_url) for row in table_practises.findAll('a')]
     for i in range(len(links)):
-        r2 = requests.get(f'https://www.wipro.com/{links[i]}')
+        r2 = requests.get(links[i])
         soup2 = BeautifulSoup(r2.content, 'html5lib')
         links2_a = [row.a.get('href') for row in soup2.findAll('div', attrs={'class':'cmp-nexus-iconteaser__title'})]
         expertise_a = [row.span.text for row in soup2.findAll('div', attrs={'class':'cmp-nexus-iconteaser__title'})]
         links2_b = [row.a.get('href') for row in soup2.findAll('div', attrs={'class':'quicklink dark'})][1:-1:]
         expertise_b = [row.p.text.replace('\n', '').replace('.', '').strip() for row in soup2.findAll('div', attrs={'class':'quicklink dark'})][1:-4:]
-        links2_c = []
-        expertise_c = [row.h3.text.replace('\n', '').strip() for row in soup2.findAll('div', attrs={'class':'service teaser'})]
+        if links[i] == '/analytics/':
+            tables = [table for table in soup2.findAll('div', attrs={'class':'service teaser'})]
+            links2_c = [table.find('a', attrs={'class':'cmp-teaser__action-link'}) for table in tables]
+            expertise_c = [table.find('h1', attrs={'class':'cmp-teaser__title  '}).text for table in tables]
+        else:
+            links2_c = []
+            expertise_c = []
         table = soup2.find('div', attrs={'class':'container responsivegrid container--width-wide container--full-width'})
         if table != None:
             links2_d = [row.get('href') for row in table.findAll('a', attrs={'class':'cmp-teaser__action-link'})]
@@ -610,13 +616,14 @@ def scraper_wipro():
         links2_g = [row.a.get('href') for row in soup2.findAll('div', attrs={'class':'wipro-solutions-squares-content'})]
         expertise_g = [row.h4.text.replace('\n', '').replace('.', '').strip() for row in soup2.findAll('div', attrs={'class':'wipro-solutions-squares-content'})]
         links2 = links2_a + links2_b + links2_c + links2_d + links2_e + links2_f + links2_g
+        links2 = [clean_url(link, home_url) for link in links2]
         expertise = expertise_a + expertise_b + expertise_c + expertise_d + expertise_e + expertise_f + expertise_g
         for j in range(len(links2)):
-            url = f'https://www.wipro.com/{links2[j]}'.replace('https://www.wipro.comhttps://www.wipro.com', 'https://www.wipro.com').replace('https://www.wipro.com/https://www.wipro.com', 'https://www.wipro.com')
+            url = links2[j]
             r3 = requests.get(url)
             soup3 = BeautifulSoup(r3.content, 'html5lib')
             solutions = [row.h4.text for row in soup3.findAll('div', attrs={'class':'wipro-solutions-squares-content'})]
-            links3 = ['' if row.a == None else row.a.get('href') for row in soup3.findAll('div', attrs={'class':'wipro-solutions-squares-content'})]
+            links3 = ['' if row.a == None else clean_url(row.a.get('href'), home_url) for row in soup3.findAll('div', attrs={'class':'wipro-solutions-squares-content'})]
             for k in range(len(solutions)):
                 if solutions[k] == ' ':
                     solutions[k] = ''
@@ -643,9 +650,6 @@ def scraper_bettergov() -> pd.DataFrame:
     BetterGov URL: https://www.bettergov.co.uk/
     '''
     practices_url = r'https://www.bettergov.co.uk/'
-    company_longname = r''
-    url = practices_url
-    file_path = config.FILEPATH
     company_dict = defaultdict(list)
     company_dict['Practices_URL'].append(practices_url)
 
@@ -684,10 +688,7 @@ def scraper_cambridge() -> pd.DataFrame:
     '''
 
     practices_url = r'https://www.cambridgeconsultants.com/'
-    company_longname = r''
-    url = practices_url
     company_dict = defaultdict(list)
-    file_path = config.FILEPATH
     company_dict['Practices_URL'].append(practices_url)
 
     soup = BeautifulSoup(requests.get(company_dict['Practices_URL'][0]).content, 'html5lib')
@@ -710,60 +711,58 @@ def scraper_cambridge() -> pd.DataFrame:
 
     return pd.DataFrame(company_dict) 
 
-
 def scraper_capco() -> pd.DataFrame:
     '''
-    Capco URL = https://www.capco.com
-    '''
-    practices_url = r'https://www.capco.com'
-    company_dict = defaultdict(list)
-    company_dict['Practices_URL'].append(practices_url)
-    file_path = config.FILEPATH
-    company_longname = r''
-    url = practices_url
-
-    # output soup from main page to extract practices and links to practices page
-    soup = BeautifulSoup(requests.get(company_dict['Practices_URL'][0]).content, 'html5lib')
-    practices_html = soup.find_all(lambda tag: tag.name == 'a' and '/Services/' in tag['href'] )
-
-    for practice in practices_html:
-
-        # Get URLs 
-        services_url = company_dict['Practices_URL'][0] + practice['href']
-        services_soup = BeautifulSoup(requests.get(services_url).content, 'html5lib')
-        services_html = services_soup.find_all('div', attrs = {'class' : 'article-content'})
-        services_html = remove_duplicates(services_html)
+    Capco
+ 
+    Available on website out of Practices/Services/Solutions:
+    1. Services
+    2. Solutions (?)
+    3. Another layer (?)
        
-
-        # Hard coded so was necessary
-        exclude_list = ['/Services/digital/knowable','/Services/digital/Further-Swiss-Solutions'] 
-
-        for service in services_html:
-
-            if service.find('h2'):
-                if service.find('a')['href'] not in exclude_list:
-                    solutions_soup = BeautifulSoup(requests.get(practices_url + service.find('a')['href']).content, 'html5lib')
-                    filtered_solutions_soup = solutions_soup.find_all("li", class_ = "article article-no-btn")
-                    # li_with_h2 = list(set([li.find('h2').text.strip() for li in filtered_solutions_soup if li.find("h2")]))
-
-                    for solution in filtered_solutions_soup:
-
-                        company_dict['Solutions_URL'].append(practices_url + service.find('a')['href'])
-                        company_dict['Solutions'].append(solution.find('h2').text.strip())
-                        company_dict['Practices'].append(practice.text)
-                        company_dict['Services'].append(service.find('h2').text.strip())
-                        company_dict['Services_URL'].append(services_url)
-
-    company_dict['Practices_URL'] = len(company_dict['Practices'])*company_dict['Practices_URL']
-
+    Scrape services from homepage page: https://www.capco.com
+    '''
+ 
+    company_dict = defaultdict(list)
+    url = r'https://www.capco.com'
+ 
+    # output soup from main page to extract practices and links to practices page
+    soup = BeautifulSoup(requests.get(url).content, 'html5lib')
+    services_html = soup.find_all(lambda tag: tag.name == 'a' and '/Services/' in tag['href'] )
+   
+    # Only way to separate from actual solutions so was necessary
+    exclude_list = ['/Services/digital/knowable','/Services/digital/Further-Swiss-Solutions']
+ 
+    for service in services_html:
+ 
+        # Get URLs
+        solutions_url = url + service['href']
+        solutions_soup = BeautifulSoup(requests.get(solutions_url).content, 'html5lib')
+        solutions_html = solutions_soup.find_all('div', attrs = {'class' : 'article-content'})
+        solutions_html = remove_duplicates(solutions_html)
+       
+        for solution in solutions_html:
+ 
+            if solution.find('h2'):
+                if solution.find('a')['href'] not in exclude_list:
+                    solutions2_soup = BeautifulSoup(requests.get(url + solution.find('a')['href']).content, 'html5lib')
+                    filtered_solutions2_soup = solutions2_soup.find_all("li", class_ = "article article-no-btn")
+ 
+                    for solution2 in filtered_solutions2_soup:
+ 
+                        company_dict['Services_URL'].append(url + solution.find('a')['href'])
+                        company_dict['Solutions'].append(solution2.find('h2').text.strip())
+                        company_dict['Practices'].append(service.text)
+                        company_dict['Services'].append(solution.find('h2').text.strip())
+                        company_dict['Practices_URL'].append(solutions_url)
+                        company_dict['Solutions_URL'].append('No URL')
+ 
+    # Two more cols exist (a level deeper from solutions) but omitted until we decide how to label it
     return pd.DataFrame(company_dict)
 
 def scraper_cognizant() -> pd.DataFrame:
 
     practices_url = r'https://www.cognizant.com'
-    url = practices_url
-    company_longname = r''
-    file_path = config.FILEPATH
     company_dict = defaultdict(list)
     company_dict['Practices_URL'].append(practices_url)
 
@@ -787,7 +786,7 @@ def scraper_cognizant() -> pd.DataFrame:
     company_dict['Practices_URL'] = len(company_dict['Practices'])*company_dict['Practices_URL']
     df = pd.DataFrame(company_dict)
 
-    return pd.DataFrame
+    return pd.DataFrame(company_dict)
 
 
 def scraper_infosys() -> pd.DataFrame:
@@ -797,7 +796,6 @@ def scraper_infosys() -> pd.DataFrame:
     practices_url = r'https://www.infosys.com/services/'
     company_longname = r'Infosys Limited'
     url = r'https://www.infosys.com/'
-    file_path = config.FILEPATH
     company_dict = defaultdict(list)
     company_dict['Practices_URL'].append(practices_url)
 
@@ -839,9 +837,6 @@ def scraper_iqvia() -> pd.DataFrame:
     '''
 
     practices_url = r'https://jobs.iqvia.com/en'
-    company_longname = r''
-    url = practices_url
-    file_path = config.FILEPATH
     company_dict = defaultdict(list)
     company_dict['Practices_URL'].append(practices_url)
 
@@ -879,12 +874,9 @@ def scraper_kubrick() -> pd.DataFrame:
     '''
 
     practices_url = r'https://www.kubrickgroup.com/uk/what-we-do'
-    company_longname = r''
-    url = r'https://www.kubrickgroup.com/uk/'
     company_dict = defaultdict(list)
     company_dict['Practices_URL'].append(practices_url)
     company_dict['Services_URL'].append(practices_url)
-    file_path = config.FILEPATH
 
     soup = BeautifulSoup(requests.get(company_dict['Practices_URL'][0]).content, 'html5lib')
     practices_html_block = soup.find_all('section', attrs = {'id' : "our-practices"})[0]
@@ -902,3 +894,25 @@ def scraper_kubrick() -> pd.DataFrame:
     company_dict['Services_URL'] = len(company_dict['Practices'])*company_dict['Services_URL']
     
     return pd.DataFrame(company_dict)
+
+def remove_duplicates(soup_list) -> list:
+        """
+        Find duplicate soup objects and remove them 
+        
+        Args:
+        soup_list (list): list of bs4.element.ResultSet objects 
+        """
+        unique_soups = []
+        unique_strings = set()
+        for soup in soup_list:
+            soup_str = str(soup)
+            if soup_str not in unique_strings:
+                unique_soups.append(soup)
+                unique_strings.add(soup_str)
+        return unique_soups
+
+def clean_url(url, home_url):
+    if home_url in url:
+        return url
+    else:
+        return home_url + url
