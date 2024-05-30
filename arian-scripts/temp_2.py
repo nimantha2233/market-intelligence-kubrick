@@ -27,6 +27,7 @@ def get_company_info_pricereport(company_name, ticker):
             "Previous Close": "Private",
             "%-Change": "Private",
             "Sector": "Private",
+            "Currency": "Private",
             "52 Week Range": "Private"
         }
     
@@ -43,6 +44,7 @@ def get_company_info_pricereport(company_name, ticker):
                 "Previous Close": "Private",
                 "%-Change": "Private",
                 "Sector": "Private",
+                "Currency": "Private",
                 "52 Week Range": "Private"
             }
         # Try to get historical data
@@ -55,6 +57,7 @@ def get_company_info_pricereport(company_name, ticker):
                 "Previous Close": "Private",
                 "%-Change": "Private",
                 "Sector": "Private",
+                "Currency": "Private",
                 "52 Week Range": "Private"
             }
         
@@ -81,8 +84,9 @@ def get_company_info_pricereport(company_name, ticker):
             "Company Name": company_name,
             "Previous Close": previous_close,
             "%-Change": percent_change,
-            "Sector": info.get("sector", "N/A"),
-            "52 Week Range": f'{info.get("fiftyTwoWeekLow", "N/A")} - {info.get("fiftyTwoWeekHigh", "N/A")}'
+            "Sector": info.get("sector", "No Sector Available"),
+            "Currency": info.get('currency', "No Currency Available"),
+            "52 Week Range": f'{info.get("fiftyTwoWeekLow", "No 52 Week Low Available")} - {info.get("fiftyTwoWeekHigh", "No 52 Week High Available")}'
         }
     except:
         print(f"Error while retrieving financial data for: {company_name}.")
@@ -92,6 +96,7 @@ def get_company_info_pricereport(company_name, ticker):
             "Previous Close": "Private",
             "%-Change": "Private",
             "Sector": "Private",
+            "Currency": "Private",
             "52 Week Range": "Private"
         }
 
