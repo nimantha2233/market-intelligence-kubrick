@@ -146,8 +146,8 @@ def scraper_infinitelambda():
             # Print the found elements
             for heading in practice_heading:
                 company_dict["Practices"].append(practice_name)
-                company_dict["Expertise_url"].append(practice_url)
-                company_dict['Expertise'].append(heading.text.strip())
+                company_dict["Practices_URL"].append(practice_url)
+                company_dict['Services'].append(heading.text.strip())
 
         except Exception as e:
             print(f"An error occurred while processing {practice_name}: {e}")
@@ -185,9 +185,9 @@ def scraper_meshai():
             lis_with_class = soup.find_all('li', class_=lambda c: c and c.startswith('wwd-list-item'))
             
             for li in lis_with_class:
-                company_dict['Practices'].append(name)
-                company_dict['Practices_URL'].append(link)
-                company_dict['Services'].append(li.text.strip())
+                company_dict['Services'].append(name)
+                company_dict['Services_URL'].append(link)
+                company_dict['Solutions'].append(li.text.strip())
                 
         except Exception as e:
             print(f"Error processing link: {link}. Error: {e}")
@@ -257,27 +257,27 @@ def scraper_ten10():
             for div in divs:
                 h3_tag = div.find('h3')
                 if h3_tag:
-                    company_dict['Practices'].append(temp_dict['Practices'][i])
-                    company_dict['Practices_URL'].append(url)
-                    company_dict['Services'].append(h3_tag.text.strip())
+                    company_dict['Services'].append(temp_dict['Practices'][i])
+                    company_dict['Services_URL'].append(url)
+                    company_dict['Solutions'].append(h3_tag.text.strip())
 
             second_block = soup.find('div', class_='wpb_column columns medium-12 thb-dark-column small-12')
             p_tags = second_block.find_all('p', style='text-align: center;')
             for p_tag in p_tags:
                 a_tag = p_tag.find('a')
                 if a_tag:
-                    company_dict['Practices'].append(temp_dict['Practices'][i])
-                    company_dict['Practices_URL'].append(url)
-                    company_dict['Services'].append(a_tag.text.strip())
+                    company_dict['Services'].append(temp_dict['Practices'][i])
+                    company_dict['Services_URL'].append(url)
+                    company_dict['Solutions'].append(a_tag.text.strip())
 
         elif url == 'https://ten10.com/consultancy/software-testing-services/':
 
             first_block = soup.find('div', class_='row wpb_row row-fluid full-width-row vc_custom_1646675101199')
             h3_elements = first_block.find_all('h3')
             for element in h3_elements:
-                company_dict['Practices'].append(temp_dict['Practices'][i])
-                company_dict['Practices_URL'].append(url)
-                company_dict['Services'].append(element.text.strip())
+                company_dict['Services'].append(temp_dict['Practices'][i])
+                company_dict['Services_URL'].append(url)
+                company_dict['Solutions'].append(element.text.strip())
 
         elif url == 'https://ten10.com/consultancy/cloud-devops/':
 
@@ -286,30 +286,30 @@ def scraper_ten10():
                 expertices = row.find_all('div', class_='blue wpb_column columns medium-4 thb-dark-column small-12')
                 for expertice in expertices:
                     if expertice.text.strip():
-                        company_dict['Practices'].append(temp_dict['Practices'][i])
-                        company_dict['Practices_URL'].append(url)
-                        company_dict['Services'].append(expertice.text.strip())
+                        company_dict['Services'].append(temp_dict['Practices'][i])
+                        company_dict['Services_URL'].append(url)
+                        company_dict['Solutions'].append(expertice.text.strip())
             
             second_block = soup.find_all('div', class_='row wpb_row row-fluid no-column-padding row-o-content-middle row-flex')
             for expertices2 in second_block:
                 expertice = expertices2.find('h3')
-                company_dict['Practices'].append(temp_dict['Practices'][i])
-                company_dict['Practices_URL'].append(url)
-                company_dict['Services'].append(expertice.text.strip())
+                company_dict['Services'].append(temp_dict['Practices'][i])
+                company_dict['Services_URL'].append(url)
+                company_dict['Solutions'].append(expertice.text.strip())
         
         elif url == 'https://ten10.com/consultancy/automation-services/':
 
             first_block = soup.find('div', class_='row wpb_row row-fluid full-width-row vc_custom_1646675074344')
             h3_elements = first_block.find_all('h3')
             for element in h3_elements:
-                company_dict['Practices'].append(temp_dict['Practices'][i])
-                company_dict['Practices_URL'].append(url)
-                company_dict['Services'].append(element.text.strip())
+                company_dict['Services'].append(temp_dict['Practices'][i])
+                company_dict['Services_URL'].append(url)
+                company_dict['Solutions'].append(element.text.strip())
 
         else:
-            company_dict['Practices'].append(temp_dict['Practices'][i])
-            company_dict['Practices_URL'].append(url)
-            company_dict['Services'].append(" ")
+            company_dict['Services'].append(temp_dict['Practices'][i])
+            company_dict['Services_URL'].append(url)
+            company_dict['Solutions'].append(" ")
 
     df = pd.DataFrame(company_dict)
     return df
@@ -355,15 +355,16 @@ def scraper_fjord():
     driver.quit
 
     for practice, services in company_dict.items():
-        df = pd.DataFrame({'Practices': [practice] * len(services),
-                        'Practices_URL': [url] * len(services),
-                        'Services': services})
+        df = pd.DataFrame({'Services': [practice] * len(services),
+                        'Services_URL': [url] * len(services),
+                        'Solutions': services})
         dfs.append(df)
 
     # Concatenate DataFrames
     result_df = pd.concat(dfs, ignore_index=True)
         
     return result_df
+
 
 def scraper_capgemini():
     company_dict = defaultdict(list)
