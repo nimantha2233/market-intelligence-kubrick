@@ -1216,3 +1216,65 @@ def scraper_box() -> pd.DataFrame:
             company_dict['Solutions'].append(solution.text.strip())
 
     return pd.DataFrame(company_dict)
+
+
+def scraper_canon():
+    '''
+    Canon Inc.
+
+    Available on website out of Practices/Services/Solutions:
+    1. Services
+    2. Solutions
+    3. Sub-services
+
+    Solutions and services are separate (no link). Sub-services also exist.
+    For now Services and solutions will be listed under services and sub-services as solutions
+    but will change in the future.
+    Scrape services directly from homepage: https://adatis.co.uk/
+    '''
+    BASE_URL = r'https://www.canon.co.uk'
+    SOLUTIONS_URL = r'https://www.canon.co.uk/business/solutions/'
+    SERVICES_URL= r'https://www.canon.co.uk/business/services/'
+    company_dict = defaultdict(list)
+
+    soup = BeautifulSoup(requests.get(SOLUTIONS_URL).content, 'html5lib')
+    solutions = soup.select('div[id=f-pro-parallax-text] > p.pl-text.pl-text--medium.pl-color--blue > a')
+    
+    # These are listed as Solutions on the website
+    for solution in solutions:
+        company_dict['Services'].append(solution['href'].strip().split('/')[3:4][0].replace('-',' '))
+        company_dict['Services_URL'].append(BASE_URL + solution['href'].strip())
+        company_dict['Solutions'].append('No Solutions')
+        company_dict['Solutions_URL'].append('No Solutions URL')
+
+    soup = BeautifulSoup(requests.get(SERVICES_URL).content, 'html5lib')
+
+    services = soup.select('div.hero-full__content.text-left ')
+
+    # Services listed separately to solutions
+    for service in services:
+        service_url = BASE_URL + service.select('a[href]')[0]['href']
+        service_soup = BeautifulSoup(requests.get(service_url).content, 'html5lib')
+        # the webpage for IT services has different structure to the other 2 (workplace services and management services)
+        if 'it-services' in service_url:
+            for sub_service in service_soup.select('li[class*="block-flex-list__item block-flex-list__item"]'):
+
+                if '#gate' in sub_service.select('a[href]')[0]['href'].strip():
+                    company_dict['Services'].append(service.select('a[href]')[0]['href'].split('/')[3].replace('-', ' '))
+                    company_dict['Services_URL'].append(service_url)
+                    company_dict['Solutions'].append(sub_service.select('h2')[0].text.strip())
+                    company_dict['Solutions_URL'].append('No URL available')
+                else:    
+                    company_dict['Services'].append(service.select('a[href]')[0]['href'].split('/')[3].replace('-', ' '))
+                    company_dict['Services_URL'].append(service_url)
+                    company_dict['Solutions'].append(sub_service.select('h2')[0].text.strip())
+                    company_dict['Solutions_URL'].append(sub_service.select('a[href]')[0]['href'].strip())
+                
+        else:
+            for sub_service in service_soup.select('div.hero-full__content.hero-full__content--wide ')[1:-1]:
+                company_dict['Services'].append(service.select('a[href]')[0]['href'].split('/')[3].replace('-', ' '))
+                company_dict['Services_URL'].append(service_url)
+                company_dict['Solutions'].append(sub_service.select('h2')[0].text.strip())
+                company_dict['Solutions_URL'].append(BASE_URL + sub_service.select('a[href]')[0]['href'])
+
+    return pd.DataFrame(company_dict)
