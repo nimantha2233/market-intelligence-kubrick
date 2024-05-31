@@ -1230,7 +1230,10 @@ def scraper_canon():
     Solutions and services are separate (no link). Sub-services also exist.
     For now Services and solutions will be listed under services and sub-services as solutions
     but will change in the future.
-    Scrape services directly from homepage: https://adatis.co.uk/
+
+    Scrape services and solutions from separate pages: 
+    SOLUTIONS: https://www.canon.co.uk/business/solutions/
+    SERVICES: https://www.canon.co.uk/business/services/
     '''
     BASE_URL = r'https://www.canon.co.uk'
     SOLUTIONS_URL = r'https://www.canon.co.uk/business/solutions/'
@@ -1278,3 +1281,119 @@ def scraper_canon():
                 company_dict['Solutions_URL'].append(BASE_URL + sub_service.select('a[href]')[0]['href'])
 
     return pd.DataFrame(company_dict)
+
+
+def scraper_canon():
+    '''
+    CGI: https://www.cgi.com/
+
+    Available on website out of Practices/Services/Solutions:
+    1. Services
+
+    Scrape services directly from Services page: https://www.cgi.com/en/services
+    '''
+    BASE_URL = r'https://www.cgi.com/'
+    SERVICES_URL = r'https://www.cgi.com/en/services'
+    company_dict = defaultdict(list)
+
+    soup = BeautifulSoup(requests.get(SERVICES_URL).content, 'html5lib')
+    services = soup.select('div.service-industries-article')
+
+    for service in services:
+        company_dict['Services'].append(service.select('h3')[0].text.strip())
+        company_dict['Services_URL'].append(BASE_URL + service.select('a')[0]['href'])
+    
+    return pd.DataFrame(company_dict)
+
+
+
+def scraper_vlm():
+    '''
+    CGI: https://www.vml.com
+
+    NOTE: Webpages of practices vary slightly hence long code for different cases.
+
+    Available on website out of Practices/Services/Solutions:
+    1. Practices (under expertise - see Practices_URL)
+
+    Scrape services directly from Services page: https://www.vml.com/expertise
+    '''
+    BASE_URL = r'https://www.vml.com'
+    PRACTICES_URL = r'https://www.vml.com/expertise'
+    company_dict = defaultdict(list)
+
+
+    soup = BeautifulSoup(requests.get(PRACTICES_URL).content, 'html5lib')
+
+    # These practices are displayed on cards while the others are listed at the bottom
+    for practice_card in soup.select('div[class*="card horizontal"]'):
+        practice_url = practice_card.select('h3 > a')[0]['href'].strip()
+        practice_soup = BeautifulSoup(requests.get(practice_url).content, 'html5lib')
+        
+        # Brand Exp. page has different site structure
+        if practice_card.select('h3 > a')[0].text.strip() != "Brand Experience":
+
+            # Solutions and services have identical HTML almost and each page is slightly different
+            for section in practice_soup.select('section[id]'):
+                # Makes conditional statements easier to read
+                if section.select('section'):
+                    header_text = section.select('section')[0].text.strip().lower() 
+
+                # Check whether sections exist and if they refer to services
+                if section.select('section') and any(keyword in header_text for keyword in ['services', 'solutions']):
+                    for service in section.select('div.card.vertical.light'):
+
+                        company_dict['Practices'].append(practice_card.select('h3 > a')[0].text.strip())
+                        company_dict['Practices_URL'].append(practice_url)
+                        company_dict['Services/Solutions'].append(service.select('h3')[0].text.strip())
+                        company_dict['Services/Solutions_URL'].append('No Services URL')
+
+        else:            
+            for offering in practice_soup.select('section[id="s-2"]')[0].select('div[role="region"]'):
+                company_dict['Practices'].append(practice_card.select('h3 > a')[0].text.strip())
+                company_dict['Practices_URL'].append(practice_url)
+                company_dict['Services/Solutions'].append(offering.select('h2')[0].text.strip())
+                company_dict['Services/Solutions_URL'].append('No Services URL')
+
+
+
+    # Listed at bottom of page in a different format to the above practices
+    for practice in soup.select('div > div[role="region"]'):
+        practice_url = practice.select('a[href]')[0]['href'].strip()
+        practice_soup = BeautifulSoup(requests.get(practice_url).content, 'html5lib')
+
+        for section in practice_soup.select('section[id]'):
+            
+            # Makes conditional statements easier to read
+            if section.select('div > h2'):
+                header_text = section.select('div > h2')[0].text.strip().lower() 
+            elif section.select('h3'):
+                header_text = section.select('h3')[0].text.strip().lower()
+
+            # Group 1: List of services/solutions no pictures
+            if section.select('div > h2') and any(keyword in header_text for keyword in ('services', 'solutions', 'clients')):
+                for serv_soln in section.select('div > div > h2'):
+                    company_dict['Practices'].append(practice.select('span.accordion-title')[0].text.strip())
+                    company_dict['Practices_URL'].append(practice_url)
+                    company_dict['Services/Solutions'].append(serv_soln.text.strip())
+                    company_dict['Services/Solutions_URL'].append('No Services URL')
+
+            # Group 2: Grid of services/solutions with pictures
+            elif section.select('div.card.vertical.light') and any(keyword in header_text for keyword in ['services', 'solutions']):
+                for serv_soln in section.select('div.card.vertical.light'):
+                    company_dict['Practices'].append(practice.select('span.accordion-title')[0].text.strip())
+                    company_dict['Practices_URL'].append(practice_url)
+                    company_dict['Services/Solutions'].append(serv_soln.select('h3')[0].text.strip())
+                    company_dict['Services/Solutions_URL'].append('No Services URL')
+
+        # Group 3: No section[id] like rest of practices but similar to group 1
+        if practice_soup.select('section.capabilities.cnt'):
+            for solution in practice_soup.select('section.capabilities.cnt')[0].select('div[role="region"]'):
+                company_dict['Practices'].append(practice.select('span.accordion-title')[0].text.strip())
+                company_dict['Practices_URL'].append(practice_url)
+                company_dict['Services/Solutions'].append(solution.select('h2')[0].text.strip())
+                company_dict['Services/Solutions_URL'].append('No Services URL')
+
+        
+    return pd.DataFrame(company_dict)
+
