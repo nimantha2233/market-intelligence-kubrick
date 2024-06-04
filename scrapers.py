@@ -1218,7 +1218,7 @@ def scraper_box() -> pd.DataFrame:
     return pd.DataFrame(company_dict)
 
 
-def scraper_canon():
+def scraper_canon() -> pd.DataFrame:
     '''
     Canon Inc.
 
@@ -1283,7 +1283,7 @@ def scraper_canon():
     return pd.DataFrame(company_dict)
 
 
-def scraper_canon():
+def scraper_canon() -> pd.DataFrame:
     '''
     CGI: https://www.cgi.com/
 
@@ -1307,7 +1307,7 @@ def scraper_canon():
 
 
 
-def scraper_vlm():
+def scraper_vlm() -> pd.DataFrame:
     '''
     CGI: https://www.vml.com
 
@@ -1397,3 +1397,180 @@ def scraper_vlm():
         
     return pd.DataFrame(company_dict)
 
+
+def scraper_deloitte():
+    '''
+    Deloitte: https://www.deloitte.com/global/en.html
+
+    Multiple Services under services tab on homepage but all but one are financial related. Do we want this?
+
+    Available on website out of Practices/Services/Solutions:
+    1. Services 
+    2. Each service has sub-services
+    3. The next layer is also under a heading with word "Services"
+
+    From services page scrape services: https://www.deloitte.com/global/en/services.html
+    '''
+
+    BASE_URL = r'https://www.deloitte.com'
+    SERVICES_URL = r'https://www.deloitte.com/global/en/services.html'
+    company_dict = defaultdict(list)
+
+    soup = BeautifulSoup(requests.get(SERVICES_URL).content, 'html5lib')
+
+    # For each service on top level services webpage
+    for service_soup in soup.select('div[id="promo-container--c331840e"]')[0].select('div[id]'):
+        # Ghost elements exist in services section grid (could be new areas in future)
+        if service_soup.select('h3'):
+            service_url = BASE_URL + service_soup.select('a[href]')[0]['href'].strip()
+
+            # Go to each service page
+            service_page_soup = BeautifulSoup(requests.get(service_url).content, 'html5lib')
+            # Cycle through the sub-services
+            for sub_service in service_page_soup.select('div[id*="promo-container--"]')[0].select('a[data-promo-name]'):
+                # Some sub-services dont have their own webpage/URL
+                if sub_service.has_attr('href') and 'pdf' not in sub_service['href']:
+                    sub_service_url = BASE_URL + sub_service['href']
+                    sub_service_page_soup = BeautifulSoup(requests.get(sub_service_url).content, 'html5lib')
+
+                    # Go to each sub-service page --- Endpoint 1 ---
+                    if sub_service_page_soup.select('div[id*="promo-container--"]'):
+                        for solution in sub_service_page_soup.select('div[id*="promo-container--"]')[0].select('a[data-promo-name]'):
+                            if solution.has_attr('href'):
+                                company_dict['Practices'].append(service_soup.select('a[href]')[0]['data-promo-name'].strip())
+                                company_dict['Practices_URL'].append(service_url)
+                                company_dict['Services'].append(sub_service['data-promo-name'])
+                                company_dict['Services_URL'].append(sub_service_url)
+                                company_dict['Solutions'].append(solution['data-promo-name'])
+                                company_dict['Solutions_URL'].append(BASE_URL + solution['href'].strip())
+
+                            else:
+                                company_dict['Practices'].append(service_soup.select('a[href]')[0]['data-promo-name'].strip())
+                                company_dict['Practices_URL'].append(service_url)
+                                company_dict['Services'].append(sub_service['data-promo-name'])
+                                company_dict['Services_URL'].append(sub_service_url)
+                                company_dict['Solutions'].append(solution['data-promo-name'])
+                                company_dict['Solutions_URL'].append('No Solutions URL')                        
+
+                    # One page (restructuring-performance-improvement) has different html structure --- Endpoint 2 ---
+                    elif sub_service_page_soup.select('div[id = "improvement"]'):
+                        for solution in sub_service_page_soup.select('div[id = "improvement"]')[0].select('h4'):
+                            company_dict['Practices'].append(service_soup.select('a[href]')[0]['data-promo-name'].strip())
+                            company_dict['Practices_URL'].append(service_url)
+                            company_dict['Services'].append(sub_service['data-promo-name'])
+                            company_dict['Services_URL'].append(sub_service_url)
+                            company_dict['Solutions'].append(solution.text.strip())
+                            company_dict['Solutions_URL'].append('No Solutions URL')
+
+                # Link to download pdf to view more info about solution (some dont have webpage but have pdf for more details)
+                # --- Endpoint 3 ---
+                elif sub_service.has_attr('href') and 'pdf' in sub_service['href']:
+                    company_dict['Practices'].append(service_soup.select('a[href]')[0]['data-promo-name'].strip())
+                    company_dict['Practices_URL'].append(service_url)
+                    company_dict['Services'].append(sub_service['data-promo-name'])
+                    company_dict['Services_URL'].append('No Services URL')
+                    company_dict['Solutions'].append('No Solutions')
+                    company_dict['Solutions_URL'].append('No Solutions URL')
+
+                # No URL sub-services --- Endpoint 4 ---
+                else:
+                    company_dict['Practices'].append(service_soup.select('a[href]')[0]['data-promo-name'].strip())
+                    company_dict['Practices_URL'].append(service_url)
+                    company_dict['Services'].append(sub_service['data-promo-name'])
+                    company_dict['Services_URL'].append('No Services URL')
+                    company_dict['Solutions'].append('No Solutions')
+                    company_dict['Solutions_URL'].append('No Solutions URL')
+            
+    return pd.DataFrame(company_dict)
+
+
+
+def scraper_dxc():
+    '''
+    DXC Technology: https://dxc.com/uk/en
+
+    Scrape offerings (practices) from drop-down menu.
+    ______________________________________________________________________________________________
+    NOTE: HTML was coded very badly so there were 2 cases for 2 specific URLs (out of the 5 cases) 
+
+
+    Available on website out of Practices/Services/Solutions:
+    1. Services 
+    2. Each service has sub-services
+    3. The next layer is also under a heading with word "Services"
+
+    Use dropdown menu to scrape practices and services: https://dxc.com/uk/en
+    '''
+
+    BASE_URL = r'https://dxc.com'
+    PRACTICES_URL = r'https://dxc.com/uk/en'
+    company_dict = defaultdict(list)
+
+    homepage_soup = BeautifulSoup(requests.get(PRACTICES_URL).content, 'html5lib')
+
+    for offering in homepage_soup.select('div[id="offerings-menu"]')[0].select('li > a[target]')[1:]: # First element is "our offerings"
+        # Practices and services soups both in list we're iterating through
+        if offering['class'][0] == "secondary_heading":
+            practice = offering.text.strip()
+            practice_url = offering['href'].strip()
+
+        else:
+            service = offering.text.strip()     
+            service_url = BASE_URL + offering['href'].strip()
+            service_page_soup = BeautifulSoup(requests.get(service_url).content, 'html5lib')
+            service_page_sub_soup = service_page_soup.select('div.spotlightmedia.media-text--article.bg-light.aem-GridColumn.aem-GridColumn--default--12')
+
+            # 1st Case with specific class attr.
+            if service_page_sub_soup and 'partners' not in service_page_sub_soup[0].select('h2')[0].text.strip().lower() and 'related' not in service_page_sub_soup[0].select('h2')[0].text.strip().lower():
+                for capability in service_page_soup.select('div.spotlightmedia.media-text--article.aem-GridColumn.aem-GridColumn--default--12')[0].select('div.aem-GridColumn.main'):                    
+                    if capability.select('div.media-text__content-title'):
+                        company_dict['Practices'].append(practice)
+                        company_dict['Practices_URL'].append(BASE_URL + practice_url)
+                        company_dict['Services'].append(service)
+                        company_dict['Services_URL'].append(service_url)
+                        company_dict['Solutions'].append(capability.select('div.media-text__content-title')[0].text.strip())
+                        company_dict['Solutions_URL'].append('No Solutions URL')
+                
+            # 2nd Case with specific class attr.
+            elif service_page_soup.select('div.spotlightmedia.media-text--article.aem-GridColumn.aem-GridColumn--default--12') and 'capabilities' in service_page_soup.select('div.spotlightmedia.media-text--article.aem-GridColumn.aem-GridColumn--default--12')[0].select('h2')[0].text.strip().lower() and service != 'Network':
+                for capability in service_page_soup.select('div.spotlightmedia.media-text--article.aem-GridColumn.aem-GridColumn--default--12')[0].select('div.aem-GridColumn.main'):
+                    if capability.select('div.media-text__content-title'):
+                        company_dict['Practices'].append(practice)
+                        company_dict['Practices_URL'].append(BASE_URL + practice_url)
+                        company_dict['Services'].append(service)
+                        company_dict['Services_URL'].append(service_url)
+                        company_dict['Solutions'].append(capability.select('div.media-text__content-title')[0].text.strip())
+                        company_dict['Solutions_URL'].append('No Solutions URL')
+            # Case 3: Unique to network page. Very badly coded HTML likely to be modified and fixed
+            elif service_page_soup.select('div.spotlightmedia.media-text--article.media-text--content-spread.aem-GridColumn.aem-GridColumn--default--12') and 'capabilities' in service_page_soup.select('div.spotlightmedia.media-text--article.media-text--content-spread.aem-GridColumn.aem-GridColumn--default--12')[0].select('h2')[0].text.strip().lower():
+                for capability in service_page_soup.select('div.spotlightmedia.media-text--article.media-text--content-spread.aem-GridColumn.aem-GridColumn--default--12')[0].select('div.aem-GridColumn.main'):
+                    company_dict['Practices'].append(practice)
+                    company_dict['Practices_URL'].append(BASE_URL + practice_url)
+                    company_dict['Services'].append(service)
+                    company_dict['Services_URL'].append(service_url)
+                    company_dict['Solutions'].append(capability.select('div.cmp-text > p')[0].text.strip())
+                    company_dict['Solutions_URL'].append('No Solutions URL')
+            # Case 4: data and analytics page is unique
+            elif service.lower() == "data and analytics":
+                for solution in service_page_soup.select('div.promo-cards.loop')[0].select('div.aem-GridColumn'):
+                    company_dict['Practices'].append(practice)
+                    company_dict['Practices_URL'].append(BASE_URL + practice_url)
+                    company_dict['Services'].append(service)
+                    company_dict['Services_URL'].append(service_url)
+                    company_dict['Solutions'].append(solution.select('h4')[0].text.strip())
+                    company_dict['Solutions_URL'].append(BASE_URL + solution.select('a.card-link')[0]['href'].strip())
+            else:
+                # Case 5: No service webpage has no solutions (capabilities) listed
+                company_dict['Practices'].append(practice)
+                company_dict['Practices_URL'].append(BASE_URL + practice_url)
+                company_dict['Services'].append(service)
+                company_dict['Services_URL'].append(service_url)
+                company_dict['Solutions'].append('No Solutions')
+                company_dict['Solutions_URL'].append('No Solutions URL')
+
+
+    df = pd.DataFrame(company_dict)
+    df.drop(index = 68, inplace=True)
+    df.reset_index(inplace=True)
+          
+    return df
