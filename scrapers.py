@@ -1520,7 +1520,7 @@ def scraper_dxc():
             service_page_soup = BeautifulSoup(requests.get(service_url).content, 'html5lib')
             service_page_sub_soup = service_page_soup.select('div.spotlightmedia.media-text--article.bg-light.aem-GridColumn.aem-GridColumn--default--12')
 
-            # 1st Case with specific class attr.
+            # Case 1: with specific class attr.
             if service_page_sub_soup and 'partners' not in service_page_sub_soup[0].select('h2')[0].text.strip().lower() and 'related' not in service_page_sub_soup[0].select('h2')[0].text.strip().lower():
                 for capability in service_page_soup.select('div.spotlightmedia.media-text--article.aem-GridColumn.aem-GridColumn--default--12')[0].select('div.aem-GridColumn.main'):                    
                     if capability.select('div.media-text__content-title'):
@@ -1531,7 +1531,7 @@ def scraper_dxc():
                         company_dict['Solutions'].append(capability.select('div.media-text__content-title')[0].text.strip())
                         company_dict['Solutions_URL'].append('No Solutions URL')
                 
-            # 2nd Case with specific class attr.
+            # Case 2: with specific class attr.
             elif service_page_soup.select('div.spotlightmedia.media-text--article.aem-GridColumn.aem-GridColumn--default--12') and 'capabilities' in service_page_soup.select('div.spotlightmedia.media-text--article.aem-GridColumn.aem-GridColumn--default--12')[0].select('h2')[0].text.strip().lower() and service != 'Network':
                 for capability in service_page_soup.select('div.spotlightmedia.media-text--article.aem-GridColumn.aem-GridColumn--default--12')[0].select('div.aem-GridColumn.main'):
                     if capability.select('div.media-text__content-title'):
@@ -1550,7 +1550,7 @@ def scraper_dxc():
                     company_dict['Services_URL'].append(service_url)
                     company_dict['Solutions'].append(capability.select('div.cmp-text > p')[0].text.strip())
                     company_dict['Solutions_URL'].append('No Solutions URL')
-            # Case 4: data and analytics page is unique
+            # Case 4: Data and analytics page is unique
             elif service.lower() == "data and analytics":
                 for solution in service_page_soup.select('div.promo-cards.loop')[0].select('div.aem-GridColumn'):
                     company_dict['Practices'].append(practice)
@@ -1560,7 +1560,7 @@ def scraper_dxc():
                     company_dict['Solutions'].append(solution.select('h4')[0].text.strip())
                     company_dict['Solutions_URL'].append(BASE_URL + solution.select('a.card-link')[0]['href'].strip())
             else:
-                # Case 5: No service webpage has no solutions (capabilities) listed
+                # Case 5: service webpage has no solutions (capabilities) listed
                 company_dict['Practices'].append(practice)
                 company_dict['Practices_URL'].append(BASE_URL + practice_url)
                 company_dict['Services'].append(service)
@@ -1573,4 +1573,167 @@ def scraper_dxc():
     df.drop(index = 68, inplace=True)
     df.reset_index(inplace=True)
           
+    return df
+
+
+def scraper_11fs():
+    '''
+    11:fs: https://www.11fs.com/
+
+    Available on website out of Practices/Services/Solutions:
+    1. Services (listed under services tab as ventures)
+
+    Scrape services directly from ventures page page: https://www.11fs.com/services/ventures
+    '''    
+    BASE_URL = r'https://www.11fs.com/'
+    SERVICES_URL = r'https://www.11fs.com/services/ventures'
+    company_dict = defaultdict(list)
+
+    soup = BeautifulSoup(requests.get(SERVICES_URL).content, 'html5lib')
+
+    # Services group into two sections
+    for venture in soup.select('div.block-left[id*="w-node-"]'):
+        for venture in str(venture.select('p.body-thin.txt-points')[0]).replace('</p>','').replace('<p','').replace('class="body-thin txt-points">','').split("<br/>"):
+            company_dict['Services'].append(venture.strip())
+            company_dict['Services_URL'].append('No Services URL')
+
+    for venture in soup.select('div.report-wrapper'):
+        company_dict['Services'].append(venture.select('h4')[0].text.strip())
+        company_dict['Services_URL'].append('No Services URL')
+
+    return pd.DataFrame(company_dict)
+
+
+
+def scraper_resillion():
+    '''
+    Edge Testing Solutions (Resillion): https://www.resillion.com/
+
+    Available on website out of Practices/Services/Solutions:
+    1. Services (Put into Practices in DataFrame)
+
+    Under each service is a sub-service and each sub-service (bar 1) 
+    has useful more granular data (a few times are described as offerings or services)
+
+
+    Scrape services directly from drop down menu: https://www.resillion.com/
+    '''    
+
+    SERVICES_URL = r'https://www.resillion.com/'
+    company_dict = defaultdict(list)
+
+    # 403 Error if no User-Agent
+    HEADERS = {
+        'User-Agent': 'My User Agent 1.0',
+        'From': 'youremail@domain.example'  # This is another valid field
+              }
+
+    soup = BeautifulSoup(requests.get(SERVICES_URL, headers=HEADERS).content, 'html5lib')
+
+
+    services_list = []
+    sub_services_list = []
+    # Iterate through each group of services from dropdown menu
+    for service_group in soup.select('li[id="mega-menu-267-0"]')[0].select('ul > li[class*=menu-item-has-children]'):
+        services_list.append(service_group.select('a')[0].text.strip())
+        for sub_service in service_group.select('ul > li'):
+            sub_service_url = sub_service.select('a')[0]['href'].strip()
+            sub_services_list.append(sub_service.text.strip())
+
+            sub_service_soup = BeautifulSoup(requests.get(sub_service_url, headers=HEADERS).content, 'html5lib')
+
+            # Case 1: Unique layout for Software Quality Engineering
+            if sub_service.text.strip() == 'Software Quality Engineering':
+                for section in sub_service_soup.find_all('section', {'data-aos': "fade-in", 'data-aos-duration' : "2000", 'style' : False}):
+                    if 'offering' in section.select('h2')[0].text.strip().lower():
+                        for offering in sub_service_soup.select('div.col-md-4.p-3.d-flex.flex-col'):
+                            company_dict['Practices'].append(service_group.select('a')[0].text.strip())
+                            company_dict['Practices_URL'].append(service_group.select('a')[0]['href'].strip())
+                            company_dict['Services'].append(sub_service.text.strip())
+                            company_dict['Services_URL'].append(sub_service_url)
+                            company_dict['Solutions'].append(offering.select('p.fs-20.bold.text-success.mt-3.mb-1')[0].text.strip())
+                            company_dict['Solutions_URL'].append(offering.select('a[href]')[0]['href'].strip())
+
+            # Case 2: Some services under the section tag with class containing "benefits"
+            elif sub_service_soup.select('section[class*="benefits py-5"]') and sub_service_soup.select('div[id="v-pills-tab"]'):
+                # print('<<<<<<<<< Benefits >>>>>>>>>>>')        
+                num_of_solutions = len(sub_service_soup.select('div[id="v-pills-tab"] > button') )
+                for idx in range(num_of_solutions):
+                    #print(sub_service_soup.select('div[id="v-pills-tab"] > button')[idx].text.strip())
+                    if sub_service_soup.select('div[id="v-pills-tabContent"] > div')[idx].select('a[href]'):
+                        company_dict['Practices'].append(service_group.select('a')[0].text.strip())
+                        company_dict['Practices_URL'].append(service_group.select('a')[0]['href'].strip())
+                        company_dict['Services'].append(sub_service.text.strip())
+                        company_dict['Services_URL'].append(sub_service_url)
+                        company_dict['Solutions'].append(sub_service_soup.select('div[id="v-pills-tab"] > button')[idx].text.strip())
+                        company_dict['Solutions_URL'].append(sub_service_soup.select('div[id="v-pills-tabContent"] > div')[idx].select('a[href]')[0]['href'].strip())                    
+
+                    else:
+                        company_dict['Practices'].append(service_group.select('a')[0].text.strip())
+                        company_dict['Practices_URL'].append(service_group.select('a')[0]['href'].strip())
+                        company_dict['Services'].append(sub_service.text.strip())
+                        company_dict['Services_URL'].append(sub_service_url)
+                        company_dict['Solutions'].append(sub_service_soup.select('div[id="v-pills-tab"] > button')[idx].text.strip())
+                        company_dict['Solutions_URL'].append('No URL') 
+
+            # Case 3: Some services under the section tag with class containing "services"
+            elif sub_service_soup.select('section[class*="services py-5"]'):
+                cnt = 0
+                for section in sub_service_soup.select('section[class*="services py-5"]'):
+                    if section.select('div.col-md-3.p-3.d-flex.flex-col'):
+                        for solution in section.select('div.col-md-3.p-3.d-flex.flex-col'):
+                            company_dict['Practices'].append(service_group.select('a')[0].text.strip())
+                            company_dict['Practices_URL'].append(service_group.select('a')[0]['href'].strip())
+                            company_dict['Services'].append(sub_service.text.strip())
+                            company_dict['Services_URL'].append(sub_service_url)
+                            company_dict['Solutions'].append(solution.select('p.fs-20.bold.text-success.mt-3.mb-1')[0].text.strip())
+                            company_dict['Solutions_URL'].append(section.select('a[href]')[0]['href'].strip())
+                            cnt = 1                                           
+                    elif section.select('div.col-md-4.p-3.d-flex.flex-col'):
+                        for solution in section.select('div.col-md-4.p-3.d-flex.flex-col'):
+                            if section.select('a[href]'):
+                                company_dict['Practices'].append(service_group.select('a')[0].text.strip())
+                                company_dict['Practices_URL'].append(service_group.select('a')[0]['href'].strip())
+                                company_dict['Services'].append(sub_service.text.strip())
+                                company_dict['Services_URL'].append(sub_service_url)
+                                company_dict['Solutions'].append(solution.select('p.fs-20.bold.text-success.mt-3.mb-1')[0].text.strip())
+                                company_dict['Solutions_URL'].append(section.select('a[href]')[0]['href'].strip()) 
+                                cnt = 1
+                                
+                            else:
+                                company_dict['Practices'].append(service_group.select('a')[0].text.strip())
+                                company_dict['Practices_URL'].append(service_group.select('a')[0]['href'].strip())
+                                company_dict['Services'].append(sub_service.text.strip())
+                                company_dict['Services_URL'].append(sub_service_url)
+                                company_dict['Solutions'].append(solution.select('p.fs-20.bold.text-success.mt-3.mb-1')[0].text.strip())
+                                company_dict['Solutions_URL'].append('No URL') 
+                                cnt = 1
+                    elif cnt == 1:
+                        # Will move onto next sub service once company_dict is appended for current sub_service
+                        break
+
+            elif sub_service.text.strip() == 'Testing Tools':
+                for section in sub_service_soup.select('div.col-md-6.p-3'):
+                    if section.select('h2'):
+                        company_dict['Practices'].append(service_group.select('a')[0].text.strip())
+                        company_dict['Practices_URL'].append(service_group.select('a')[0]['href'].strip())
+                        company_dict['Services'].append(sub_service.text.strip())
+                        company_dict['Services_URL'].append(sub_service_url)
+                        company_dict['Solutions'].append(section.select('h2')[0].text.strip())
+                        company_dict['Solutions_URL'].append(section.select('a[href]')[0]['href'].strip()) 
+
+
+
+    df = pd.DataFrame(company_dict)
+
+    # Due to inconcistent nature of website format, do manual check. If a service (top level exists) is added or modified to have different layout this will rais eError
+    if len(set(company_dict['Practices'])) != len(services_list):
+        raise(Exception())
+
+    if len(set(company_dict['Services'])) != len(sub_services_list):
+        raise ValueError('Number of services from dropdown not equal to number in dataframe.'
+                        + ' New sub_service added with different webpage HTML structure or' 
+                        + 'curent sub_service page HTML modified and is different '
+                        )
+
     return df
