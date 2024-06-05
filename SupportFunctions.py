@@ -25,6 +25,54 @@ def sheet_exists(file_path, sheet_name):
     else:
         return False
 
+def company_intel_table(company_name, url, file_path="kubrick_mi_company_intel.csv"):
+
+    if not os.path.exists(file_path):
+        empty_df = pd.DataFrame(columns=['Date Collected', 'Company Name', 'URL','Training Program Duration',
+                                         'Anecdotal Views of Quality', 'Consultant Pricing'])  # Assuming these are your column names
+        empty_df.to_csv(file_path, index=False)
+
+    try:
+        data = pd.read_csv(file_path, encoding='utf-8')
+    except UnicodeDecodeError:
+        data = pd.read_csv(file_path, encoding='ISO-8859-1')
+
+    data_as_dict = defaultdict(list)
+
+    company_names_column = data.iloc[:, 1]
+    company_exists = company_name in company_names_column.values
+
+    data_as_dict["Date Collected"].append(datetime.now().strftime("%Y-%m-%d"))
+    data_as_dict["Company Name"].append(company_name)
+    data_as_dict["URL"].append(url)
+
+    training_duration_index = data.columns.get_loc("Training Program Duration")
+    try:
+        if company_exists:
+            company_index = company_names_column[company_names_column == company_name].index[0]
+            for col in data.columns[training_duration_index:]:
+                data_as_dict[col].append(data.at[company_index, col])
+            
+            for key, value in data_as_dict.items():
+                data.at[company_index, key] = value[0]
+            
+        else:
+            for col in data.columns[training_duration_index:]:
+                if col not in data_as_dict:
+                    data_as_dict[col].append("To be completed manually")
+                new_data = pd.DataFrame(data_as_dict)
+                data = pd.concat([data, new_data], ignore_index=True)
+    except Exception as e:
+        log_error(f"Error obtaining intel data for {company_name}: {e}")
+        return False
+    
+    for column in data.columns[3:]:
+        data[column] = [f'No {column} Available' if item in ('', ' ', None, 'nan', np.nan) else item for item in data[column]]
+    data.dropna(inplace=True)
+    data.reset_index(drop=True, inplace=True)
+    data.to_csv(file_path, index=False, encoding='ISO-8859-1')
+    return True
+
 def write_to_excel(df, file_path, sheet_name):
     """
     Saves the df in the sheet in the excel workbook.
