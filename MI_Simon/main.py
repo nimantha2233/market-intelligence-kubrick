@@ -4,6 +4,7 @@ import pandas as pd
 import SupportFunctions
 import threading
 from datetime import datetime
+import os
 
 company_dict = {'company_name':['Capgemini SE', 'AND Digital', 'Dufrain', 'FDM Group (Holdings) Ltd', 'Slalom', 'Tata Consultancy Services Limited', 'Wipro Limited', 'Infosys Limited', 'Credera', 'Infinite Lambda', 'Mesh AI', 'Sparta Global', 'Ten10', 'Fjord Consulting Group', 'BetterGov', 'Cambridge Consultants Limited', 'Capco Limited', 'Cognizant Technology Solutions Corporation', 'IQVIA Holdings Inc', 'Kubrick Group Limited'],
         'company_url':['https://www.capgemini.com/','https://www.and.digital/','https://www.dufrain.co.uk/','https://www.fdmgroup.com/','https://www.slalom.com/','https://www.tcs.com','https://www.wipro.com/', 'https://www.infosys.com/', 'https://www.credera.com/en-gb', 'https://infinitelambda.com', 'https://www.mesh-ai.com/', 'https://www.spartaglobal.com', 'https://ten10.com', 'https://fjordconsultinggroup.com', 'https://www.bettergov.co.uk/', 'https://www.cambridgeconsultants.com/', 'https://www.capco.com', 'https://www.cognizant.com', 'https://jobs.iqvia.com/en', 'https://www.kubrickgroup.com'],
@@ -251,9 +252,9 @@ def main_scrape(app, title, currentCompanyLabel, pPercentage, progressBar,
     # template_file_path = r'C:\Users\Jack\Documents\VS Code\market-intelligence-kubrick\Template.xlsx'
 
     
-    file_path = r'MI\database\Kubrick MI Data.xlsx'
-    intel_file_path = r'MI\database\kubrick_mi_company_intel.csv'
-    template_file_path = r'Mi\Template.xlsx'
+    file_path = os.path.join(current_dir, 'database', 'Kubrick MI Data.xlsx')
+    intel_file_path = os.path.join(current_dir, 'database', 'kubrick_mi_company_intel.csv')
+    template_file_path = os.path.join(current_dir, 'Template.xlsx')
 
     price_report_run = False
     temporary_df = pd.read_excel(file_path, sheet_name="Price Report")
