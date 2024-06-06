@@ -7,6 +7,7 @@ import openpyxl
 from datetime import datetime, date
 import scrapers
 import numpy as np
+from collections import defaultdict
 
 def sheet_exists(file_path, sheet_name):
     """
