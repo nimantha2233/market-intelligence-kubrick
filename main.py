@@ -2,6 +2,8 @@ import tkinter
 import customtkinter
 import pandas as pd
 import SupportFunctions
+import threading
+from datetime import datetime
 
 company_dict = {'company_name':['Capgemini SE', 'AND Digital', 'Dufrain', 'FDM Group (Holdings) Ltd', 'Slalom', 'Tata Consultancy Services Limited', 'Wipro Limited', 'Infosys Limited', 'Credera', 'Infinite Lambda', 'Mesh AI', 'Sparta Global', 'Ten10', 'Fjord Consulting Group', 'BetterGov', 'Cambridge Consultants Limited', 'Capco Limited', 'Cognizant Technology Solutions Corporation', 'IQVIA Holdings Inc', 'Kubrick Group Limited'],
         'company_url':['https://www.capgemini.com/','https://www.and.digital/','https://www.dufrain.co.uk/','https://www.fdmgroup.com/','https://www.slalom.com/','https://www.tcs.com','https://www.wipro.com/', 'https://www.infosys.com/', 'https://www.credera.com/en-gb', 'https://infinitelambda.com', 'https://www.mesh-ai.com/', 'https://www.spartaglobal.com', 'https://ten10.com', 'https://fjordconsultinggroup.com', 'https://www.bettergov.co.uk/', 'https://www.cambridgeconsultants.com/', 'https://www.capco.com', 'https://www.cognizant.com', 'https://jobs.iqvia.com/en', 'https://www.kubrickgroup.com'],
@@ -11,6 +13,143 @@ company_dict = {'company_name':['Capgemini SE', 'AND Digital', 'Dufrain', 'FDM G
 
 company_df = pd.DataFrame(company_dict)
 
+full_company_list = {
+    'Capgemini SE' : 'CAP.PA',
+    'AND Digital' : '',
+    'Dufrain' : '',
+    'FDM Group (Holdings) Ltd' : 'FDM.L',
+    'Slalom' : '',
+    'Tata Consultancy Services Limited' : 'TCS.BO',
+    'Wipro Limited' : 'WIT',
+    'Fjord Consulting Group' : '',
+    'Mesh AI' : '',
+    'Sparta Global' : '',
+    'Ten10' : '',
+    'Credera' : '',
+    'Infinite Lambda' : '',
+    'BetterGov' : '',
+    'Cambridge Consultants Limited' : '',
+    'Capco Limited' : '',
+    'Cognizant Technology Solutions Corporation' : 'CTSH',
+    'Infosys Limited' : 'INFY',
+    'IQVIA Holdings Inc' : 'IQV',
+    'Kubrick Group Limited' : '',
+    '11:FS' : '',
+    'a1qa' : '',
+    'Accenture PLC' : 'ACN',
+    'Adatis' : '',
+    'Afiniti' : '',
+    'Airwalk Reply' : '',
+    'Alchemmy' : '',
+    'Alix Partners' : '',
+    'Apexon' : '',
+    'Arthur D Little' : '',
+    'Atos Group' : '', # Unsure on what the ticker is? Mentioned it is public in excel by Simon
+    'Atos SE' : 'ATO.PA',
+    'Avanade Inc.' : '',
+    'Bain & Company' : '',
+    'Baringa' : '',
+    'Billigence' : '',
+    'BJSS' : '',
+    'Blueberry Consultants Ltd.' : '',
+    'Booz Allen Hamilton Holding Corp' : 'BAH',
+    'Boston Consulting Group' : '',
+    'Broadstones Tech' : '',
+    'Cambridge Design Partnership' : '',
+    'Canon Inc.' : '7751.T',
+    'Capita' : 'CPI.L',
+    'Centric Consulting' : '',
+    'CGI' : '',
+    'CIGNITI Technologies Ltd' : 'CIGNITITEC.BO',
+    'Clarasys' : '',
+    'Cognifide' : '',
+    'Contino Ltd.' : '',
+    'Credo Consulting' : '',
+    'Deloitte' : '',
+    'Designit' : '',
+    'Digital Workplace Group' : '',
+    'DXC Technology' : 'DXC',
+    'Eclature Technologies' : '',
+    'Eden McCallum' : '',
+    'Edge Testing Solutions' : '',
+    'Elixirr International Plc' : 'ELIX.L',
+    'EPAM Systems Inc' : 'EPAM',
+    'Equal Experts' : '',
+    'EY' : '',
+    'Faculty AI' : '',
+    'Frog Design' : '',
+    'Frontier Economics' : '',
+    'GeekTek' : '',
+    'Genpact Ltd' : 'G',
+    'HCL Technologies Ltd' : 'HCLTECH.BO',
+    'Hexaware Technologies Ltd' : '',
+    'HP Inc' : 'HPQ',
+    'Icon PLC' : 'ICLR',
+    'IDEO' : '',
+    'Infostretch Corp' : '',
+    'International Business Machines Corp' : 'IBM',
+    'JMAN Group' : '',
+    'Kainos' : 'KNOS.L',
+    'Kearney' : '',
+    'KONICA MINOLTA INC' : 'KNCAF',
+    'KPMG' : '',
+    'Laboratory Corp Of America Holdings' : 'LAB.F',
+    'LockPath, Inc.' : '',
+    'LogicManager' : '',
+    'LogicSource, Inc.' : '',
+    'Lovelytics' : '',
+    'Lunar' : '',
+    'Made Tech Group Plc ' : 'MTEC.L',
+    'Mason Advisory' : '',
+    'McKinsey' : '',
+    'METRICSTREAM INC' : '',
+    'MindTree Ltd' : '',
+    'Mosaic Island' : '',
+    'Mphasis Ltd' : 'MPHASIS.BO',
+    'mthree' : '',
+    'Neoris' : '',
+    'NexInfo' : '',
+    'North Highland' : '',
+    'OC&C Strategy Consultants' : '',
+    'Oliver Wyman' : '',
+    'OpenCredo' : '',
+    'Oracle Consulting' : '',
+    'PA Consulting Group' : '',
+    'Parexel International Corp' : '',
+    'Peru Consulting' : '',
+    'Planit Testing' : '',
+    'PPD Inc' : '',
+    'PRA Health Sciences Inc' : '',
+    'Project One' : '',
+    'Projective' : '',
+    'Prolifics' : '',
+    'PwC' : '',
+    'RICOH CO LTD' : 'RICO.L',
+    'Roland Berger' : '',
+    'SEIKO EPSON CORP' : 'SEKEY',
+    'Simon Kutcher & Partners' : '',
+    'SkillStorm' : '',
+    'Softwire' : '',
+    'Spring Studios' : '',
+    'Strategy & London' : '',
+    'Sutherland' : '',
+    'Switchfast Technologies' : '',
+    'Syneos Health Inc' : '',
+    'TAG Solutions' : '',
+    'Tech Mahindra Ltd' : 'TECHM.BO',
+    'Terillium' : '',
+    'Testhouse Ltd' : '',
+    'The Berkeley Partnership' : '',
+    'The PSC' : '',
+    'Thoughtworks' : '7W8.F',
+    'Ultimus Fund Solutions' : '',
+    'Verisk Analytics Inc' : 'VRSK',
+    'Wavestone' : 'WAVE.PA',
+    'Xerox Corp' : '',
+    'Zoonou' : '',
+    'ZS' : '',
+}
+
 def create_app():
     # System Settings
     customtkinter.set_appearance_mode("dark")
@@ -18,7 +157,7 @@ def create_app():
 
     # App frame
     app = customtkinter.CTk()
-    app.geometry("320x250")
+    app.geometry("320x280")
     app.title("Kubrick MI Webscrape")
 
     # UI elements
@@ -27,12 +166,16 @@ def create_app():
     # Option buttons
     webscrape_var = customtkinter.BooleanVar()
     price_report_var = customtkinter.BooleanVar()
+    company_intel_var = customtkinter.BooleanVar()
 
     webscrape_button = customtkinter.CTkCheckBox(app, text="Webscrape", variable=webscrape_var)
     webscrape_button.pack(pady=5)
 
     price_report_button = customtkinter.CTkCheckBox(app, text="Price Report", variable=price_report_var)
     price_report_button.pack(pady=5)
+
+    company_intel_button = customtkinter.CTkCheckBox(app, text="Company Intel", variable=company_intel_var)
+    company_intel_button.pack(pady=5)
 
     # Current Company being scraped
     currentCompanyLabel = customtkinter.CTkLabel(app, text="Current Company: None")
@@ -53,9 +196,11 @@ def create_app():
     
 
     # Play button
-    play_button = customtkinter.CTkButton(app, text="Start", command=lambda: main_scrape(app, title, currentCompanyLabel, pPercentage, progressBar, 
-                                                                                         finishLabel, play_button, progressFrame, webscrape_var, 
-                                                                                         price_report_var, webscrape_button, price_report_button))
+    play_button = customtkinter.CTkButton(app, text="Start", 
+                                          command=lambda: start_scraping_thread(app, title, currentCompanyLabel, pPercentage, progressBar, 
+                                                                                finishLabel, play_button, progressFrame, webscrape_var, 
+                                                                                price_report_var,company_intel_var, webscrape_button,
+                                                                                price_report_button, company_intel_button))
     play_button.pack(pady=10)
 
     # Finished Downloading
@@ -64,102 +209,97 @@ def create_app():
 
     return app
 
+def start_scraping_thread(app, title, currentCompanyLabel, pPercentage, progressBar, 
+                          finishLabel, play_button, progressFrame, webscrape_var, 
+                          price_report_var, company_intel_var, webscrape_button,
+                          price_report_button, company_intel_button):
+    # Start the long-running task in a separate thread
+    threading.Thread(target=main_scrape, args=(app, title, currentCompanyLabel, pPercentage, progressBar, 
+                                               finishLabel, play_button, progressFrame, webscrape_var, 
+                                               price_report_var, company_intel_var, webscrape_button,
+                                               price_report_button, company_intel_button)).start()
+
+def update_progress(app, currentCompanyLabel, pPercentage, progressBar, progress, company_name):
+    # Update the progress bar and label
+    currentCompanyLabel.configure(text=f"Current Company: {company_name}")
+    progressBar.set(progress)
+    pPercentage.configure(text=f'{int(progress*100)}%')
+    app.update_idletasks()
+
 def main_scrape(app, title, currentCompanyLabel, pPercentage, progressBar, 
                 finishLabel, play_button, progressFrame, webscrape_var, 
-                price_report_var, webscrape_button, price_report_button):
+                price_report_var,company_intel_var, webscrape_button,
+                price_report_button, company_intel_button):
 
-    if not webscrape_var.get() and not price_report_var.get():
+    if not webscrape_var.get() and not price_report_var.get() and not company_intel_var.get():
         tkinter.messagebox.showwarning("No Option Selected", "Please select at least one option before starting.")
         return
     
     title.pack_forget()
     webscrape_button.pack_forget()
     price_report_button.pack_forget()
+    company_intel_button.pack_forget()
     app.geometry("320x130")
 
     app.update()
     total_companies = len(company_dict['company_name'])
-    price_error_count = 0  # Initialize error counter
-    scrape_error_count = 0
+    error_count = 0  # Initialize error counter
+    i = 0
 
     file_path = r'C:\Users\Jack\Documents\VS Code\market-intelligence-kubrick\Kubrick MI Data.xlsx'
-    excel_file_path = r'C:\Users\Jack\Documents\VS Code\market-intelligence-kubrick\Kubrick MI Diff.xlsx'
+    intel_file_path = r'C:\Users\Jack\Documents\VS Code\market-intelligence-kubrick\kubrick_mi_company_intel.csv'
     template_file_path = r'C:\Users\Jack\Documents\VS Code\market-intelligence-kubrick\Template.xlsx'
 
-    #if not webscrape_var.get() and price_report_var.get():
-    #    i=0
-    #    for company_name in company_dict['company_name']:
-    #        company_url, scraper, status, ticker = get_company_metadata(company_name, company_df)
-    #        i+=1
-    #        currentCompanyLabel.configure(text=f"Current Company: {company_name}")
-    #        temp_data = get_company_info_pricereport2(company_name, ticker, file_path=r'C:\Users\Jack\Documents\VS Code\market-intelligence-kubrick\Kubrick MI Data.xlsx')
-    #        if temp_data["Error"]:
-    #            error_count += 1
-    #        # Remove the 'Error' field before updating the excel
-    #        temp_data.pop("Error", None)    
-    #        update_excel(temp_data, file_path=r'C:\Users\Jack\Documents\VS Code\market-intelligence-kubrick\Kubrick MI Data.xlsx')
-    #        progress = i / total_companies
-    #        progressBar.set(progress)
-    #        pPercentage.configure(text=f'{int(progress*100)}%')
-    #        app.update_idletasks()
-    if webscrape_var.get():
-        i=0
-        for company_name in company_dict['company_name']:
-            i+=1
-            currentCompanyLabel.configure(text=f"Current Company: {company_name}")
-            company_url, scraper, status, ticker = SupportFunctions.get_company_metadata(company_name, company_df)
+    price_report_run = False
+    temporary_df = pd.read_excel(file_path, sheet_name="Price Report")
+    temporary_df['Date of Collection'] = pd.to_datetime(temporary_df['Date of Collection'], format='%Y-%m-%d')
+    current_date = pd.to_datetime(datetime.now().strftime('%Y-%m-%d'), format='%Y-%m-%d')
+
+    if temporary_df['Date of Collection'].iloc[-1] < current_date:
+        price_report_run = True
+    if price_report_var.get() and not price_report_run:
+        SupportFunctions.log_error("Price Report cannot run in the same day, please try run tomorrow.")
+
+    for company_name in company_dict["company_name"]:
+        i += 1
+        currentCompanyLabel.configure(text=f"Current Company: {company_name}")
+        company_url, scraper, status, ticker = SupportFunctions.get_company_metadata(company_name, company_df)
+        if webscrape_var.get():
             try:
                 scraped_data = SupportFunctions.get_scraped_company_data(scraper)
-                yahoo_json = SupportFunctions.get_company_details2(status, ticker)
+                yahoo_json = SupportFunctions.get_company_details2(company_name, status, ticker)
                 final_df = SupportFunctions.create_final_df2(company_name, company_url, status, yahoo_json, scraped_data, template_file_path)
-
                 old_df = SupportFunctions.read_from_excel(file_path, company_name, template_file_path)
-
-                SupportFunctions.log_new_and_modified_rows2(final_df, old_df, company_name, excel_file_path)
+                SupportFunctions.log_new_and_modified_rows2(final_df, old_df, company_name, file_path)
                 SupportFunctions.write_to_excel(final_df, file_path, company_name)
             except:
-                scrape_error_count += 1
-            progress = i / total_companies
-            progressBar.set(progress)
-            pPercentage.configure(text=f'{int(progress*100)}%')
-            app.update_idletasks()
+                error_count += 1
 
-    if price_report_var.get():
-        i=0
-        for company_name in company_dict['company_name']:
-            i+=1
-            currentCompanyLabel.configure(text=f"Current Company: {company_name}")
-            temp_data = SupportFunctions.get_company_info_pricereport2(company_name, ticker, file_path)
+        if company_intel_var.get():
+            company_intel_success = SupportFunctions.company_intel_table(company_name, company_url)
+            if not company_intel_success:
+                error_count += 1
+        progress = i / total_companies
+        app.after(0, update_progress, app, currentCompanyLabel, pPercentage, progressBar, progress, company_name)
+
+    if price_report_var.get() and price_report_run:
+        i = 0
+        for full_company_name, full_company_ticker in full_company_list.items():
+            i += 1
+            temp_data = SupportFunctions.get_company_info_pricereport2(full_company_name, full_company_ticker, file_path)
             if temp_data["Error"]:
-                price_error_count += 1
-            # Remove the 'Error' field before updating the excel
-            temp_data.pop("Error", None)    
+                error_count += 1
+                break
+            temp_data.pop("Error", None)
             SupportFunctions.update_excel(temp_data, file_path)
-            progress = i / total_companies
-            progressBar.set(progress)
-            pPercentage.configure(text=f'{int(progress*100)}%')
-            app.update_idletasks()
-
-    if not price_report_var.get() and webscrape_var.get():
-        # WEB SCRAPING FUNCTION
-        # ---------------------
-        #for i, (company, ticker) in enumerate(temp_dict.items(), start =1):
-        #    currentCompanyLabel.configure(text=f"Current Company: {company}")
-        #    
-        pass
-    if price_report_var.get() and webscrape_var.get():
-        # WEB SCRAPING FUNCTION
-        # ---------------------
-        #for i, (company, ticker) in enumerate(temp_dict.items(), start =1):
-        #    currentCompanyLabel.configure(text=f"Current Company: {company}")
-        #    
-        pass
+            progress = i / len(full_company_list)
+            app.after(0, update_progress, app, currentCompanyLabel, pPercentage, progressBar, progress, full_company_name)
 
     # Update UI to show completion message and exit button
-    if scrape_error_count + price_error_count > 0:
+    if error_count > 0:
         # Resize the window to half its height
         app.geometry("280x110")
-        finishLabel.configure(text=f"Scraping finished with {scrape_error_count} company data error(s) and {price_error_count} price report error(s).\nPlease look at log file for more information.")
+        finishLabel.configure(text=f"Scraping finished with {error_count} error(s).\nPlease look at log file for more information.")
     else:
         app.geometry("220x100")
         finishLabel.configure(text="Scraping finished!")
