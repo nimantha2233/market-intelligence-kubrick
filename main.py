@@ -256,6 +256,7 @@ def main_scrape(app, title, currentCompanyLabel, pPercentage, progressBar,
     app.update()
     total_companies = len(company_dict['company_name'])
     error_count = defaultdict(int)  # Initialize error counter
+    error_message = defaultdict(str)
     error_dict = defaultdict(list)
     i = 0
 
@@ -272,17 +273,19 @@ def main_scrape(app, title, currentCompanyLabel, pPercentage, progressBar,
     temporary_df = pd.read_excel(file_path, sheet_name="Price Report")
     temporary_df['Date of Collection'] = pd.to_datetime(temporary_df['Date of Collection'], format='%Y-%m-%d')
     current_date = pd.to_datetime(datetime.now().strftime('%Y-%m-%d'), format='%Y-%m-%d')
+    df_list = []
 
     if temporary_df['Date of Collection'].iloc[-1] < current_date:
         price_report_run = True
     if price_report_var.get() and not price_report_run:
         SupportFunctions.log_error("Price Report cannot run in the same day, please try run tomorrow.")
 
-    for company_name in company_dict["company_name"]:
-        i += 1
-        currentCompanyLabel.configure(text=f"Current Company: {company_name}")
-        company_url, scraper, status, ticker = SupportFunctions.get_company_metadata(company_name, company_df)
-        if webscrape_var.get():
+    if webscrape_var.get():
+        i=0
+        for company_name in company_dict["company_name"]:
+            i += 1
+            currentCompanyLabel.configure(text=f"Current Company: {company_name}")
+            company_url, scraper, status, ticker = SupportFunctions.get_company_metadata(company_name, company_df)
             try:
                 scraped_data = SupportFunctions.get_scraped_company_data(scraper)
                 yahoo_json = SupportFunctions.get_company_details2(status, ticker)
@@ -292,15 +295,26 @@ def main_scrape(app, title, currentCompanyLabel, pPercentage, progressBar,
                 SupportFunctions.write_to_excel(final_df, file_path, company_name)
             except:
                 error_count['Scraping'] += 1
+                error_message['Scraping'] = 'Please check for changes in the company website for the following companies:'
                 error_dict['Scraping'].append(company_name)
 
-        if company_intel_var.get():
-            company_intel_success = SupportFunctions.company_intel_table(company_name, company_url)
+            progress = i / total_companies
+            app.after(0, update_progress, app, currentCompanyLabel, pPercentage, progressBar, progress, company_name)
+
+    if company_intel_var.get():
+        i=0
+        for company_name in company_dict["company_name"]:
+            i += 1
+            currentCompanyLabel.configure(text=f"Current Company: {company_name}")
+            company_url, scraper, status, ticker = SupportFunctions.get_company_metadata(company_name, company_df)
+            company_intel_success = SupportFunctions.company_intel_table(company_name, company_url, df_list, intel_file_path)
             if not company_intel_success:
                 error_count['Intel report'] += 1
+                error_message['Intel Report']='Please check the existing intel file for the following companies:'
                 error_dict['Intel'].append(company_name)
-        progress = i / total_companies
-        app.after(0, update_progress, app, currentCompanyLabel, pPercentage, progressBar, progress, company_name)
+
+            progress = i / total_companies
+            app.after(0, update_progress, app, currentCompanyLabel, pPercentage, progressBar, progress, company_name)
 
     if price_report_var.get() and price_report_run:
         i = 0
@@ -309,12 +323,14 @@ def main_scrape(app, title, currentCompanyLabel, pPercentage, progressBar,
             temp_data = SupportFunctions.get_company_info_pricereport2(full_company_name, full_company_ticker, file_path)
             if temp_data["Error"]:
                 error_count['Price Report'] += 1
+                error_message['Price Report']='Please check yahoo finance changes for the following companies:'
                 error_dict['Price Report'].append(company_name)
                 break
             temp_data.pop("Error", None)
             SupportFunctions.update_excel(temp_data, file_path)
             progress = i / len(full_company_list)
             app.after(0, update_progress, app, currentCompanyLabel, pPercentage, progressBar, progress, full_company_name)
+
 
     text = []
     print(error_count != defaultdict(int))

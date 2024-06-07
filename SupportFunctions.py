@@ -26,7 +26,7 @@ def sheet_exists(file_path, sheet_name):
     else:
         return False
 
-def company_intel_table(company_name, url, file_path="kubrick_mi_company_intel.csv"):
+def company_intel_table(company_name, url, df_list, file_path="kubrick_mi_company_intel.csv"):
 
     if not os.path.exists(file_path):
         empty_df = pd.DataFrame(columns=['Date Collected', 'Company Name', 'URL','Training Program Duration',
@@ -39,39 +39,41 @@ def company_intel_table(company_name, url, file_path="kubrick_mi_company_intel.c
         data = pd.read_csv(file_path, encoding='ISO-8859-1')
 
     data_as_dict = defaultdict(list)
+    set1 = set(name for name in list(data['Company Name']))
+    set2 = {company_name}
+    set1.update(set2)
+    names = list(set1)
+    names.sort()
 
-    company_names_column = data.iloc[:, 1]
-    company_exists = company_name in company_names_column.values
+    for name in names:
+        company_names_column = data.iloc[:, 1]
+        company_exists = name in company_names_column.values
 
-    data_as_dict["Date Collected"].append(datetime.now().strftime("%Y-%m-%d"))
-    data_as_dict["Company Name"].append(company_name)
-    data_as_dict["URL"].append(url)
-
-    training_duration_index = data.columns.get_loc("Training Program Duration")
-    try:
-        if company_exists:
-            company_index = company_names_column[company_names_column == company_name].index[0]
-            for col in data.columns[training_duration_index:]:
-                data_as_dict[col].append(data.at[company_index, col])
-            
-            for key, value in data_as_dict.items():
-                data.at[company_index, key] = value[0]
-            
-        else:
-            for col in data.columns[training_duration_index:]:
-                if col not in data_as_dict:
-                    data_as_dict[col].append("To be completed manually")
-                new_data = pd.DataFrame(data_as_dict)
-                data = pd.concat([data, new_data], ignore_index=True)
-    except Exception as e:
-        log_error(f"Error obtaining intel data for {company_name}: {e}")
-        return False
-    
-    for column in data.columns[3:]:
-        data[column] = [f'No {column} Available' if item in ('', ' ', None, 'nan', np.nan) else item for item in data[column]]
-    data.dropna(inplace=True)
-    data.reset_index(drop=True, inplace=True)
-    data.to_csv(file_path, index=False, encoding='ISO-8859-1')
+        data_as_dict["Date Collected"].append(datetime.now().strftime("%Y-%m-%d"))
+        data_as_dict["Company Name"].append(name)
+        
+        try:
+            cols = ['URL','Training Program Duration','Tech Partnerships','Anecdotal Views of Quality','Consultant Pricing']
+            if company_exists:
+                company_index = company_names_column[company_names_column == name].index[0]
+                for col in cols:
+                    data_as_dict[col].append(data.at[company_index, col])
+                
+                for key, value in data_as_dict.items():
+                    data.at[company_index, key] = value[0]
+                
+            else:
+                for col in cols:
+                    if col not in data_as_dict:
+                        data_as_dict[col].append("To be completed manually")
+        
+        except Exception as e:
+            log_error(f"Error obtaining intel data for {company_name}: {e}")
+            return False
+    for key in data_as_dict.keys():
+        print(len(data_as_dict[key]))
+    new_data = pd.DataFrame(data_as_dict)
+    new_data.to_csv(file_path, index=False)
     return True
 
 def write_to_excel(df, file_path, sheet_name):
@@ -755,3 +757,85 @@ def get_company_metadata(company_name, company_df):
     ticker = company_slice.iloc[0]['ticker']
 
     return company_url, scraper, status, ticker
+
+
+def company_intel_table3(excel_file=r'C:\Users\Jack\Documents\VS Code\market-intelligence-kubrick\Kubrick MI Data.xlsx', file_path="kubrick_mi_company_intel.csv"):
+    from datetime import datetime
+    from collections import defaultdict
+    import pandas as pd
+    import openpyxl as xl
+
+    wb = xl.load_workbook(excel_file) 
+    sheets = wb.sheetnames
+    sheets.remove('Price Report')
+    sheets
+    data_as_dict = defaultdict(list)
+
+    for sheet in sheets:
+        data = pd.read_csv(file_path, encoding='utf-8')
+        df = pd.read_excel(excel_file, sheet_name=sheet)
+        
+        company_name = sheet
+        url = df['Website_URL'].iloc[0]
+
+        company_names_column = data.iloc[:, 1]
+        #print(1)
+        data_as_dict["Date Collected"].append(datetime.now().strftime("%Y-%m-%d"))
+        data_as_dict["Company Name"].append(company_name)
+        data_as_dict["URL"].append(url)
+
+        col_list = ['Practices', 'Services', 'Solutions']
+        col_list2 = ['Practices', 'Services', 'Solutions']
+        ecosystems_string = ''
+        practices_string = ''
+        #print(2)
+        for column in col_list:
+            col_list2.pop(0)
+            set1 = set({data for data in df[column] if data != f'No {column} Data Available'})
+            if set1 != set():
+                ecosystems_list = list(set1)
+                ecosystems_string = ', '.join(ecosystems_list)
+                break
+        #print(3)
+        for column in col_list2:
+            set2 = set({data for data in df[column] if data != f'No {column} Data Available'})
+            #print(set2)
+            if set2 != set():
+                practices_list = list(set2)
+                practices_string = ', '.join(practices_list)
+                break
+        #print(4)
+        data_as_dict["Practice Ecosystems (Data, AI etc)"].append(ecosystems_string)
+        data_as_dict["Practice List (delimited)"].append(practices_string)
+
+        training_duration_index = data.columns.get_loc("Training Program Duration")
+        #print(5)
+        if company_name in list(company_names_column):
+
+            company_index = company_names_column[company_names_column == company_name].index[0]
+
+            for col in data.columns[training_duration_index:]:
+                data_as_dict[col].append(data.at[company_index, col])
+            
+            for key, value in data_as_dict.items():
+                #print(key)
+                #print(value)
+                data.at[company_index, key] = value[0]
+            
+        else:
+            for col in data.columns[training_duration_index:]:
+                if col not in data_as_dict:
+                    data_as_dict[col].append("To be completed manually")
+    
+    #print(data_as_dict)
+    #new_data = pd.DataFrame(data_as_dict)
+    #data = pd.concat([data, new_data], ignore_index=True)
+    
+    #for column in data.columns[3:]:
+    #    data[column] = [f'No {column} Available' if item in ('', ' ', None, 'nan', np.nan) else item for item in data[column]]
+    #data.dropna(inplace=True)
+    #data.reset_index(drop=True, inplace=True)
+    df = pd.DataFrame(data_as_dict)
+    df.to_csv(file_path, index=False)
+    
+    return
