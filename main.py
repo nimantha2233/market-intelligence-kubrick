@@ -5,6 +5,10 @@ import SupportFunctions
 import threading
 from datetime import datetime
 import os
+from collections import defaultdict
+
+# Get the directory path of main.py
+current_dir = os.path.dirname(os.path.abspath(__file__))
 
 company_dict = {'company_name':['Capgemini SE', 'AND Digital', 'Dufrain', 'FDM Group (Holdings) Ltd', 'Slalom', 'Tata Consultancy Services Limited', 'Wipro Limited', 'Infosys Limited', 'Credera', 'Infinite Lambda', 'Mesh AI', 'Sparta Global', 'Ten10', 'Fjord Consulting Group', 'BetterGov', 'Cambridge Consultants Limited', 'Capco Limited', 'Cognizant Technology Solutions Corporation', 'IQVIA Holdings Inc', 'Kubrick Group Limited'],
         'company_url':['https://www.capgemini.com/','https://www.and.digital/','https://www.dufrain.co.uk/','https://www.fdmgroup.com/','https://www.slalom.com/','https://www.tcs.com','https://www.wipro.com/', 'https://www.infosys.com/', 'https://www.credera.com/en-gb', 'https://infinitelambda.com', 'https://www.mesh-ai.com/', 'https://www.spartaglobal.com', 'https://ten10.com', 'https://fjordconsultinggroup.com', 'https://www.bettergov.co.uk/', 'https://www.cambridgeconsultants.com/', 'https://www.capco.com', 'https://www.cognizant.com', 'https://www.iqvia.com/', 'https://www.kubrickgroup.com'],
@@ -246,11 +250,14 @@ def main_scrape(app, title, currentCompanyLabel, pPercentage, progressBar,
     webscrape_button.pack_forget()
     price_report_button.pack_forget()
     company_intel_button.pack_forget()
-    app.geometry("320x130")
+    play_button.pack_forget()
+    app.geometry("320x100")
 
     app.update()
     total_companies = len(company_dict['company_name'])
-    error_count = 0  # Initialize error counter
+    error_count = defaultdict(int)  # Initialize error counter
+    error_message = defaultdict(str)
+    error_dict = defaultdict(list)
     i = 0
 
     # file_path = r'C:\Users\Jack\Documents\VS Code\market-intelligence-kubrick\Kubrick MI Data.xlsx'
@@ -266,33 +273,48 @@ def main_scrape(app, title, currentCompanyLabel, pPercentage, progressBar,
     temporary_df = pd.read_excel(file_path, sheet_name="Price Report")
     temporary_df['Date of Collection'] = pd.to_datetime(temporary_df['Date of Collection'], format='%Y-%m-%d')
     current_date = pd.to_datetime(datetime.now().strftime('%Y-%m-%d'), format='%Y-%m-%d')
+    df_list = []
 
     if temporary_df['Date of Collection'].iloc[-1] < current_date:
         price_report_run = True
     if price_report_var.get() and not price_report_run:
         SupportFunctions.log_error("Price Report cannot run in the same day, please try run tomorrow.")
 
-    for company_name in company_dict["company_name"]:
-        i += 1
-        currentCompanyLabel.configure(text=f"Current Company: {company_name}")
-        company_url, scraper, status, ticker = SupportFunctions.get_company_metadata(company_name, company_df)
-        if webscrape_var.get():
+    if webscrape_var.get():
+        i=0
+        for company_name in company_dict["company_name"]:
+            i += 1
+            currentCompanyLabel.configure(text=f"Current Company: {company_name}")
+            company_url, scraper, status, ticker = SupportFunctions.get_company_metadata(company_name, company_df)
             try:
                 scraped_data = SupportFunctions.get_scraped_company_data(scraper)
-                yahoo_json = SupportFunctions.get_company_details2(company_name, status, ticker)
+                yahoo_json = SupportFunctions.get_company_details2(status, ticker)
                 final_df = SupportFunctions.create_final_df2(company_name, company_url, status, yahoo_json, scraped_data, template_file_path)
                 old_df = SupportFunctions.read_from_excel(file_path, company_name, template_file_path)
                 SupportFunctions.log_new_and_modified_rows2(final_df, old_df, company_name, file_path)
                 SupportFunctions.write_to_excel(final_df, file_path, company_name)
             except:
-                error_count += 1
+                error_count['Scraping'] += 1
+                error_message['Scraping'] = 'Please check for changes in the company website for the following companies:'
+                error_dict['Scraping'].append(company_name)
 
-        if company_intel_var.get():
-            company_intel_success = SupportFunctions.company_intel_table(company_name, company_url)
+            progress = i / total_companies
+            app.after(0, update_progress, app, currentCompanyLabel, pPercentage, progressBar, progress, company_name)
+
+    if company_intel_var.get():
+        i=0
+        for company_name in company_dict["company_name"]:
+            i += 1
+            currentCompanyLabel.configure(text=f"Current Company: {company_name}")
+            company_url, scraper, status, ticker = SupportFunctions.get_company_metadata(company_name, company_df)
+            company_intel_success = SupportFunctions.company_intel_table(company_name, company_url, df_list, intel_file_path)
             if not company_intel_success:
-                error_count += 1
-        progress = i / total_companies
-        app.after(0, update_progress, app, currentCompanyLabel, pPercentage, progressBar, progress, company_name)
+                error_count['Intel report'] += 1
+                error_message['Intel Report']='Please check the existing intel file for the following companies:'
+                error_dict['Intel'].append(company_name)
+
+            progress = i / total_companies
+            app.after(0, update_progress, app, currentCompanyLabel, pPercentage, progressBar, progress, company_name)
 
     if price_report_var.get() and price_report_run:
         i = 0
@@ -300,26 +322,35 @@ def main_scrape(app, title, currentCompanyLabel, pPercentage, progressBar,
             i += 1
             temp_data = SupportFunctions.get_company_info_pricereport2(full_company_name, full_company_ticker, file_path)
             if temp_data["Error"]:
-                error_count += 1
+                error_count['Price Report'] += 1
+                error_message['Price Report']='Please check yahoo finance changes for the following companies:'
+                error_dict['Price Report'].append(company_name)
                 break
             temp_data.pop("Error", None)
             SupportFunctions.update_excel(temp_data, file_path)
             progress = i / len(full_company_list)
             app.after(0, update_progress, app, currentCompanyLabel, pPercentage, progressBar, progress, full_company_name)
 
+
+    text = []
+    print(error_count != defaultdict(int))
     # Update UI to show completion message and exit button
-    if error_count > 0:
+    if error_count != defaultdict(int):
         # Resize the window to half its height
-        app.geometry("280x110")
-        finishLabel.configure(text=f"Scraping finished with {error_count} error(s).\nPlease look at log file for more information.")
+
+        for key in error_count:
+            text.append(f'{key} finished with {error_count} error(s). Please check for changes with the following companies: {error_dict[key]}.')
+
+        text_string = '\n'.join(text)
+        app.geometry("280x160")
+        finishLabel.configure(text=f"{text_string} \nPlease look at log file for more information.")
     else:
-        app.geometry("220x100")
-        finishLabel.configure(text="Scraping finished!")
+        app.geometry("300x100")
+        finishLabel.configure(text="Task(s) completed successfully. No errors found.")
 
     pPercentage.pack_forget()
     progressBar.pack_forget()
     progressFrame.pack_forget()
-    play_button.pack_forget()
     currentCompanyLabel.pack_forget()
 
     # Create Exit button
