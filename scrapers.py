@@ -25,6 +25,7 @@ def selenium_scrape(url : str) -> BeautifulSoup:
     '''
     options = webdriver.ChromeOptions()
     options.add_experimental_option("detach", True)
+    options.add_argument('--headless')  # Run in headless mode
     driver=webdriver.Chrome(options=options)
     driver.get(url=url)
     time.sleep(2)
@@ -1311,7 +1312,7 @@ def scraper_canon() -> pd.DataFrame:
     return pd.DataFrame(company_dict)
 
 
-def scraper_canon() -> pd.DataFrame:
+def scraper_cgi() -> pd.DataFrame:
     '''
     CGI: https://www.cgi.com/
 
@@ -1337,7 +1338,7 @@ def scraper_canon() -> pd.DataFrame:
 
 def scraper_vlm() -> pd.DataFrame:
     '''
-    CGI: https://www.vml.com
+    (Cognifide) VLM: https://www.vml.com
 
     NOTE: Webpages of practices vary slightly hence long code for different cases.
 
@@ -1373,15 +1374,15 @@ def scraper_vlm() -> pd.DataFrame:
 
                         company_dict['Practices'].append(practice_card.select('h3 > a')[0].text.strip())
                         company_dict['Practices_URL'].append(practice_url)
-                        company_dict['Services/Solutions'].append(service.select('h3')[0].text.strip())
-                        company_dict['Services/Solutions_URL'].append('No Services URL')
+                        company_dict['Services'].append(service.select('h3')[0].text.strip())
+                        company_dict['Services_URL'].append('No Services URL')
 
         else:            
             for offering in practice_soup.select('section[id="s-2"]')[0].select('div[role="region"]'):
                 company_dict['Practices'].append(practice_card.select('h3 > a')[0].text.strip())
                 company_dict['Practices_URL'].append(practice_url)
-                company_dict['Services/Solutions'].append(offering.select('h2')[0].text.strip())
-                company_dict['Services/Solutions_URL'].append('No Services URL')
+                company_dict['Services'].append(offering.select('h2')[0].text.strip())
+                company_dict['Services_URL'].append('No Services URL')
 
 
 
@@ -1403,24 +1404,24 @@ def scraper_vlm() -> pd.DataFrame:
                 for serv_soln in section.select('div > div > h2'):
                     company_dict['Practices'].append(practice.select('span.accordion-title')[0].text.strip())
                     company_dict['Practices_URL'].append(practice_url)
-                    company_dict['Services/Solutions'].append(serv_soln.text.strip())
-                    company_dict['Services/Solutions_URL'].append('No Services URL')
+                    company_dict['Services'].append(serv_soln.text.strip())
+                    company_dict['Services_URL'].append('No Services URL')
 
             # Group 2: Grid of services/solutions with pictures
             elif section.select('div.card.vertical.light') and any(keyword in header_text for keyword in ['services', 'solutions']):
                 for serv_soln in section.select('div.card.vertical.light'):
                     company_dict['Practices'].append(practice.select('span.accordion-title')[0].text.strip())
                     company_dict['Practices_URL'].append(practice_url)
-                    company_dict['Services/Solutions'].append(serv_soln.select('h3')[0].text.strip())
-                    company_dict['Services/Solutions_URL'].append('No Services URL')
+                    company_dict['Services'].append(serv_soln.select('h3')[0].text.strip())
+                    company_dict['Services_URL'].append('No Services URL')
 
         # Group 3: No section[id] like rest of practices but similar to group 1
         if practice_soup.select('section.capabilities.cnt'):
             for solution in practice_soup.select('section.capabilities.cnt')[0].select('div[role="region"]'):
                 company_dict['Practices'].append(practice.select('span.accordion-title')[0].text.strip())
                 company_dict['Practices_URL'].append(practice_url)
-                company_dict['Services/Solutions'].append(solution.select('h2')[0].text.strip())
-                company_dict['Services/Solutions_URL'].append('No Services URL')
+                company_dict['Services'].append(solution.select('h2')[0].text.strip())
+                company_dict['Services_URL'].append('No Services URL')
 
         
     return pd.DataFrame(company_dict)
@@ -1922,7 +1923,7 @@ def scraper_geektech():
 
 def scraper_hexaware() -> pd.DataFrame:
     '''
-    GeekTech: https://hexaware.com/
+    Hexaware: https://hexaware.com/
     __________________________________________
     NOTE: User-Agent required with GET request.
 
@@ -2008,8 +2009,8 @@ def scraper_jman() -> pd.DataFrame:
         for offering in solution_soup.select_one('section[id="theoffer"]').select('h4'):
             company_dict['Solutions'].append(solution_name)
             company_dict['Solutions_URL'].append(solution_url)
-            company_dict['Service'].append(offering.text.strip())
-            company_dict['Service_URL'].append('No Service URL')
+            company_dict['Services'].append(offering.text.strip())
+            company_dict['Services_URL'].append('No Service URL')
 
 
     return pd.DataFrame(company_dict)
@@ -2044,8 +2045,8 @@ def scraper_konica() -> pd.DataFrame:
             if 'http' not in sub_service_url:
                 sub_service_url = BASE_URL + sub_service_url
             
-            company_dict['Service'].append(service_name)
-            company_dict['Service_URL'].append('No Service URL')
+            company_dict['Services'].append(service_name)
+            company_dict['Services_URL'].append('No Service URL')
             company_dict['Solutions'].append(sub_service_name)
             company_dict['Solutions_URL'].append(sub_service_url)
 
@@ -2162,8 +2163,8 @@ def scraper_mindtree() -> pd.DataFrame:
     soup = BeautifulSoup(r.content,'html5lib')
 
     for service in soup.select_one('li[id="menu-item-31"]').select('a[href]'):
-        company_dict['Service'].append(service.select_one('strong').text.strip())
-        company_dict['Service_URL'].append(service['href']) 
+        company_dict['Services'].append(service.select_one('strong').text.strip())
+        company_dict['Services_URL'].append(service['href']) 
 
     return pd.DataFrame(company_dict)
 
@@ -2185,8 +2186,8 @@ def scraper_highland() -> pd.DataFrame:
     soup = BeautifulSoup(r.content,'html5lib')
 
     for service in soup.select_one('div[class="nh-icon-tile-wrapper"]').select('div[class="nh-icon-tile-slide"]'):
-        company_dict['Service'].append(service.select_one('div[class="nh-icon-tile-title"]').text.strip())
-        company_dict['Service_URL'].append(service.select_one('a[href]')['href'].strip()) 
+        company_dict['Services'].append(service.select_one('div[class="nh-icon-tile-title"]').text.strip())
+        company_dict['Services_URL'].append(service.select_one('a[href]')['href'].strip()) 
 
     return pd.DataFrame(company_dict)
 
@@ -2254,13 +2255,13 @@ def scraper_mthree() -> pd.DataFrame:
 
 def scraper_ppd() -> pd.DataFrame:
     '''
-    mthree: https://mthree.com/
+    mthree: https://www.ppd.com/
 
     Available on website out of Practices/Services/Solutions:
     1. Services (listed as expertise)
     2. Solutions (Not explicitly called solutoins, instead called "roles")
 
-    Scrape from Services page: https://mthree.com/#services
+    Scrape from Services page: https://www.ppd.com/
     Then go to each service page and extract solutions (called roles)
     '''    
     BASE_URL = r'https://www.ppd.com/'
@@ -2305,7 +2306,7 @@ def scraper_ppd() -> pd.DataFrame:
     return pd.DataFrame(company_dict)
 
 
-def scraper_ppd() -> pd.DataFrame:
+def scraper_projective() -> pd.DataFrame:
     '''
     Projective Group: https://www.projectivegroup.com/
 
