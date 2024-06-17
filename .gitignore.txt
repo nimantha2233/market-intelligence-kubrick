@@ -1,3 +1,0 @@
-MI_Simon/dist/
-MI_Simon/build/
-*.zip
