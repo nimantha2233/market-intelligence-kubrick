@@ -26,7 +26,7 @@ def sheet_exists(file_path, sheet_name):
     else:
         return False
 
-def company_intel_table(company_name, url, df_list, file_path="kubrick_mi_company_intel.csv"):
+def company_intel_table(company_name, file_path="kubrick_mi_company_intel.csv"):
 
     if not os.path.exists(file_path):
         empty_df = pd.DataFrame(columns=['Date Collected', 'Company Name', 'URL','Training Program Duration',
@@ -64,14 +64,11 @@ def company_intel_table(company_name, url, df_list, file_path="kubrick_mi_compan
                 
             else:
                 for col in cols:
-                    if col not in data_as_dict:
-                        data_as_dict[col].append("To be completed manually")
+                    data_as_dict[col].append("To be completed manually")
         
         except Exception as e:
             log_error(f"Error obtaining intel data for {company_name}: {e}")
             return False
-    for key in data_as_dict.keys():
-        print(len(data_as_dict[key]))
     new_data = pd.DataFrame(data_as_dict)
     new_data.to_csv(file_path, index=False)
     return True
