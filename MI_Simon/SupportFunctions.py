@@ -759,6 +759,10 @@ def get_company_details2(status, symbol):
         try:
             stock = yf.Ticker(symbol)
             info = stock.info
+            next_fiscal_year_end_epoch = info.get('nextFiscalYearEnd')
+            if next_fiscal_year_end_epoch > 1e12:
+                next_fiscal_year_end_epoch /= 1000
+
             company_details = {
                 "Previous Close": info.get("previousClose", np.nan),
                 "52 Week Range": f'{info.get("fiftyTwoWeekLow", np.nan)} - {info.get("fiftyTwoWeekHigh", np.nan)}',
@@ -766,7 +770,7 @@ def get_company_details2(status, symbol):
                 "Industry": info.get("industry", np.nan),
                 "Full Time Employees": info.get("fullTimeEmployees", np.nan),
                 "Market Cap": info.get("marketCap", np.nan),
-                "Fiscal Year Ends": info.get("fiscalYearEnd", np.nan),
+                "Fiscal Year Ends": datetime.fromtimestamp(next_fiscal_year_end_epoch).strftime('%d/%m/%y'),
                 "Revenue": info.get("totalRevenue", np.nan),
                 "EBITDA": info.get("ebitda", np.nan),
             }
