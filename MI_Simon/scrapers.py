@@ -3722,3 +3722,1192 @@ def scraper_digitalfutures():
             temp_dict["Services_URL"].append(url)
 
     return pd.DataFrame(temp_dict)
+
+def scraper_zoonou():
+    company_dict = defaultdict(list)
+    home_url = 'https://zoonou.com/our-services/'
+    r = requests.get(home_url)
+    soup = BeautifulSoup(r.content)
+    table = soup.find('section', attrs = {'class':'services-list extra-pad-b'})
+    services = [row.a.h4.text.replace('\n', '') for row in table.findAll('div', attrs={'class', 'col-md-4'})]
+    services_url = [row.a.get('href') for row in table.findAll('div', attrs={'class', 'col-md-4'})]
+    for i in range(len(services_url)):
+        r1 = requests.get(services_url[i])
+        soup1 = BeautifulSoup(r1.content)
+        solutions = [row.a.h5.text for row in soup1.findAll('li', attrs = {'role':'presentation'})]
+        for solution in solutions:
+            company_dict['Practices'].append('')
+            company_dict['Practices_URL'].append('')
+            company_dict['Services'].append(services[i])
+            company_dict['Services_URL'].append(services_url[i])
+            company_dict['Solutions'].append(solution)
+            company_dict['Solutions_URL'].append('')
+
+    df = pd.DataFrame(company_dict)
+    return df
+
+def scraper_verisk():
+    company_dict = defaultdict(list)
+    home_url = 'https://www.verisk.com/en-gb'
+    r = requests.get(home_url)
+    soup = BeautifulSoup(r.content)
+    table = soup.find('div', attrs = {'class':'mega-menu'})
+
+    practice_list = table.find_all(class_=lambda x: x and x.startswith('menu-item item-1'))
+    for practice in practice_list[:-1]:
+        practices = practice.find('a').text
+        practices_url = home_url + practice.find('a').get('href').replace('/en-gb', '')
+        service_list = practice.find_all(class_=lambda x: x and x.startswith('menu-item item-2'))
+
+        if service_list == []:
+            company_dict['Practices'].append(practices)
+            company_dict['Practices_URL'].append(practices_url)
+            company_dict['Services'].append('')
+            company_dict['Services_URL'].append('')
+            company_dict['Solutions'].append('')
+            company_dict['Solutions_URL'].append('')
+
+        else:
+            for service in service_list[1:]:
+                services = service.find('a').text
+                services_url = home_url + service.find('a').get('href').replace('/en-gb', '')
+                solution_list = service.find_all(class_=lambda x: x and x.startswith('menu-item item-3'))
+
+                if solution_list == []:
+                    company_dict['Practices'].append(practices)
+                    company_dict['Practices_URL'].append(practices_url)
+                    company_dict['Services'].append(services)
+                    company_dict['Services_URL'].append(services_url)
+                    company_dict['Solutions'].append('')
+                    company_dict['Solutions_URL'].append('')
+
+                else:
+                    for solution in solution_list[1:]:
+                        solutions = solution.find('a').text
+                        solutions_url = home_url + solution.find('a').get('href').replace('/en-gb', '')
+
+                        company_dict['Practices'].append(practices)
+                        company_dict['Practices_URL'].append(practices_url)
+                        company_dict['Services'].append(services)
+                        company_dict['Services_URL'].append(services_url)
+                        company_dict['Solutions'].append(solutions)
+                        company_dict['Solutions_URL'].append(solutions_url)
+
+    df = pd.DataFrame(company_dict)
+    return df
+
+def scraper_psc():
+
+    company_dict = defaultdict(list)
+    home_url = 'https://thepsc.co.uk/'
+    r = requests.get(home_url)
+    soup = BeautifulSoup(r.content)
+    table = soup.find('ul', attrs = {'class':'sub'})
+    services = [row.text for row in table.findAll('a')]
+    services_url = [row.get('href') for row in table.findAll('a')]
+
+    for i in range(len(services)):
+        company_dict['Practices'].append('')
+        company_dict['Practices_URL'].append('')
+        company_dict['Services'].append(services[i])
+        company_dict['Services_URL'].append(services_url[i])
+        company_dict['Solutions'].append('')
+        company_dict['Solutions_URL'].append('')
+
+    df = pd.DataFrame(company_dict)
+    return df
+
+def scraper_terillium():
+
+    company_dict = defaultdict(list)
+    home_url = 'https://terillium.com/oracle-erp-cloud-managed-services/'
+    r = requests.get(home_url)
+    soup = BeautifulSoup(r.content, 'lxml')
+
+    tables = soup.findAll('div', attrs = {'class': 'wpb_column vc_column_container vc_col-sm-3'})
+    for table in tables:
+        service = table.find('h3').text
+        solutions = [row.text for row in table.findAll('li')]
+        for solution in solutions:
+            company_dict['Practices'].append('')
+            company_dict['Practices_URL'].append('')
+            company_dict['Services'].append(service)
+            company_dict['Services_URL'].append(home_url)
+            company_dict['Solutions'].append(solution)
+            company_dict['Solutions_URL'].append('')
+
+    df = pd.DataFrame(company_dict)
+    return df
+
+def scraper_syneos():
+
+    company_dict = defaultdict(list)
+    home_url = 'https://www.syneoshealth.com'
+    r = requests.get(home_url)
+    soup = BeautifulSoup(r.content, 'lxml')
+    table = soup.findAll('li', attrs={'class', 'nav-item menu-item--expanded dropdown'})[1]
+    practices_solutions = [(row.text, row.get('href')) for row in table.findAll('a') if row.get('href').count('/') > 1 and row.get('href').startswith('/solutions')]
+
+    practice = ''
+    practice_url = ''
+    new_practice=False
+    for i in range(len(practices_solutions)):
+        if practices_solutions[i][1].count('/') == 2:
+
+            if new_practice==True:
+                company_dict['Practices'].append(practice)
+                company_dict['Practices_URL'].append(home_url + practice_url)
+                company_dict['Services'].append('')
+                company_dict['Services_URL'].append('')
+                company_dict['Solutions'].append('')
+                company_dict['Solutions_URL'].append('')
+
+            practice = practices_solutions[i][0]
+            practice_url = practices_solutions[i][1]
+            new_practice=True
+
+        else:
+            company_dict['Practices'].append(practice)
+            company_dict['Practices_URL'].append(home_url + practice_url)
+            company_dict['Services'].append(practices_solutions[i][0])
+            company_dict['Services_URL'].append(home_url + practices_solutions[i][1])
+            company_dict['Solutions'].append('')
+            company_dict['Solutions_URL'].append('')
+            new_practice=False
+
+    df = pd.DataFrame(company_dict)
+    return df
+
+def scraper_strategyand():
+
+    company_dict = defaultdict(list)
+    home_url = 'https://www.strategyand.pwc.com/gx/en'
+    r = requests.get(home_url)
+    soup = BeautifulSoup(r.content, 'lxml')
+    table = soup.findAll('a', attrs={'class', 'lv2-label'})
+    services = [(row.text, row.get('href')) for row in table if row.get('href').count('/') > 5 and 'functions' in row.get('href')]
+    solutions = [(row.text, row.get('href')) for row in table if row.get('href').count('/') > 5 and 'unique-solutions' in row.get('href')]
+
+    for service in services:
+        company_dict['Practices'].append('')
+        company_dict['Practices_URL'].append('')
+        company_dict['Services'].append(service[0])
+        company_dict['Services_URL'].append(service[1])
+        company_dict['Solutions'].append('')
+        company_dict['Solutions_URL'].append('')
+
+    for solution in solutions:
+        company_dict['Practices'].append('')
+        company_dict['Practices_URL'].append('')
+        company_dict['Services'].append('')
+        company_dict['Services_URL'].append('')
+        company_dict['Solutions'].append(solution[0])
+        company_dict['Solutions_URL'].append(solution[1])
+
+    df = pd.DataFrame(company_dict)
+    return df
+
+def scraper_rolandberger():
+
+    company_dict = defaultdict(list)
+    home_url = 'https://www.rolandberger.com/en/Expertise/'
+    r = requests.get(home_url)
+    soup = BeautifulSoup(r.content, 'lxml')
+    table = soup.findAll('a', attrs={'dl-navigation-l1', 'Expertise'})
+    practices = list({(row.text, row.get('href').replace('/Publications', '')) for row in soup.findAll('a', attrs={'dl-navigation-l1': 'Expertise'}) if '/Industries/' not in row.get('href')})
+    for practice in practices:
+        if practice[0] == 'Restructuring & Performance':
+            url = practice[1]
+            r1 = requests.get(url)
+            soup1 = BeautifulSoup(r1.content, 'lxml')
+            services = [row.b.text if row.text == None else row.text for row in soup1.findAll('h2', attrs={'class': 'add-line'})]
+        else:
+            if practice[0] == 'Digital':
+                url = practice[1]+ 'Digital/Consulting-Services/'
+            else:
+                url = practice[1]+ 'Consulting-Services/'
+            r1 = requests.get(url)
+            soup1 = BeautifulSoup(r1.content, 'lxml')
+            services = [row.text for row in soup1.findAll('h3', attrs={'class': 'c-text-subheadline is-black'})]
+
+        for service in services:
+            company_dict['Practices'].append(practice[0])
+            company_dict['Practices_URL'].append(practice[1])
+            company_dict['Services'].append(service)
+            company_dict['Services_URL'].append('')
+            company_dict['Solutions'].append('')
+            company_dict['Solutions_URL'].append('')
+
+    df = pd.DataFrame(company_dict)
+    return df
+
+def scraper_prolifics():
+
+    options = webdriver.ChromeOptions()
+    options.add_argument("--headless")
+
+    company_dict = defaultdict(list)
+    home_url = 'https://prolifics.com/uk'
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36 Edg/125.0.0.0'}
+    r = requests.get(home_url, headers=headers)
+    soup = BeautifulSoup(r.content, 'lxml')
+    practices = list({(row.text.replace('\n', ''), row.get('href'))for row in soup.findAll('a') if '/expertise/' in row.get('href') and '/solutions/' not in row.get('href')})
+    solutions = list({(row.text.replace('\n', ''), row.get('href'))for row in soup.findAll('a') if '/expertise/' in row.get('href') and '/solutions/' in row.get('href')})
+
+    for practice in practices:
+        url = practice[1]
+        driver = webdriver.Chrome(options=options)
+        driver.get(url)
+        title = driver.find_element(By.XPATH, '//*[@id="nav-tab"]')
+        services = title.text.split('\n')
+        for service in services:
+            company_dict['Practices'].append(practice[0])
+            company_dict['Practices_URL'].append(practice[1])
+            company_dict['Services'].append(service)
+            company_dict['Services_URL'].append('')
+            company_dict['Solutions'].append('')
+            company_dict['Solutions_URL'].append('')
+
+    for solution in solutions:
+        company_dict['Practices'].append('')
+        company_dict['Practices_URL'].append('')
+        company_dict['Services'].append('')
+        company_dict['Services_URL'].append('')
+        company_dict['Solutions'].append(solution[0])
+        company_dict['Solutions_URL'].append(solution[1])
+        
+    df = pd.DataFrame(company_dict)
+    return df
+
+def scraper_peruconsulting():
+
+    company_dict = defaultdict(list)
+    home_url = 'https://peruconsulting.co.uk'
+    r = requests.get(home_url)
+    soup = BeautifulSoup(r.content, 'lxml')
+    table = soup.findAll('a', attrs={'class', 'header__link'})
+    services = [(row.text.replace('/n', ' ').strip(), row.get('href')) for row in table if '/services/' in row.get('href')]
+    solutions = [(row.text.replace('/n', ' ').strip(), row.get('href')) for row in table if '/it-business-solutions/' in row.get('href')]
+
+    for service in services:
+        url = service[1]
+        r1 = requests.get(url)
+        soup1 = BeautifulSoup(r1.content, 'lxml')
+        table1 = soup1.findAll('div', attrs={'class', 'textImageRepeater__text-copy'})
+        solutions1 = [row.h2.text.replace('\xa0', '') for row in table1]
+        for solution in solutions1:
+            company_dict['Practices'].append('')
+            company_dict['Practices_URL'].append('')
+            company_dict['Services'].append(service[0])
+            company_dict['Services_URL'].append(service[1])
+            company_dict['Solutions'].append(solution)
+            company_dict['Solutions_URL'].append('')
+
+    for solution in solutions:
+        company_dict['Practices'].append('')
+        company_dict['Practices_URL'].append('')
+        company_dict['Services'].append('')
+        company_dict['Services_URL'].append('')
+        company_dict['Solutions'].append(solution[0])
+        company_dict['Solutions_URL'].append(solution[1])
+
+    df = pd.DataFrame(company_dict)
+    return df
+
+def scraper_oracle():
+
+    options = webdriver.ChromeOptions()
+    options.add_argument("--headless")
+
+    company_dict = defaultdict(list)
+    practices= 'Cloud Infrastructure'
+    home_url = 'https://www.oracle.com/uk/cloud/'
+
+    driver = webdriver.Chrome(options=options)
+    driver.get(home_url)
+    time.sleep(2)
+    iframe =driver.find_element(By.XPATH, '//*[@title="TrustArc Cookie Consent Manager"]')
+    driver.switch_to.frame(iframe)
+    driver.find_element(By.XPATH, '//*[@class="required"]').click()
+    driver.switch_to.default_content()
+    driver.find_element(By.XPATH, '//*[@id="services1"]').click()
+    time.sleep(1)
+    row = driver.find_element(By.XPATH, '//*[@id="services-nav"]')
+    buttons_raw = row.find_elements(By.TAG_NAME, "button")
+    for button in buttons_raw:
+        if button.text != '':
+            service = button.text
+            button.click()
+            tab = driver.find_element(By.XPATH, '//*[@class="u30scontent active"]')
+            service_url = tab.find_element(By.TAG_NAME, "a").get_attribute("href")
+
+
+            company_dict['Practices'].append(practices)
+            company_dict['Practices_URL'].append(home_url)
+            company_dict['Services'].append(service)
+            company_dict['Services_URL'].append(service_url)
+            company_dict['Solutions'].append('')
+            company_dict['Solutions_URL'].append('')
+
+
+    driver.find_element(By.XPATH, '//*[@id="solutions1"]').click()
+    #driver.find_element(By.XPATH, '//*[@id="by-scenario-tab"]').click()
+    tab = driver.find_element(By.XPATH, '//*[@id="by-scenario-panel"]')
+    solution_list = tab.find_elements(By.TAG_NAME, "a")
+    for solution in solution_list:
+        company_dict['Practices'].append(practices)
+        company_dict['Practices_URL'].append(home_url)
+        company_dict['Services'].append('')
+        company_dict['Services_URL'].append('')
+        company_dict['Solutions'].append(solution.text)
+        company_dict['Solutions_URL'].append(solution.get_attribute("href"))
+
+    practices= 'Cloud Applications'
+    home_url = 'https://www.oracle.com/uk/applications/'
+    driver.get(home_url)
+    time.sleep(2)
+    driver.find_element(By.XPATH, '//*[@id="products1"]').click()
+    time.sleep(2)
+    tab = driver.find_element(By.XPATH, '//*[@id="cloud-applications"]')
+    service_list = tab.find_elements(By.TAG_NAME, "a")
+    service_solutions = [(service.text, service.get_attribute("href")) for service in service_list] + [('', '/////')]
+    service=''
+    service_url = ''
+    new_service=False
+    for item in service_solutions:
+        if item[1].count('/') == 5:
+            if new_service==True:
+                company_dict['Practices'].append(practices)
+                company_dict['Practices_URL'].append(home_url)
+                company_dict['Services'].append(service)
+                company_dict['Services_URL'].append(service_url)
+                company_dict['Solutions'].append('')
+                company_dict['Solutions_URL'].append('')
+            
+            service = item[0]
+            service_url = item[1]
+            new_service=True
+
+        else:
+            company_dict['Practices'].append(practices)
+            company_dict['Practices_URL'].append(home_url)
+            company_dict['Services'].append(service)
+            company_dict['Services_URL'].append(service_url)
+            company_dict['Solutions'].append(item[0])
+            company_dict['Solutions_URL'].append(item[1])
+        prev_slash_count = item[1].count('/')
+        new_service=False
+
+
+    driver.close()
+    df = pd.DataFrame(company_dict)
+    return df
+
+def scraper_occstrategy():
+    company_dict = defaultdict(list)
+    home_url = 'https://www.occstrategy.com'
+    url = 'https://www.occstrategy.com/en/industries/'
+    r = requests.get(url)
+    soup = BeautifulSoup(r.content, 'lxml')
+    tab = soup.find('li', attrs={'class', 'Menu-item Menu-parent is-active'})
+    table = tab.find('ul', attrs={'class', 'Menu Menu--vertical Menu-children'})
+    practices = [(row.text, row.get('href')) for row in table.findAll('a')]
+
+    for practice in practices:
+        practice_url = home_url + practice[1]
+        r = requests.get(practice_url)
+        soup = BeautifulSoup(r.content, 'lxml')
+        body = soup.find('div', attrs={'class', 'o-TextBox o-TextBox--vlg'})
+        services = [(row.text, home_url + row.get('href')) for row in body.findAll('a') if '/contact' not in row.get('href') and 'insight/' not in row.get('href')]
+        
+        if services==[]:
+            services = [('', '')]
+
+        for service in services:
+            company_dict['Practices'].append(practice[0])
+            company_dict['Practices_URL'].append(practice_url)
+            company_dict['Services'].append(service[0])
+            company_dict['Services_URL'].append(service[1])
+            company_dict['Solutions'].append('')
+            company_dict['Solutions_URL'].append('')
+
+    df = pd.DataFrame(company_dict)
+    return df
+
+def scraper_neoris():
+
+    company_dict = defaultdict(list)
+    home_url = 'https://neoris.com'
+    r = requests.get(home_url)
+    soup = BeautifulSoup(r.content, 'lxml')
+    tab = soup.find('div', attrs={'id': 'Solutions'})
+    box = tab.find('div', attrs={'class': 'col-xs-6 noPadding'})    
+    services = [(row.text, row.get('href')) for row in box.findAll('a', attrs={'class': 'header-menu-list-item'})]
+    for service in services:
+        service_url = home_url + '/en' + service[1]
+        r = requests.get(service_url)
+        soup = BeautifulSoup(r.content, 'lxml')
+        row1 = soup.findAll('div', attrs={'class': 'card-body'})
+        row_refined1 = [rows.h4.text for rows in row1 if rows.h4 != None and '\nView more' not in rows.text and '\nRead more' not in rows.text]
+        row2 = soup.findAll('h2', attrs={'class': 'title-2 ways wow animate__animated animate__fadeInUp mt-4'})
+        row_refined2 = [row.text for row in row2]
+        row3 = soup.findAll('h2', attrs={'class': 'card-title'})
+        row_refined3 = [row.text for row in row3]
+        solutions = row_refined1 + row_refined2 + row_refined3
+
+        if solutions == []:
+            solutions = ['']
+            
+        for solution in solutions:
+            company_dict['Practices'].append('')
+            company_dict['Practices_URL'].append('')
+            company_dict['Services'].append(service[0])
+            company_dict['Services_URL'].append(service_url)
+            company_dict['Solutions'].append(solution.title())
+            company_dict['Solutions_URL'].append('')
+
+    df = pd.DataFrame(company_dict)
+    return df
+
+def scraper_mosaicisland():
+
+    company_dict = defaultdict(list)
+    home_url = 'https://www.mosaicisland.co.uk/services'
+    r = requests.get(home_url)
+    soup = BeautifulSoup(r.content, 'lxml')
+    tab = soup.findAll('span', attrs={'class': 'elementor-icon-box-title'})
+    services_url = [row.a.get('href') for row in tab]
+    services = [(url[url.rfind('/', 0, url.rfind('/')):].replace('-', ' ').replace('/', '').title(), url) for url in services_url]
+    for service in services:
+        service_url = service[1]
+        r = requests.get(service_url)
+        soup = BeautifulSoup(r.content, 'lxml')
+        tab1 = soup.find('div', attrs={'data-id': 'deade54'})
+        if tab1 != None:
+            solutions = [row.text.replace('    ', ' ') for row in tab1.findAll('h2', attrs={'class': 'elementor-heading-title elementor-size-default'})]
+        tab2 = soup.find('div', attrs={'data-id': '50758a8'})
+        if tab2 != None:
+            wedges = tab2.findAll('div', attrs={'class': 'elementor-widget-container'})
+            solutions = [wedge.find('div', attrs={'class': 'elementor-flip-box__layer__inner'}).text.replace('\n', '').replace('\t', '') for wedge in wedges]
+        tab3 = soup.find('div', attrs={'data-id': '32fb48a'})
+        if tab3 != None:
+            solutions = [wedge.text.replace('\n', '').replace('\t', '') for wedge in tab3.findAll('div', attrs={'class': 'elementor-widget-container'})]
+
+        for solution in solutions:
+            company_dict['Practices'].append('')
+            company_dict['Practices_URL'].append('')
+            company_dict['Services'].append(service[0])
+            company_dict['Services_URL'].append(service_url)
+            company_dict['Solutions'].append(solution)
+            company_dict['Solutions_URL'].append('')
+
+    df = pd.DataFrame(company_dict)
+    return df
+
+def scraper_mckinsley():
+
+    company_dict = defaultdict(list)
+    home_url = 'https://www.mckinsey.com/capabilities'
+
+    driver = webdriver.Chrome()
+    driver.minimize_window()
+    driver.get(home_url)
+
+    try:
+        driver.find_element(By.XPATH, '//*[@id="onetrust-reject-all-handler"]').click()
+    except:
+        pass
+    time.sleep(1)
+    tab = driver.find_element(By.XPATH, '//*[@id="skipToMain"]/div[2]/div/div/div[1]/div/div/div')
+    services_url = tab.find_elements(By.TAG_NAME, 'a')
+    services_text = tab.find_elements(By.TAG_NAME, 'span')
+    services_href = [service.get_attribute('href') for service in services_url]
+    services_title = [service.text.replace('McKinsey ', '') for service in services_text if service.text != '']
+    services = list(zip(services_title, services_href))
+    for service in services:
+        url = service[1]
+        driver.get(url)
+        if service[0] in ['Digital', 'Growth, Marketing & Sales', 'Risk & Resilience']:
+            block = driver.find_element(By.XPATH, '/html/body/div[1]/main/div[2]/div/div/div[5]')
+            links = block.find_elements(By.TAG_NAME, 'a')
+            names = block.find_elements(By.TAG_NAME, 'span')
+            solutions = list(zip([name.text for name in names if name.text != ''], [link.get_attribute('href') for link in links]))
+        elif service[0] in ['Strategy & Corporate Finance']:
+            block = driver.find_element(By.XPATH, '/html/body/div[1]/main/div[2]/div/div/div[1]')
+            links = block.find_elements(By.TAG_NAME, 'a')
+            names = block.find_elements(By.TAG_NAME, 'span')
+            solutions = list(zip([name.text for name in names if name.text != ''], [link.get_attribute('href') for link in links]))
+        elif service[0] in ['People & Organizational Performance', 'Sustainability']:
+            block = driver.find_element(By.XPATH, '/html/body/div[1]/main/div[2]/div/div/div[3]/div')
+            links = block.find_elements(By.TAG_NAME, 'a')
+            names = block.find_elements(By.TAG_NAME, 'span')
+            solutions = list(zip([name.text for name in names if name.text != ''], [link.get_attribute('href') for link in links]))
+        elif service[0] in ['Operations', 'M&A']:
+            block = driver.find_element(By.XPATH, '/html/body/div[1]/main/div[2]/div/div/div[2]/div')
+            links = block.find_elements(By.TAG_NAME, 'a')
+            names = block.find_elements(By.TAG_NAME, 'span')
+            solutions = list(zip([name.text for name in names if name.text != ''], [link.get_attribute('href') for link in links]))
+        elif service[0] in ['Implementation']:
+            block = driver.find_element(By.XPATH, '/html/body/div[1]/main/div[2]/div/div/div[6]/div/div/div')
+            names = block.find_elements(By.TAG_NAME, 'span')
+            solutions = [(name.text, '') for name in names]
+        elif service[0] in ['Transformation']:
+            block = driver.find_element(By.XPATH, '/html/body/div[1]/main/div[2]/div/div/div[5]/div')
+            names = block.find_elements(By.TAG_NAME, 'span')
+            solutions = [(name.text, '') for name in names]
+        else:
+            solutions = [('Check Website Changes', 'Check Website Changes') for name in names]
+        
+        for solution in solutions:
+            company_dict['Practices'].append('')
+            company_dict['Practices_URL'].append('')
+            company_dict['Services'].append(service[0])
+            company_dict['Services_URL'].append(service[1])
+            company_dict['Solutions'].append(solution[0])
+            company_dict['Solutions_URL'].append(solution[1])
+
+    driver.close()
+    df = pd.DataFrame(company_dict)
+    return df
+
+def scraper_logicmanager():
+
+    company_dict = defaultdict(list)
+    home_url = 'https://www.logicmanager.com/solutions'
+
+    options = webdriver.ChromeOptions()
+    options.add_argument("--headless")
+
+    driver = webdriver.Chrome(options=options)
+    driver.get(home_url)
+    label_list = driver.find_element(By.XPATH, '//*[@id="bapf_2"]/div[2]')
+    labels = [(label.get_attribute('data-name'), label) for label in label_list.find_elements(By.TAG_NAME, 'input')][:-1]
+    label_length = len(labels)
+
+    for i in range(label_length):
+        try:
+            practice = labels[i][0]
+            labels[i][1].click()
+            time.sleep(1)
+            boxes = driver.find_elements(By.XPATH, '//*[@class="product solution-lineitem-wrapper"]')
+            solutions = [(box.find_elements(By.TAG_NAME, 'a')[0].text, box.find_elements(By.TAG_NAME, 'a')[0].get_attribute('href')) for box in boxes]
+            driver.find_element(By.XPATH, '/html/body/div[1]/div[2]/main/div/aside/div[2]/div/div[1]/a').click()
+            time.sleep(1)
+            label_list = driver.find_element(By.XPATH, '//*[@id="bapf_2"]/div[2]')
+            labels = [(label.get_attribute('data-name'), label) for label in label_list.find_elements(By.TAG_NAME, 'input')][:-1]
+
+            for solution in solutions:
+                company_dict['Practices'].append(practice)
+                company_dict['Practices_URL'].append('')
+                company_dict['Services'].append('')
+                company_dict['Services_URL'].append('')
+                company_dict['Solutions'].append(solution[0])
+                company_dict['Solutions_URL'].append(solution[1])
+        except:
+            pass
+
+    driver.close()
+    df = pd.DataFrame(company_dict)
+    return df
+
+def scraper_kpmg():
+
+    company_dict = defaultdict(list)
+    home_url = 'https://kpmg.com'
+    url = 'https://kpmg.com/uk/en/home/services.html'
+    r = requests.get(url)
+    soup = BeautifulSoup(r.content, 'lxml')
+    services = [(link.get('data-title').strip(), home_url + link.get('href')) for link in soup.findAll('a', attrs={'class': 'services-block'})]
+    for service in services:
+        service_url = service[1]
+        if service[0] == 'Advisory':
+            r = requests.get(service_url)
+            soup = BeautifulSoup(r.content, 'lxml')
+            cards = soup.findAll('div', attrs={'class': 'customCard'})
+            solutions = [(card.find('h3').text, card.find('a').get('href')) for card in cards]
+        elif service[0] in ['Audit', 'Tax', 'KPMG Law']:
+            r = requests.get(service_url)
+            soup = BeautifulSoup(r.content, 'lxml')
+            cards = soup.findAll('li', attrs={'class': 'inlinelist-listingGroupLink'})
+            solutions = [(card.find('span').text, home_url + card.find('a').get('href')) for card in cards]
+        elif service[0] == 'Deal Advisory':
+            r = requests.get(service_url)
+            soup = BeautifulSoup(r.content, 'lxml')
+            tab = soup.find('div', attrs={'class': 'tab-headers'})
+            headers = tab.findAll('div', attrs={'class': 'link'})
+            solutions = [(header.text.replace('\n', ''), '') for header in headers]
+        elif service[0] == 'Consulting':
+            options = webdriver.ChromeOptions()
+            options.add_argument("--headless")
+            driver = webdriver.Chrome(options=options)
+            driver.get(service_url)
+            time.sleep(2)
+            driver.find_element(By.XPATH, '//*[@id="onetrust-reject-all-handler"]').click()
+            time.sleep(2)
+            card_list = driver.find_element(By.XPATH, '//*[@id="explore-list"]')
+            names = card_list.find_elements(By.TAG_NAME, 'h3')
+            links = card_list.find_elements(By.TAG_NAME, 'a')
+            solutions = [(names[i].get_attribute("textContent"), links[i].get_attribute('href')) for i in range(len(names))]
+            driver.close()
+        else:
+            solutions = [(f'check {service_url}', '')]
+        for solution in solutions:
+                company_dict['Practices'].append('')
+                company_dict['Practices_URL'].append('')
+                company_dict['Services'].append(service[0])
+                company_dict['Services_URL'].append(service[1])
+                company_dict['Solutions'].append(solution[0])
+                company_dict['Solutions_URL'].append(solution[1])
+        
+    df = pd.DataFrame(company_dict)
+    return df
+
+def scraper_kainos():
+
+    company_dict = defaultdict(list)
+    home_url = 'https://www.kainos.com'
+    r = requests.get(home_url)
+    soup = BeautifulSoup(r.content, 'lxml')
+    tab = soup.find('div', attrs={'class': 'mega-menu__secondary-right-wrap'})
+    services = [(row.a.text.replace('\r\n', '').strip(), home_url + row.a.get('href')) for row in tab.findAll('div', attrs={'class': 'mega-menu__secondary-column-link'})]
+    for service in services:
+        solutions = [('', '')]
+        if service[0] != 'Digital Advisory':
+            service_url = service[1]
+            r = requests.get(service_url)
+            soup = BeautifulSoup(r.content, 'lxml')
+            block = soup.find('div', attrs={'class': 'expertise-grid-block__links'})
+            if block != None:
+                solutions = [(link.text, home_url + link.get('href')) for link in block.findAll('a')]
+
+        for solution in solutions:
+            company_dict['Practices'].append('')
+            company_dict['Practices_URL'].append('')
+            company_dict['Services'].append(service[0])
+            company_dict['Services_URL'].append(service[1])
+            company_dict['Solutions'].append(solution[0])
+            company_dict['Solutions_URL'].append(solution[1])
+
+    df = pd.DataFrame(company_dict)
+    return df
+
+def scraper_genpact():
+
+    company_dict = defaultdict(list)
+    home_url = 'https://www.genpact.com/services'
+    r = requests.get(home_url)
+    soup = BeautifulSoup(r.content, 'lxml')
+    cards = soup.find('section', attrs={'class': 'component cards-component container grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 spacing-bottom'})
+    buttons = cards.findAll('a', attrs={'role': 'button'})
+    services = [(button.get('title'), button.get('href')) for button in buttons]
+    for service in services:
+        service_url = service[1]
+        r = requests.get(service_url)
+        soup = BeautifulSoup(r.content, 'lxml')
+        if service[0] in ['Artificial intelligence', 'Sales and commercial', 'Trust and safety']:
+            cards = soup.find('section', attrs={'class': 'component cta-columns-component container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-12 md:gap-8 spacing-bottom'})
+            solutions = [(card.h3.text, service_url + card.a.get('href')) if card.a != None and 'https' not in card.a.get('href') else (card.h3.text, '') for card in cards.findAll('div', attrs={'class': 'flex flex-col w-full items-start justify-start'})]
+
+        elif service[0] in ['Customer care']:
+            cards = soup.find('section', attrs={'class': 'component cta-columns-component container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-12 md:gap-8 spacing-top-bottom'})
+            solutions = [(card.h3.text, service_url + card.a.get('href')) if card.a != None and 'https' not in card.a.get('href') else (card.h3.text, '') for card in cards.findAll('div', attrs={'class': 'flex flex-col w-full items-start justify-start'})]
+
+        elif service[0] in ['Data and analytics']:
+            cards = soup.find('section', attrs={'class': 'component cta-columns-component container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-12 md:gap-8 spacing-top-bottom'})
+            solutions = [(card.h3.text, service_url + card.a.get('href')) if card.a != None and 'https' not in card.a.get('href') else (card.h3.text, '') for card in cards.findAll('div', attrs={'class': 'flex flex-col w-full items-start justify-start'})]
+
+        elif service[0] in ['Finance and accounting', 'Risk and compliance', 'Technology services']:
+            cards = soup.find('section', attrs={'class': 'component cards-component container grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 spacing-bottom'})
+            solutions = [(card.get('title'), card.get('href')) for card in cards.findAll('a', attrs={'role': 'button'})]
+
+        elif service[0] in ['Intelligent automation', 'Cloud', 'Experience', 'Sourcing and procurement', 'Supply chain management']:
+            cards = soup.find('section', attrs={'class': 'component cta-columns-component container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-12 md:gap-8 spacing-top-bottom'})
+            solutions = [(card.h3.text, service_url + card.a.get('href')) if card.a != None and 'https' not in card.a.get('href') else (card.h3.text, '') for card in cards.findAll('div', attrs={'class': 'flex flex-col w-full items-start justify-start'})]
+
+        elif service[0] in ['Sustainability']:
+            cards = soup.find('section', attrs={'class': 'component cta-columns-component container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-12 md:gap-8 spacing-bottom'})
+            solutions = [(card.h3.text, service_url + card.a.get('href')) if card.a != None and 'https' not in card.a.get('href') else (card.h3.text, '') for card in cards.findAll('div', attrs={'class': 'flex flex-col w-full items-start justify-start'})]
+
+        else:
+            solutions = [(f'Check {service[1]}', '')]
+
+        for solution in solutions:
+            company_dict['Practices'].append('')
+            company_dict['Practices_URL'].append('')
+            company_dict['Services'].append(service[0])
+            company_dict['Services_URL'].append(service[1])
+            company_dict['Solutions'].append(solution[0])
+            company_dict['Solutions_URL'].append(solution[1])
+
+    df = pd.DataFrame(company_dict)
+    return df
+
+def scraper_equalexperts():
+
+    company_dict = defaultdict(list)
+    home_url = 'https://www.equalexperts.com/our-services'
+    r = requests.get(home_url)
+    soup = BeautifulSoup(r.content, 'lxml')
+    services_text = soup.findAll('li', attrs={'class': 'services-2021__nav-item'})
+    services_text = [service.a.text.replace('\n', '').replace('\t', '') for service in services_text]
+    services_url = soup.findAll('div', attrs={'class': 'services-2021__offering-col--text'})
+    services_url = [service_url.a.get('href') for service_url in services_url]
+    services = list(zip(services_text, services_url))
+    for service in services:
+        service_url = service[1]
+        r = requests.get(service_url)
+        soup = BeautifulSoup(r.content, 'lxml')
+        solution_buttons = soup.findAll('button', attrs={'class': 'collapsible-2021__title'})
+        solutions = [solution.span.text for solution in solution_buttons]
+
+        for solution in solutions:
+            company_dict['Practices'].append('')
+            company_dict['Practices_URL'].append('')
+            company_dict['Services'].append(service[0])
+            company_dict['Services_URL'].append(service[1])
+            company_dict['Solutions'].append(solution)
+            company_dict['Solutions_URL'].append('')
+
+    df = pd.DataFrame(company_dict)
+    return df
+
+def scraper_elixirr():
+
+    company_dict = defaultdict(list)
+    home_url = 'https://www.elixirr.com/en-gb/services/'
+    r = requests.get(home_url)
+    soup = BeautifulSoup(r.content, 'lxml')
+    tab = soup.find('section', attrs={'class': 'four-columns grey four-columns--simple'})
+    services = [(link.text.replace('\n', '').strip(), link.get('href')) for link in tab.findAll('a')]
+
+
+    for service in services:
+        service_url = service[1]
+        r = requests.get(service_url)
+        soup = BeautifulSoup(r.content, 'lxml')
+        solutions = []
+
+        tab = soup.find('div', attrs={'class': 'repeating-text__grid'})
+        if tab != None:
+            solutions1 = [title.text.replace('\n', '').replace('\t', '') for title in tab.findAll('h3')]
+            solutions += solutions1
+
+        block = soup.findAll('div', attrs={'class': 'narrow'})
+        if block != None and block != []:
+            solutions2 = [title.text.replace('\n', '').replace('\t', '') for title in block[-1].findAll('ul')]
+            if len(solutions2) == 1:
+                try:
+                    bullet_list = block[-1].find('ul')
+                    solutions2 = [title.text for title in bullet_list.findAll('li')]
+                except:
+                    pass
+
+            solutions += solutions2
+
+        for solution in solutions:
+            company_dict['Practices'].append('')
+            company_dict['Practices_URL'].append('')
+            company_dict['Services'].append(service[0])
+            company_dict['Services_URL'].append(service[1])
+            company_dict['Solutions'].append(solution)
+            company_dict['Solutions_URL'].append('')
+
+    df = pd.DataFrame(company_dict)
+    return df
+
+def scraper_eclature():
+
+    company_dict = defaultdict(list)
+    home_url = 'https://eclature.com/'
+    r = requests.get(home_url)
+    soup = BeautifulSoup(r.content, 'lxml')
+    tab = soup.find('li', attrs={'id': 'menu-item-8544'})
+    services = [(link.text.replace('\n', '').strip(), link.get('href')) for link in tab.findAll('a')][1:]
+
+    for service in services:
+        company_dict['Practices'].append('')
+        company_dict['Practices_URL'].append('')
+        company_dict['Services'].append(service[0])
+        company_dict['Services_URL'].append(service[1])
+        company_dict['Solutions'].append('')
+        company_dict['Solutions_URL'].append('')
+
+    tab = soup.find('li', attrs={'id': 'menu-item-8537'})
+    solutions = [(link.text.replace('\n', '').strip(), link.get('href')) for link in tab.findAll('a')][1:]
+
+    for solution in solutions:
+        company_dict['Practices'].append('')
+        company_dict['Practices_URL'].append('')
+        company_dict['Services'].append('')
+        company_dict['Services_URL'].append('')
+        company_dict['Solutions'].append(solution[0])
+        company_dict['Solutions_URL'].append(solution[1])
+
+    df = pd.DataFrame(company_dict)
+    return df
+
+def scraper_designit():
+
+    company_dict = defaultdict(list)
+    home_url = 'https://www.designit.com/services'
+    r = requests.get(home_url)
+    soup = BeautifulSoup(r.content, 'lxml')
+    blocks = soup.findAll('div', attrs={'class': 'g-wrap -mb-32 flex flex-wrap'})
+    services = [(link.find('strong').text, link.find('a').get('href')) for link in blocks]
+    for service in services:
+        service_url = service[1]
+        r = requests.get(service_url)
+        soup = BeautifulSoup(r.content, 'lxml')
+        grid = soup.find('div', attrs={'class': 'content-block g-wrap'})
+        if grid != None:
+            solutions = [(link.find('h3').text, link.get('href')) for link in grid.findAll('a')]
+
+            for solution in solutions:
+                company_dict['Practices'].append('')
+                company_dict['Practices_URL'].append('')
+                company_dict['Services'].append(service[0])
+                company_dict['Services_URL'].append(service[1])
+                company_dict['Solutions'].append(solution[0])
+                company_dict['Solutions_URL'].append(solution[1])
+        else:
+
+            for solution in solutions:
+                company_dict['Practices'].append('')
+                company_dict['Practices_URL'].append('')
+                company_dict['Services'].append(service[0])
+                company_dict['Services_URL'].append(service[1])
+                company_dict['Solutions'].append('')
+                company_dict['Solutions_URL'].append('')
+
+    df = pd.DataFrame(company_dict)
+    return df
+
+def scraper_contino():
+
+    company_dict = defaultdict(list)
+    home_url = 'https://www.contino.io'
+    r = requests.get(home_url)
+    soup = BeautifulSoup(r.content, 'lxml')
+    tab = soup.find('ul', attrs={'class': 'dropdown'})
+    services = [(link.text, home_url + link.a.get('href')) for link in tab.findAll('li')]
+
+    for service in services:
+        service_url = service[1]
+        r = requests.get(service_url)
+        soup = BeautifulSoup(r.content, 'lxml')
+        grid = soup.find('div', attrs={'class': 'css-1ys1vkk'})
+        if grid != None:
+            solutions = [(link.text.strip(), '') for link in grid.findAll('h3')]
+
+            for solution in solutions:
+                company_dict['Practices'].append('')
+                company_dict['Practices_URL'].append('')
+                company_dict['Services'].append(service[0])
+                company_dict['Services_URL'].append(service[1])
+                company_dict['Solutions'].append(solution[0])
+                company_dict['Solutions_URL'].append(solution[1])
+        else:
+
+            for solution in solutions:
+                company_dict['Practices'].append('')
+                company_dict['Practices_URL'].append('')
+                company_dict['Services'].append(service[0])
+                company_dict['Services_URL'].append(service[1])
+                company_dict['Solutions'].append('Check website')
+                company_dict['Solutions_URL'].append('')
+
+    df = pd.DataFrame(company_dict)
+    return df
+
+def scraper_cigniti():
+
+    company_dict = defaultdict(list)
+    home_url = 'https://www.cigniti.com'
+    r = requests.get(home_url)
+    soup = BeautifulSoup(r.content, 'lxml')
+    tab1 = soup.find('li', attrs={'id': 'nav-menu-item-104843'})
+    tab2 = soup.find('li', attrs={'id': 'nav-menu-item-104968'})
+    tab = [tab1] + [tab2]
+    column = [col.findAll('li', attrs={'class': 'menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children sub'}) for col in tab]
+    columns = column[0] + column[1]
+
+    services = []
+    for column in columns:
+        practice = column.find('li').text
+        try:
+            practice_url = column.find('li').a.get('href')
+        except:
+            practice_url = ''
+
+        try:
+            services_raw = column.findAll('li')[1:]
+            for service_raw in services_raw:
+                if service_raw.a.get('href').startswith(home_url):
+                    service = (service_raw.text, service_raw.a.get('href'))
+                else:
+                    service = (service_raw.text, home_url + service_raw.a.get('href'))
+            
+                services.append((practice, practice_url, service[0], service[1]))
+        except:
+            services.append((practice, practice_url, 'Check website', ''))
+
+    for service in services:
+        company_dict['Practices'].append(service[0])
+        company_dict['Practices_URL'].append(service[1])
+        company_dict['Services'].append(service[2])
+        company_dict['Services_URL'].append(service[3])
+        company_dict['Solutions'].append('')
+        company_dict['Solutions_URL'].append('')
+
+    df = pd.DataFrame(company_dict)
+    return df
+
+def scraper_broadstones():
+
+    company_dict = defaultdict(list)
+    home_url = 'https://broadstones.tech/services'
+    r = requests.get(home_url)
+    soup = BeautifulSoup(r.content, 'lxml')
+    block = soup.find('section', attrs={'class': 'p-bs p-bs--panel bg-white overflow-hidden bg-eyes bg-eyes--2 bg-eyes--services'})
+    rows = block.findAll('div', attrs={'class': 'c-hover-collapse animation mb-4'})
+    services = [(row.find('h4').text, row.find('a').get('href')) for row in rows][:-1]
+    for service in services:
+        service_url = service[1]
+        r = requests.get(service_url)
+        soup = BeautifulSoup(r.content, 'lxml')
+        block = soup.findAll('h3', attrs={'class': 'blue'})
+        solutions = [item.text for item in block]
+        
+        if solutions == []:
+            for solution in solutions:
+                company_dict['Practices'].append('')
+                company_dict['Practices_URL'].append('')
+                company_dict['Services'].append(service[0])
+                company_dict['Services_URL'].append(service[1])
+                company_dict['Solutions'].append('')
+                company_dict['Solutions_URL'].append('')
+        else:
+            for solution in solutions:
+                company_dict['Practices'].append('')
+                company_dict['Practices_URL'].append('')
+                company_dict['Services'].append(service[0])
+                company_dict['Services_URL'].append(service[1])
+                company_dict['Solutions'].append(solution)
+                company_dict['Solutions_URL'].append('')
+
+    df = pd.DataFrame(company_dict)
+    return df
+
+def scraper_bjss():
+
+    company_dict = defaultdict(list)
+    home_url = 'https://www.bjss.com/'
+    r = requests.get(home_url)
+    soup = BeautifulSoup(r.content, 'lxml')
+    tab = soup.findAll('div', attrs={'class': 'menu-item menu-item--has-children'})[1]
+    services = [(link.text.replace('\n', '').strip(), link.get('href')) for link in tab.findAll('a')][2:-1]
+    for service in services:
+        service_url = service[1]
+        r = requests.get(service_url)
+        soup = BeautifulSoup(r.content, 'lxml')
+        titles = soup.findAll('h6', attrs={'class': 'title matchHeight2'})
+        solutions = [title.text for title in titles]
+
+        for solution in solutions:
+            company_dict['Practices'].append('')
+            company_dict['Practices_URL'].append('')
+            company_dict['Services'].append(service[0])
+            company_dict['Services_URL'].append(service[1])
+            company_dict['Solutions'].append(solution)
+            company_dict['Solutions_URL'].append('')
+            
+    df = pd.DataFrame(company_dict)
+    return df
+
+def scraper_bain():
+
+    company_dict = defaultdict(list)
+    home_url = 'https://www.bain.com'
+    r = requests.get(home_url)
+    soup = BeautifulSoup(r.content, 'lxml')
+    links = soup.findAll('a')
+    links = list({(link.get('aria-label'), home_url + link.get('href')) for link in links if link.get('href') != None and link.get('aria-label') != None})
+    links.remove(('Consulting Services', 'https://www.bain.com/consulting-services/'))
+    services = [service for service in links if '/consulting-services/' in service[1] or '/vector-digital/' in service[1]]
+
+    for service in services:
+        service_url = service[1]
+        r = requests.get(service_url)
+        soup = BeautifulSoup(r.content, 'lxml')
+        solutions_raw = soup.findAll('h4', attrs={'class': 'featured-solutions__animated-text'})
+        solutions = [solution.text for solution in solutions_raw]
+
+        if solutions == []:
+            company_dict['Practices'].append('')
+            company_dict['Practices_URL'].append('')
+            company_dict['Services'].append(service[0])
+            company_dict['Services_URL'].append(service[1])
+            company_dict['Solutions'].append('')
+            company_dict['Solutions_URL'].append('')
+
+        else:
+            for solution in solutions:
+                company_dict['Practices'].append('')
+                company_dict['Practices_URL'].append('')
+                company_dict['Services'].append(service[0])
+                company_dict['Services_URL'].append(service[1])
+                company_dict['Solutions'].append(solution)
+                company_dict['Solutions_URL'].append('')
+
+    df = pd.DataFrame(company_dict)
+    return df
+
+def scraper_atos():
+
+    company_dict = defaultdict(list)
+    home_url = 'https://atos.net/advancing-what-matters/en/'
+    r = requests.get(home_url)
+    soup = BeautifulSoup(r.content, 'lxml')
+    tabs = soup.findAll('li', attrs={'class': 'hm1 haschildren'})
+
+    for tab in tabs:
+        solution = (tab.find('a').text, tab.find('a').get('href').replace('#', ''))
+        services = soup.findAll('li', attrs={'class': 'hm2 nochildren'})
+        for service in services:
+                company_dict['Practices'].append('')
+                company_dict['Practices_URL'].append('')
+                company_dict['Services'].append(service.find('a').text)
+                company_dict['Services_URL'].append(service.find('a').get('href'))
+                company_dict['Solutions'].append(solution[0])
+                company_dict['Solutions_URL'].append(solution[1])
+
+    df = pd.DataFrame(company_dict)
+    return df
+
+def scraper_capita():
+
+    company_dict = defaultdict(list)
+    home_url = 'https://www.capita.com'
+    url = 'https://www.capita.com/services/our-expertise'
+    r = requests.get(url)
+    soup = BeautifulSoup(r.content, 'lxml')
+    links = soup.findAll('a', attrs={'class': 'coh-link campaign-header-link coh-ce-cpt_capita_navigation_block-446d7384'})
+    services = [(link.get('title'), link.get('href')) if link.get('href').startswith(home_url) else (link.get('title'), home_url + link.get('href')) for link in links]
+    for service in services:
+        service_url = service[1]
+        r = requests.get(service_url)
+        soup = BeautifulSoup(r.content, 'lxml')
+        if service[0] == 'Consulting':
+            tabs = soup.findAll('a', attrs={'class': 'coh-link campaign-content-header-link coh-ce-cpt_capita_content_and_image_p3-b8c013d1'})
+            solutions =[(tab.h4.text.strip(), tab.get('href')) for tab in tabs]
+
+        elif service[0] == 'Learning & development':
+            titles = soup.findAll('h4', attrs={'class': 'coh-heading coh-ce-cpt_capita_content_and_image_p3-573e2b90'})
+            links = soup.findAll('a', attrs={'class': 'coh-link content-link campaign-content-button-link coh-style-capita---link-button coh-style-capita---button-with-white-background coh-style-capita---button-with-white-background coh-ce-cpt_capita_content_and_image_p3-ecd4a3fe'})
+            solutions = list(zip([title.text.strip() for title in titles], [link.get('href') for link in links]))
+        else:
+            links = soup.findAll('a', attrs={'class': 'coh-link campaign-header-link coh-ce-cpt_capita_navigation_block-446d7384'})
+            solutions = [(link.get('title'), link.get('href')) if link.get('href').startswith(home_url) else (link.get('title'), home_url + link.get('href')) for link in links]
+
+        for solution in solutions:
+            company_dict['Practices'].append('')
+            company_dict['Practices_URL'].append('')
+            company_dict['Services'].append(service[0])
+            company_dict['Services_URL'].append(service[1])
+            company_dict['Solutions'].append(solution[0])
+            company_dict['Solutions_URL'].append(solution[1])
+
+    df = pd.DataFrame(company_dict)
+    return df
+
+def scraper_boozallen():
+
+    company_dict = defaultdict(list)
+    home_url = 'https://www.boozallen.com'
+    url = 'https://www.boozallen.com/expertise.html'
+    r = requests.get(url)
+    soup = BeautifulSoup(r.content, 'lxml')
+    cards = soup.findAll('div', attrs={'class': 'tile-grid-tile-content card'})
+    practices = [(card.a.get('data-aa-tile-link'), home_url + card.a.get('href')) for card in cards]
+    practices
+    for practice in practices:
+        practice_url = practice[1]
+        r = requests.get(practice_url)
+        soup = BeautifulSoup(r.content, 'lxml')
+        if practice[0] in ['Consulting', 'Digital Solutions', 'Engineering']:
+            cards = soup.findAll('div', attrs={'class': 'tile-grid-tile-content card'})
+            solutions = [(card.a.get('data-aa-tile-link'), home_url + card.a.get('href')) for card in cards if card.a != None]
+        elif practice[0] in ['Cyber']:
+            cards = soup.findAll('div', attrs={'class': 'call-out-link-grid-item clearfix'})
+            solutions = [(card.a.get('data-aa-colg'), card.a.get('href')) for card in cards if card.a != None]
+        elif practice[0] in ['Artificial Intelligence']:
+            tabs = soup.findAll('div', attrs={'class': 'image-card image-card--yellow'})
+            titles = [tab.find('div', attrs={'class': 'image-card__title'}).text for tab in tabs]
+            links = [tab.find('a').get('href') for tab in tabs]
+            solutions = list(zip([title.replace('\n', '').strip() for title in titles], [link for link in links]))
+        else:
+            solutions = ['Check webpage', '']
+
+        for solution in solutions:
+            company_dict['Practices'].append(practice[0])
+            company_dict['Practices_URL'].append(practice[1])
+            company_dict['Services'].append('')
+            company_dict['Services_URL'].append('')
+            company_dict['Solutions'].append(solution[0])
+            company_dict['Solutions_URL'].append(solution[1])
+
+    df = pd.DataFrame(company_dict)
+    return df
+
+def scraper_a1qa():
+
+    company_dict = defaultdict(list)
+    home_url = 'https://www.a1qa.com'
+    r = requests.get(home_url)
+    soup = BeautifulSoup(r.content, 'lxml')
+    tab = soup.find('div', attrs={'class': 'dropdown__services'})
+    columns = tab.findAll('div', attrs='dropdown__col')
+
+    for column in columns:
+        practice = column.find('h3').text.strip()
+        services = [(link.text.replace('\n', '').strip(), link.get('href')) for link in column.findAll('a', attrs={'class':'dropdown__link'})]
+        for service in services:
+            company_dict['Practices'].append(practice)
+            company_dict['Practices_URL'].append('')
+            company_dict['Services'].append(service[0])
+            company_dict['Services_URL'].append(service[1])
+            company_dict['Solutions'].append('')
+            company_dict['Solutions_URL'].append('')
+
+    df = pd.DataFrame(company_dict)
+    return df
+
+def scraper_alix():
+
+    company_dict = defaultdict(list)
+    home_url = 'https://www.alixpartners.com'
+    url = 'https://www.alixpartners.com/what-we-do/'
+    r = requests.get(url)
+    soup = BeautifulSoup(r.content, 'lxml')
+    tabs = soup.findAll('a', attrs={'class': 'capabilities-link'})
+    services = [(tab.text.strip(), home_url + tab.get('href')) for tab in tabs]
+    for service in services:
+        service_url = service[1]
+        r = requests.get(service_url)
+        soup = BeautifulSoup(r.content, 'lxml')
+        links = soup.findAll('a', attrs={'class': 'capabilities-link'})
+        solutions = [(link.text.strip(), home_url + link.get('href')) for link in links]
+        if solutions == []:
+            solutions = [('', '')]
+        for solution in solutions:
+            company_dict['Practices'].append('')
+            company_dict['Practices_URL'].append('')
+            company_dict['Services'].append(service[0])
+            company_dict['Services_URL'].append(service[1])
+            company_dict['Solutions'].append(solution[0])
+            company_dict['Solutions_URL'].append(solution[1])
+
+
+    company_dict
+    df = pd.DataFrame(company_dict)
+    return df
