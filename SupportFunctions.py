@@ -8,6 +8,9 @@ from datetime import datetime, date
 import scrapers
 import numpy as np
 from collections import defaultdict
+import logging
+
+logger = logging.getLogger(__name__)
 
 def sheet_exists(file_path, sheet_name):
     """
@@ -418,6 +421,11 @@ def log_new_and_modified_rows2(final_df, old_df, sheet_name, excel_file):
             pd.DataFrame().to_excel(writer, sheet_name="Sheet 1", index=False)
 
     if not new_and_modified_df.empty:
+        if ':' in sheet_name:
+            logger.debug('Uncleaned sheet_name: %s', sheet_name)
+            sheet_name = sheet_name.replace(':','')
+            logger.debug('Cleaned sheet_name: %s', sheet_name)
+            
         # If there are new or modified rows, write them to the specified sheet
         with pd.ExcelWriter(excel_file, engine='openpyxl', mode='a', if_sheet_exists='replace') as writer:
             new_and_modified_df.to_excel(writer, sheet_name=sheet_name, index=False)
