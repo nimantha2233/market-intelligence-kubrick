@@ -4,9 +4,32 @@ import yfinance as yf
 import json
 import datetime
 import openpyxl
+import sys
 from datetime import datetime, date
 import scrapers
 import numpy as np
+from collections import defaultdict
+import openpyxl as xl
+
+def get_data_file_path(filename, folder = 'database'):
+    """
+    Get the full path to a file located in the 'data' directory.
+
+    Parameters:
+    - filename: The name of the file in the 'data' directory.
+
+    Returns:
+    - The full path to the file.
+    """
+    if getattr(sys, 'frozen', False):  # Check if the script is running as a compiled executable
+        # If running as an executable, use the executable directory
+        application_path = os.path.dirname(sys.executable)
+    else:
+        # If running as a script, use the script directory
+        application_path = os.path.dirname(os.path.abspath(__file__))
+
+    # Build the full path to the data file
+    return os.path.join(application_path, folder, filename)
 
 def sheet_exists(file_path, sheet_name):
     """
@@ -38,39 +61,38 @@ def company_intel_table(company_name, url, file_path="kubrick_mi_company_intel.c
         data = pd.read_csv(file_path, encoding='ISO-8859-1')
 
     data_as_dict = defaultdict(list)
+    set1 = set(name for name in list(data['Company Name']))
+    set2 = {company_name}
+    set1.update(set2)
+    names = list(set1)
+    names.sort()
 
-    company_names_column = data.iloc[:, 1]
-    company_exists = company_name in company_names_column.values
+    for name in names:
+        company_names_column = data.iloc[:, 1]
+        company_exists = name in company_names_column.values
 
-    data_as_dict["Date Collected"].append(datetime.now().strftime("%Y-%m-%d"))
-    data_as_dict["Company Name"].append(company_name)
-    data_as_dict["URL"].append(url)
-
-    training_duration_index = data.columns.get_loc("Training Program Duration")
-    try:
-        if company_exists:
-            company_index = company_names_column[company_names_column == company_name].index[0]
-            for col in data.columns[training_duration_index:]:
-                data_as_dict[col].append(data.at[company_index, col])
-            
-            for key, value in data_as_dict.items():
-                data.at[company_index, key] = value[0]
-            
-        else:
-            for col in data.columns[training_duration_index:]:
-                if col not in data_as_dict:
+        data_as_dict["Date Collected"].append(datetime.now().strftime("%Y-%m-%d"))
+        data_as_dict["Company Name"].append(name)
+        
+        try:
+            cols = ['URL','Training Program Duration','Anecdotal Views of Quality','Consultant Pricing']
+            if company_exists:
+                company_index = company_names_column[company_names_column == name].index[0]
+                for col in cols:
+                    data_as_dict[col].append(data.at[company_index, col])
+                
+                for key, value in data_as_dict.items():
+                    data.at[company_index, key] = value[0]
+                
+            else:
+                for col in cols:
                     data_as_dict[col].append("To be completed manually")
-                new_data = pd.DataFrame(data_as_dict)
-                data = pd.concat([data, new_data], ignore_index=True)
-    except Exception as e:
-        log_error(f"Error obtaining intel data for {company_name}: {e}")
-        return False
-    
-    for column in data.columns[3:]:
-        data[column] = [f'No {column} Available' if item in ('', ' ', None, 'nan', np.nan) else item for item in data[column]]
-    data.dropna(inplace=True)
-    data.reset_index(drop=True, inplace=True)
-    data.to_csv(file_path, index=False, encoding='ISO-8859-1')
+        
+        except Exception as e:
+            log_error(f"Error obtaining intel data for {company_name}: {e}")
+            return False
+    new_data = pd.DataFrame(data_as_dict)
+    new_data.to_csv(file_path, index=False)
     return True
 
 def write_to_excel(df, file_path, sheet_name):
@@ -85,21 +107,24 @@ def write_to_excel(df, file_path, sheet_name):
     Returns:
 
     """
-    if sheet_exists(file_path, sheet_name):
-        # If the sheet exists, overwrite all the data in that sheet
-        workbook = openpyxl.load_workbook(file_path)
-        if sheet_name in workbook.sheetnames:
-            sheet = workbook[sheet_name]
-            workbook.remove(sheet)
-            workbook.save(file_path)  # Save the workbook without the sheet
-        
-        # Reopen the workbook with pd.ExcelWriter and add the new sheet
-        with pd.ExcelWriter(file_path, engine='openpyxl', mode='a') as writer:
-            df.to_excel(writer, sheet_name=sheet_name, index=False)
-    else:
-        # If the sheet doesn't exist, append a new sheet with the data
-        with pd.ExcelWriter(file_path, engine='openpyxl', mode='a') as writer:
-            df.to_excel(writer, sheet_name=sheet_name, index=False)
+    try:
+        if sheet_exists(file_path, sheet_name):
+            # If the sheet exists, overwrite all the data in that sheet
+            workbook = openpyxl.load_workbook(file_path)
+            if sheet_name in workbook.sheetnames:
+                sheet = workbook[sheet_name]
+                workbook.remove(sheet)
+                workbook.save(file_path)  # Save the workbook without the sheet
+            
+            # Reopen the workbook with pd.ExcelWriter and add the new sheet
+            with pd.ExcelWriter(file_path, engine='openpyxl', mode='a') as writer:
+                df.to_excel(writer, sheet_name=sheet_name, index=False)
+        else:
+            # If the sheet doesn't exist, append a new sheet with the data
+            with pd.ExcelWriter(file_path, engine='openpyxl', mode='a') as writer:
+                df.to_excel(writer, sheet_name=sheet_name, index=False)
+    except Exception as e:
+        log_error(f"Unable to save data for {sheet_name} : {e}")
 
 def read_from_excel(file_path, sheet_name, template_file_path):
     """
@@ -209,7 +234,6 @@ def get_company_details(symbol):
         return json.dumps({"error": status})
     #return company_details
     
-
 def create_final_df(company_name, url, json_data, df, template_file_path):
     """
     Creates the final dataframe to be stored using data from webscrape + financial data
@@ -300,6 +324,7 @@ def log_differences(action, sheet_name, num_differences):
     sheet_name (str): The name of the sheet.
     num_differences (int): The number of differences found.
     """
+    path_file = get_data_file_path('log_diff.txt', "logs")
     time_today = datetime.now().strftime("%Y-%m-%d")
     if num_differences == 0:
         log_message = f"{time_today}: No new data for company: '{sheet_name}'"
@@ -307,11 +332,14 @@ def log_differences(action, sheet_name, num_differences):
         log_message = f"{time_today}: {action} {num_differences} new data row for company: '{sheet_name}'"
     else:
         log_message = f"{time_today}: {action} {num_differences} new data rows for company: '{sheet_name}'"
-    with open('log_diff.txt', 'a') as log_file:
+    with open(path_file, 'a') as log_file:
         log_file.write(log_message + '\n')
 
 def log_error(message):
-    with open("log.txt", "a") as log_file:
+
+    path_file = get_data_file_path('log_error.txt', "logs")
+
+    with open(path_file, "a") as log_file:
         log_file.write(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - {message}\n")
 
 def log_new_and_modified_rows(df1, df2, sheet_name):
@@ -731,6 +759,10 @@ def get_company_details2(status, symbol):
         try:
             stock = yf.Ticker(symbol)
             info = stock.info
+            next_fiscal_year_end_epoch = info.get('nextFiscalYearEnd')
+            if next_fiscal_year_end_epoch > 1e12:
+                next_fiscal_year_end_epoch /= 1000
+
             company_details = {
                 "Previous Close": info.get("previousClose", np.nan),
                 "52 Week Range": f'{info.get("fiftyTwoWeekLow", np.nan)} - {info.get("fiftyTwoWeekHigh", np.nan)}',
@@ -738,7 +770,7 @@ def get_company_details2(status, symbol):
                 "Industry": info.get("industry", np.nan),
                 "Full Time Employees": info.get("fullTimeEmployees", np.nan),
                 "Market Cap": info.get("marketCap", np.nan),
-                "Fiscal Year Ends": info.get("fiscalYearEnd", np.nan),
+                "Fiscal Year Ends": datetime.fromtimestamp(next_fiscal_year_end_epoch).strftime('%d/%m/%y'),
                 "Revenue": info.get("totalRevenue", np.nan),
                 "EBITDA": info.get("ebitda", np.nan),
             }

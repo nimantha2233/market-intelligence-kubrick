@@ -1,0 +1,1 @@
+2024-06-07 14:04:26 - Price Report cannot run in the same day, please try run tomorrow.
