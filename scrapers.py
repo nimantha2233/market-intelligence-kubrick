@@ -1030,7 +1030,7 @@ def scraper_alchemmy() -> pd.DataFrame:
 
 
 
-def scraper_adlittle() -> pd.DataFrame:
+def scraper_arthur() -> pd.DataFrame:
     '''
     ARTHUR D. LITTLE LIMITED
 
@@ -1336,9 +1336,9 @@ def scraper_cgi() -> pd.DataFrame:
 
 
 
-def scraper_vlm() -> pd.DataFrame:
+def scraper_vml() -> pd.DataFrame:
     '''
-    (Cognifide) VLM: https://www.vml.com
+    (Cognifide) VML: https://www.vml.com
 
     NOTE: Webpages of practices vary slightly hence long code for different cases.
 
@@ -1448,7 +1448,7 @@ def scraper_deloitte():
     soup = BeautifulSoup(requests.get(SERVICES_URL).content, 'html5lib')
 
     # For each service on top level services webpage
-    for service_soup in soup.select('div[id="promo-container--c331840e"]')[0].select('div[id]'):
+    for service_soup in soup.select('div[id="promo-container--daa217c6"]')[0].select('div[id]'):
         # Ghost elements exist in services section grid (could be new areas in future)
         if service_soup.select('h3'):
             service_url = BASE_URL + service_soup.select('a[href]')[0]['href'].strip()
@@ -1605,7 +1605,7 @@ def scraper_dxc():
     return df
 
 
-def scraper_11fs():
+def scraper_fs():
     '''
     11:fs: https://www.11fs.com/
 
@@ -2193,7 +2193,7 @@ def scraper_highland() -> pd.DataFrame:
 
 
 
-def scraper_credo() -> pd.DataFrame:
+def scraper_opencredo() -> pd.DataFrame:
     '''
     Open Credo: https://opencredo.com/
 
@@ -2343,5 +2343,391 @@ def scraper_projective() -> pd.DataFrame:
     return pd.DataFrame(company_dict)
 
 
+def scraper_ricoh() -> pd.DataFrame:
+    '''
+    Ricoh: https://www.ricoh.co.uk
+
+    Available on website out of Practices/Services/Solutions:
+    1. Solutions (listed as "business solutions")
+    2. Services (Come under each solution)
+
+    Scrape from Solutions page: https://www.ricoh.co.uk/business-solutions/'
+    Then go to each solution page and scrape services
+    '''    
+    BASE_URL = r'https://www.ricoh.co.uk'
+    SOLUTIONS_URL = r'https://www.ricoh.co.uk/business-solutions/'
+    HEADERS = {
+    'User-Agent': 'My User Agent 1.0',
+    'From': 'youremail@domain.example'  # This is another valid field
+            }
+    r = requests.get(url = SOLUTIONS_URL,headers=HEADERS)
+    company_dict = defaultdict(list)
+
+    soup = BeautifulSoup(r.content, 'html5lib')
+
+    for solution_card in soup.select_one('div[id="teaser-standard-81-55294"]').select('div[class="swiper-slide teaser__item text-black"]'):
+        solution = solution_card.select_one('h2').text.strip()
+        solution_url = BASE_URL + solution_card.select_one('a[title="Find out more"]')['href']
+
+        solution_soup = BeautifulSoup(requests.get(solution_url, headers=HEADERS).content, 'html5lib')
+
+        # scrape services under "Areas where we excel"
+        if solution_soup.select_one('div[id*="areas-where-we-excel"]'):
+            for service in solution_soup.select_one('div[id*="areas-where-we-excel"]').select('ul[class="areo__link p-0 mt--25"] > li'):
+                company_dict['Solutions'].append(solution)
+                company_dict['Solutions_URL'].append(solution_url)
+                company_dict['Services'].append(service.text.strip())
+        
+        # Scrape services under "Our solutions"
+        elif solution_soup.select_one('div[our-solutions]'):
+            for service in solution_soup.select_one('div[id*="areas-where-we-excel"]').select('ul[class="areo__link p-0 mt--25"] > li'):
+                company_dict['Solutions'].append(solution)
+                company_dict['Solutions_URL'].append(solution_url)
+                company_dict['Services'].append(service.text.strip())
+
+    return pd.DataFrame(company_dict)
 
 
+def scraper_simonkutcher() -> pd.DataFrame:
+    '''
+    Simon-Kucher: https://www.simon-kucher.com/en
+
+    Available on website out of Practices/Services/Solutions:
+    1. Practices (listed "What we do")
+    2. Services (Come under each Practice)
+
+    Scrape from home page: https://www.simon-kucher.com/en
+    Then go to each Practice page and scrape services
+    '''    
+    BASE_URL = r'https://www.simon-kucher.com/en'
+    r = requests.get(url = BASE_URL)
+    company_dict = defaultdict(list)
+
+    soup = BeautifulSoup(r.content, 'html5lib')
+
+    # Each webpage has different layout. Update this if number of practices changes
+    practices_list = ['Commercial Strategy & Pricing Consulting', 'Software for Commercial Growth – Engine'
+                    , 'Digital Growth - Elevate', 'Transaction Services & Private Equity']
+
+    # Practice cards located in this section
+    what_we_do_soup = soup.select('div[class="column__four section__overflow--button-off"] > div[class="column"]')
+
+    last_run_num_practices = len(practices_list)
+
+    if last_run_num_practices == 4:
+        pass
+    else:
+        pass
+        # Use logging module here to write info about error.
+
+    # iterate through each practice on What we do segment on homepage
+    for practice in what_we_do_soup:
+        practice_name = practice.select_one('div[class="overlay-cards-title"]').text.strip()
+        practice_url = BASE_URL + practice.select_one('a[href]')['href']
+
+        practices_list.append(practice_name)
+
+        practice_soup = BeautifulSoup(requests.get(practice_url).content, 'html5lib')
+        # Practice: Commercial Strategy & Pricing Consulting
+        if practice_name == practices_list[0]:
+            # First in select list is for services section
+            services_soup = practice_soup.select(
+                'div[class="column__three section__overflow--button-off"]'
+                )[0].select('div[class="column"]')
+            
+            
+            for service in services_soup:
+                service_name = service.select_one('h2').text.strip()
+                service_url = BASE_URL + service.select_one('a[href]')['href'].strip()
+                company_dict['Practices'].append(practice_name)
+                company_dict['Practices_URL'].append(practice_url)
+                company_dict['Services'].append(service_name)
+                company_dict['Services_URL'].append(service_url)
+        
+        # Practice: Software for Commercial Growth – Engine
+        elif practice_name == practices_list[1]:
+            # Services located in "What we offer section"
+            offerings = practice_soup.select_one('section[class="product"]')\
+                .select('div[class="prodinner"]')
+
+            for offer in offerings:
+                service_name = offer.select_one('h3').text.strip()
+                service_url = 'No Services URL'
+                company_dict['Practices'].append(practice_name)
+                company_dict['Practices_URL'].append(practice_url)
+                company_dict['Services'].append(service_name)
+                company_dict['Services_URL'].append(service_url)
+
+        # Practice: Digital Growth - Elevate
+        elif practice_name == practices_list[2]:
+            # Services found under "We provide you with:"
+            services = practice_soup.select_one('section[class="section elevate-services bg--img bg--blend"]')\
+            .select('div[class="hover-trigger"]')
+            
+            for service in services:
+                service_name = service.select_one('h4').text.strip()
+                service_url = 'No Services URL'
+                company_dict['Practices'].append(practice_name)
+                company_dict['Practices_URL'].append(practice_url)
+                company_dict['Services'].append(service_name)
+                company_dict['Services_URL'].append(service_url)         
+        
+        # Practice: Transaction Services & Private Equity
+        elif practice_name == practices_list[3]:
+                service_name = 'No Services'
+                service_url = 'No Services URL'
+                company_dict['Practices'].append(practice_name)
+                company_dict['Practices_URL'].append(practice_url)
+                company_dict['Services'].append(service_name)
+                company_dict['Services_URL'].append(service_url) 
+
+    return pd.DataFrame(company_dict)
+
+
+def scraper_ascend() -> pd.DataFrame:
+    '''
+    Ascend Technologies (Fomerly Switchfast): https://teamascend.com/
+
+    Available on website out of Practices/Services/Solutions:
+    1. Services 
+    2. Solutions (Come under each service not explicitly labelled as solutions)
+
+    Scrape from home page: https://teamascend.com/
+    '''    
+    BASE_URL = r'https://teamascend.com/'
+    r = requests.get(url = BASE_URL)
+    company_dict = defaultdict(list)
+
+    soup = BeautifulSoup(r.content, 'html5lib')
+
+    # Services + their sub_services located under drop down menu (IT Servies)
+    services = soup.select('li[id="menu-item-15937"] > ul > li')
+
+    for service in services:
+        service_name = service.select_one('a[href]').text.strip()
+        service_url = service.select_one('a[href]')['href'].strip()
+        sub_services = service.select('ul > li')
+        
+        # Sub-services nested in dropdown menu for services
+        for sub_service in sub_services:
+            sub_service_name = sub_service.select_one('a[href]').text.strip()
+            sub_service_url = sub_service.select_one('a[href]')['href'].strip()
+            
+            company_dict['Services'].append(service_name)
+            company_dict['Services_URL'].append(service_url) 
+            company_dict['Solutions'].append(sub_service_name)
+            company_dict['Solutions_URL'].append(sub_service_url)
+
+    # Separate drop down menu for salesforce services 
+    service_name = soup.select_one('li[id="menu-item-28375"] > a[href]').text.strip()
+    service_url = soup.select_one('li[id="menu-item-28375"] > a[href]')['href'].strip()
+    salesforce_services = soup.select('li[id="menu-item-28375"] > ul > li')
+
+    for sub_service in salesforce_services:
+        sub_service_name = sub_service.select_one('a[href]').text.strip()
+        sub_service_url = sub_service.select_one('a[href]')['href'].strip()
+        
+        company_dict['Services'].append(service_name)
+        company_dict['Services_URL'].append(service_url) 
+        company_dict['Solutions'].append(sub_service_name)
+        company_dict['Solutions_URL'].append(sub_service_url)
+
+    return pd.DataFrame(company_dict)
+
+
+def scraper_mahindra() -> pd.DataFrame:
+    '''
+    Tech Mahindra: https://www.techmahindra.com
+
+    Available on website out of Practices/Services/Solutions:
+    1. Practices (Under Capabalities/Our services)
+    2. Services (Found in each practice page)
+
+    '''    
+    BASE_URL = r'https://www.techmahindra.com'
+    r = requests.get(url = BASE_URL)
+    company_dict = defaultdict(list)
+
+    soup = BeautifulSoup(r.content, 'html5lib')
+
+    # Services section under Our Capabilities dropdown menu 
+    services = soup.select_one('li[data-id="menu_link_content:3841a231-b116-41b9-bf92-59a3c0178608"] > div > div')\
+        .find_all('div', class_="tb-megamenu-row row-fluid", recursive=False)[0]\
+        .select('div[class="tb-megamenu-column span3 mega-col-nav main-level-links"]')
+
+    for services_group in services:
+        # Within services group services are further sub-divided
+        for service in services_group.select('li[class*="tb-megamenu-item level-2 mega"]'):
+            # If service has a link then tag = 'a' else tag = 'span' .This occurs for Next-gen services
+            if service.find("a", href = True, recursive=False):
+                service_name = service.find("a", href = True, recursive=False).text.strip()
+                service_url = BASE_URL + service.find("a", href = True, recursive=False)['href'].strip()
+                # Get Soup from service page. More services on service page than on dropdown menu
+                service_soup = BeautifulSoup(requests.get(service_url).content, 'html5lib')
+
+                # Sub-services formatted as a sliding navigation pane under "Our Services"
+                sub_services_slider = service_soup.select('div[id*="slick-paragraph-bp-slick-bp-slick-content-slick-"]')[0]
+
+                # Will exist for sliders with tabs
+                slider_with_tabs = service_soup.select_one('ul[class="nav nav-tabs"]')
+
+                if slider_with_tabs:
+                    tabs = service_soup.select('div[role="tabpanel"]')
+                    
+                    for tab in tabs:
+                        for sub_service_title in tab.select('div[class="title2 field field--name-field-bp-headline field--type-string field--label-hidden field__item"]'):
+                            sub_service_name = sub_service_title.text.strip()
+                            sub_service_url = 'No Services URL'
+
+                            company_dict['Practices'].append(service_name)
+                            company_dict['Practices_URL'].append(service_url)
+                            company_dict['Services'].append(sub_service_name)
+                            company_dict['Services_URL'].append(sub_service_url)
+                # Slider with No tabs
+                elif sub_services_slider :
+                    if service_name == 'Sustainability Service':
+                        print('here')
+                        sub_services_slider = service_soup.select_one('div[aria-label="What We Offer"]')
+
+                    for sub_service in sub_services_slider.select('div[class="row"]'):
+                        sub_service_name = sub_service.select_one('div[class*="title"]').text.strip()
+
+                        if sub_service.select_one('a[href]'):
+                            sub_service_url = BASE_URL + sub_service.select_one('a[href]')['href']
+                        else:
+                            sub_service_url = 'No Services URL'
+                    
+                        company_dict['Practices'].append(service_name)
+                        company_dict['Practices_URL'].append(service_url)
+                        company_dict['Services'].append(sub_service_name)
+                        company_dict['Services_URL'].append(sub_service_url)                
+                
+            # Service under drop-down menu has no URL but sub-services listed under it in dropdown menu
+            else:
+                service_name = service.find("span",recursive=False).text.strip()
+                service_url = 'No Practices URL'
+                sub_services = service.select('li')
+                for sub_service in sub_services:
+                    sub_service_name = sub_service.select_one('a[href]').text.strip()
+                    sub_service_url = BASE_URL + sub_service.select_one('a[href]')['href'].strip()
+
+                    company_dict['Practices'].append(service_name)
+                    company_dict['Practices_URL'].append(service_url)
+                    company_dict['Services'].append(sub_service_name)
+                    company_dict['Services_URL'].append(sub_service_url)
+
+
+    return pd.DataFrame(company_dict)
+
+def scraper_berkeley() -> pd.DataFrame:
+    '''
+    Berkley Partnership: https://www.berkeleypartnership.com
+
+    Available on website out of Practices/Services/Solutions:
+    1. Services (Found on services page)
+    2. Solutions (Under each service)
+
+    Scrape from home page then go to each practice webpage for services: https://www.berkeleypartnership.com/services
+    '''    
+    BASE_URL = r'https://www.berkeleypartnership.com'
+    SERVICES_URL = r'https://www.berkeleypartnership.com/services'
+    r = requests.get(url = SERVICES_URL)
+    company_dict = defaultdict(list)
+
+    soup = BeautifulSoup(r.content, 'html5lib')
+
+    services = soup.select('ul[class="servicelistpanel__group-list-item"]')
+
+    for service in services:
+        service_name = service.select_one('li[class] > a[href]').text.strip()
+        service_url = BASE_URL + service.select_one('li[class] > a[href]')['href'].strip()
+        sub_services = service.find_all('li', class_ = False)
+
+        for sub_service in sub_services:
+            sub_service_name = sub_service.text.strip()
+            sub_service_url = BASE_URL + sub_service.select_one('a')['href'].strip()
+
+            company_dict['Services'].append(service_name)
+            company_dict['Services_URL'].append(service_url)
+            company_dict['Solutions'].append(sub_service_name)
+            company_dict['Solutions_URL'].append(sub_service_url)
+
+
+    return pd.DataFrame(company_dict)
+
+
+def scraper_xerox() -> pd.DataFrame:
+    '''
+    Xerox: 'https://www.xerox.co.uk/en-gb'
+
+    Available on website out of Practices/Services/Solutions:
+    1. Services (Dropdown menu
+    2. Solutions (tab accessible through each service in dropdown)
+        - Two services are in dropdown menu but separated (e.g. IT Services)
+
+    Scrape from home page dropdown (go to service page for
+    IT services as there are su-services listed there).
+    '''    
+    BASE_URL = r'https://www.xerox.co.uk/en-gb'
+    # SERVICES_URL = r'https://www.berkeleypartnership.com/services'
+    r = requests.get(url = BASE_URL)
+    company_dict = defaultdict(list)
+
+    soup = BeautifulSoup(r.content, 'html5lib')
+
+    services = soup.select_one('xds-section-swapper[label="Solutions & Services"]')
+
+    services_heading = services.select('h3')
+    sub_services = soup.select_one('xds-section-swapper[label="Solutions & Services"]').find_all('div', recursive=False)
+
+    # No tablist (of sub-services) for these services in dropdown
+    services_without_tablist = services.find('ul', recursive=False).select('li')
+    # Loop through service and solutions 
+    for service_idx in range(len(services_heading)):
+        service_name = services_heading[service_idx].text.strip()
+        service_url = 'No Services URL'
+
+        # Industry is not describing Services/Solutions
+        if service_name != 'Industry':
+            for sub_service in sub_services[service_idx].select('li'):
+                sub_service_name = sub_service.select_one('a').text.strip()
+                sub_service_url = sub_service.select_one('a[href]')['href']
+                
+                if service_name not in sub_service_name or 'overview' not in sub_service_name.lower():
+                    company_dict['Services'].append(service_name)
+                    company_dict['Services_URL'].append(service_url)
+                    company_dict['Solutions'].append(sub_service_name)
+                    company_dict['Solutions_URL'].append(sub_service_url)
+
+    for service in services_without_tablist:
+        service_name = service.text.strip()
+        service_url = service.select_one('a')['href'].strip()
+
+        # Insights not a solution or service
+        if service_name != 'Insights':
+            # Has Solutions on webpage
+            if service_name == 'IT Services':
+                service_soup = selenium_scrape(service_url)
+                # Solutions located in interactive grid ("E2E IT Services + Solutions")
+                solutions_section = service_soup.select_one(
+                    'div[class="_1r7wsmwkf _1r7wsmwke _1r7wsmw90 _1r7wsmwd6 _1j023q72k _1j023q7h _1j023q71k"] > div > xds-section-swapper').select('div[role="tablist"] > h3')
+
+
+                for sub_service in solutions_section:
+                    sub_service = sub_service.text.strip()
+                    sub_service_url = 'No Solutions URL'
+                    company_dict['Services'].append(service_name)
+                    company_dict['Services_URL'].append(service_url)
+                    company_dict['Solutions'].append(sub_service)
+                    company_dict['Solutions_URL'].append(sub_service_url)
+            
+            # Has no solutions on webpage
+            else:
+                sub_service = 'No Solutions'
+                company_dict['Services'].append(service_name)
+                company_dict['Services_URL'].append(service_url)
+                company_dict['Solutions'].append(sub_service)
+                company_dict['Solutions_URL'].append(sub_service_url)
+
+
+    return pd.DataFrame(company_dict)
