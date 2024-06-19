@@ -5,593 +5,28 @@ import SupportFunctions
 import threading
 from datetime import datetime
 import os
+import re
+import logging
 from collections import defaultdict
+
+logger_filepath = SupportFunctions.get_data_file_path(filename='scrape_app.log', folder='database\logs')
+logging.basicConfig(filename=logger_filepath, level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 # Get the directory path of main.py
 current_dir = os.path.dirname(os.path.abspath(__file__))
+metadata_filepath = SupportFunctions.get_data_file_path(filename = 'company_metadata.csv')
 
-company_dict = {
-    "company_name": [
-        "EPAM Systems Inc",
-        "Edge Testing Solutions",
-        "DXC Technology",
-        "Deloitte",
-        "Cognifide",
-        "CGI",
-        "Canon Inc.",
-        "Billigence",
-        "Avanade Inc.",
-        "Arthur D Little",
-        "Alchemmy",
-        "Adatis",
-        "Grayce Group Limited",
-        "Rockborne Limited",
-        "Digital Futures",
-        "Thoughtworks",
-        "Wavestone",
-        "ZS",
-        "PwC",
-        "Softwire",
-        "Sutherland",
-        "TAG Solutions",
-        "Testhouse Ltd",
-        "NexInfo",
-        "Oliver Wyman",
-        "PA Consulting",
-        "Planit Testing",
-        "Project One",
-        "Laboratory Corp Of America Holdings",
-        "LogicSource, Inc.",
-        "Made Tech",
-        "METRICSTREAM INC",
-        "Mphasis Ltd",
-        "Frontier Economics",
-        "HCL Technologies Ltd",
-        "Icon PLC",
-        "International Business Machines Corp",
-        "Kearney",
-        "Credo Consulting",
-        "Digital Workplace Group",
-        "Eden McCallum",
-        "Enfuse Group",
-        "EY",
-        "Blueberry Consultants Ltd",
-        "Blueberry Consultants Ltd",
-        "Cambridge Design Partnership",
-        "Centric Consulting",
-        "Clarasys",
-        "Accenture PLC",
-        "Airwalk Reply",
-        "Apexon",
-        "Atos SE",
-        "Baringa",
-        "Capgemini SE",
-        "AND Digital",
-        "Dufrain",
-        "FDM Group (Holdings) Ltd",
-        "Slalom",
-        "Tata Consultancy Services Limited",
-        "Wipro Limited",
-        "Infosys Limited",
-        "Credera",
-        "Infinite Lambda",
-        "Mesh AI",
-        "Sparta Global",
-        "Ten10",
-        "Fjord Consulting Group",
-        "BetterGov",
-        "Cambridge Consultants Limited",
-        "Capco Limited",
-        "Cognizant Technology Solutions Corporation",
-        "IQVIA Holdings Inc",
-        "Kubrick Group Limited",
-        "Hexaware Technologies Ltd",
-        "JMAN Group",
-        "KONICA MINOLTA INC",
-        "LockPath, Inc.",
-        "Lovelytics",
-        "Mason Advisory",
-        "MindTree Ltd",
-        "mthree",
-        "North Highland",
-        "OpenCredo",
-        "PPD Inc",
-        "Projective",
-    ],
-    "company_url": [
-        "https://www.epam.com/",
-        "https://www.resillion.com/",
-        "https://dxc.com/uk/en",
-        "https://www.deloitte.com/global/en.html",
-        "https://www.vml.com",
-        "https://www.cgi.com/",
-        "https://www.canon.co.uk",
-        "https://billigence.com",
-        "https://www.avanade.com",
-        "https://www.adlittle.com",
-        "https://alchemmy.com/",
-        "https://adatis.co.uk/",
-        "https://www.grayce.co.uk",
-        "https://rockborne.com/",
-        "https://digitalfutures.com/",
-        "https://www.thoughtworks.com/en-gb",
-        "https://www.wavestone.com/en/",
-        "https://www.zs.com/",
-        "https://www.pwc.co.uk",
-        "https://www.softwire.com",
-        "https://www.sutherlandglobal.com/",
-        "https://tagsolutions.com/",
-        "https://www.testhouse.net/",
-        "https://nexinfo.com/",
-        "https://www.oliverwyman.com/",
-        "https://www.paconsulting.com/",
-        "https://www.planit.com/au/home",
-        "https://projectone.com/",
-        "https://biopharma.labcorp.com/",
-        "https://logicsource.com/",
-        "https://www.madetech.com/",
-        "https://www.metricstream.com/",
-        "https://www.mphasis.com/",
-        "https://www.frontier-economics.com/uk/en/home/",
-        "https://www.hcltech.com/",
-        "https://www.iconplc.com/",
-        "https://www.ibm.com/uk-en",
-        "https://www.kearney.com/",
-        "https://www.credoconsultancy.co.uk/",
-        "https://digitalworkplacegroup.com/",
-        "https://edenmccallum.com/",
-        "https://www.enfusegroup.com/",
-        "https://www.ey.com/en_uk",
-        "https://www.bbconsult.co.uk/",
-        "https://www.bcg.com/",
-        "https://www.cambridge-design.com/",
-        "https://centricconsulting.com/",
-        "https://www.clarasys.com/",
-        "https://www.accenture.com/gb-en",
-        "https://airwalkreply.com/",
-        "https://www.apexon.com/",
-        "https://atos.net/en/",
-        "https://www.baringa.com/en/",
-        "https://www.capgemini.com/",
-        "https://www.and.digital/",
-        "https://www.dufrain.co.uk/",
-        "https://www.fdmgroup.com/",
-        "https://www.slalom.com/",
-        "https://www.tcs.com",
-        "https://www.wipro.com/",
-        "https://www.infosys.com/",
-        "https://www.credera.com/en-gb",
-        "https://infinitelambda.com",
-        "https://www.mesh-ai.com/",
-        "https://www.spartaglobal.com",
-        "https://ten10.com",
-        "https://fjordconsultinggroup.com",
-        "https://www.bettergov.co.uk/",
-        "https://www.cambridgeconsultants.com/",
-        "https://www.capco.com",
-        "https://www.cognizant.com",
-        "https://jobs.iqvia.com/en",
-        "https://www.kubrickgroup.com",
-        "https://hexaware.com/",
-        "https://jmangroup.com/",
-        "https://www.konicaminolta.co.uk/en-gb",
-        "https://www.navex.com/en-gb/",
-        "https://lovelytics.com",
-        "https://masonadvisory.com/services/",
-        "https://www.mindtreeitsolutions.com/",
-        "https://mthree.com/",
-        "https://www.northhighland.com/",
-        "https://opencredo.com/",
-        "https://www.ppd.com/",
-        "https://www.projectivegroup.com/",
-    ],
-    "status": [
-        "Public",
-        "Private",
-        "Public",
-        "Private",
-        "Private",
-        "Private",
-        "Public",
-        "Private",
-        "Private",
-        "Private",
-        "Private",
-        "Private",
-        "Private",
-        "Private",
-        "Private",
-        "Private",
-        "Private",
-        "Private",
-        "Private",
-        "Private",
-        "Private",
-        "Private",
-        "Private",
-        "Private",
-        "Private",
-        "Private",
-        "Private",
-        "Private",
-        "Public",
-        "Private",
-        "Public",
-        "Private",
-        "Public",
-        "Private",
-        "Public",
-        "Public",
-        "Public",
-        "Private",
-        "Private",
-        "Private",
-        "Private",
-        "Private",
-        "Private",
-        "Private",
-        "Private",
-        "Private",
-        "Private",
-        "Private",
-        "Public",
-        "Private",
-        "Private",
-        "Public",
-        "Private",
-        "Public",
-        "Private",
-        "Private",
-        "Public",
-        "Private",
-        "Public",
-        "Public",
-        "Public",
-        "Private",
-        "Private",
-        "Private",
-        "Private",
-        "Private",
-        "Private",
-        "Private",
-        "Private",
-        "Private",
-        "Public",
-        "Public",
-        "Private",
-        "Private",
-        "Private",
-        "Public",
-        "Private",
-        "Private",
-        "Private",
-        "Private",
-        "Private",
-        "Private",
-        "Private",
-        "Private",
-        "Private",
-    ],
-    "ticker": [
-        "EPAM",
-        "",
-        "DXC",
-        "",
-        "",
-        "",
-        "7751.T",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "LAB.F",
-        "",
-        "MTEC.L",
-        "",
-        "MPHASIS.BO",
-        "",
-        "HCLTECH.BO",
-        "ICLR",
-        "IBM",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "ACN",
-        "",
-        "",
-        "ATO.PA",
-        "",
-        "CAP.PA",
-        "",
-        "",
-        "FDM.L",
-        "",
-        "TCS.BO",
-        "WIT",
-        "INFY",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "CTSH",
-        "IQV",
-        "",
-        "",
-        "",
-        "KNCAF",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-    ],
-    "scraper": [
-        "scraper_epam",
-        "scraper_resillion",
-        "scraper_dxc",
-        "scraper_deloitte",
-        "scraper_vml",
-        "scraper_cgi",
-        "scraper_canon",
-        "scraper_billigence",
-        "scraper_avanade",
-        "scraper_adlittle",
-        "scraper_alchemmy",
-        "scraper_adatis",
-        "scraper_grayce",
-        "scraper_rockborne",
-        "scraper_digitalfutures",
-        "scraper_thoughtworks",
-        "scraper_wavestone",
-        "scraper_zs",
-        "scraper_pwc",
-        "scraper_softwire",
-        "scraper_sutherland",
-        "scraper_tagsolutions",
-        "scraper_testhouse",
-        "scraper_nexinfo",
-        "scraper_oliverwyman",
-        "scraper_paconsulting",
-        "scraper_planittesting",
-        "scraper_projectone",
-        "scraper_labcorp",
-        "scraper_logicsource",
-        "scraper_madetech",
-        "scraper_metricstream",
-        "scraper_mphasis",
-        "scraper_frontiereconomics",
-        "scraper_hcltech",
-        "scraper_iconplc",
-        "scraper_ibm",
-        "scraper_kerney",
-        "scraper_credo",
-        "scraper_digitalworkplace",
-        "scraper_edenmccallum",
-        "scraper_enfuse",
-        "scraper_ey",
-        "scraper_blueberry",
-        "scraper_boston",
-        "scraper_cambridgedesign",
-        "scraper_centric",
-        "scraper_clarasys",
-        "scraper_accenture",
-        "scraper_airwalkreply",
-        "scraper_apexon",
-        "scraper_atosse",
-        "scraper_baringa",
-        "scraper_capgemini",
-        "scraper_digital",
-        "scraper_dufrain",
-        "scraper_fdmgroup",
-        "scraper_slalom",
-        "scraper_tcs",
-        "scraper_wipro",
-        "scraper_infosys",
-        "scraper_credera",
-        "scraper_infinitelambda",
-        "scraper_meshai",
-        "scraper_spartaglobal",
-        "scraper_ten10",
-        "scraper_fjord",
-        "scraper_bettergov",
-        "scraper_cambridge",
-        "scraper_capco",
-        "scraper_cognizant",
-        "scraper_iqvia",
-        "scraper_kubrick",
-        "scraper_hexaware",
-        "scraper_jman",
-        "scraper_konica",
-        "scraper_lockpath",
-        "scraper_lovelytics",
-        "scraper_mason",
-        "scraper_mindtree",
-        "scraper_mthree",
-        "scraper_highland",
-        "scraper_credo",
-        "scraper_ppd",
-        "scraper_projective",
-    ],
-}
+# Read in metadata file
+company_df = pd.read_csv(filepath_or_buffer=metadata_filepath, index_col = 0)
+company_df.fillna('',inplace=True)
+# Filter to exclude not yet completed companies
+mask = company_df['scraper'] != 'to complete'
 
-company_df = pd.DataFrame(company_dict)
+df_full_company_list = company_df[['company_name','ticker']].fillna('')
+company_df = company_df[mask]
+full_company_list = dict(zip(df_full_company_list['company_name'], df_full_company_list['ticker']))
 
-full_company_list = {
-    'Capgemini SE' : 'CAP.PA',
-    'AND Digital' : '',
-    'Dufrain' : '',
-    'FDM Group (Holdings) Ltd' : 'FDM.L',
-    'Slalom' : '',
-    'Tata Consultancy Services Limited' : 'TCS.BO',
-    'Wipro Limited' : 'WIT',
-    'Fjord Consulting Group' : '',
-    'Mesh AI' : '',
-    'Sparta Global' : '',
-    'Ten10' : '',
-    'Credera' : '',
-    'Infinite Lambda' : '',
-    'BetterGov' : '',
-    'Cambridge Consultants Limited' : '',
-    'Capco Limited' : '',
-    'Cognizant Technology Solutions Corporation' : 'CTSH',
-    'Infosys Limited' : 'INFY',
-    'IQVIA Holdings Inc' : 'IQV',
-    'Kubrick Group Limited' : '',
-    '11:FS' : '',
-    'a1qa' : '',
-    'Accenture PLC' : 'ACN',
-    'Adatis' : '',
-    'Afiniti' : '',
-    'Airwalk Reply' : '',
-    'Alchemmy' : '',
-    'Alix Partners' : '',
-    'Apexon' : '',
-    'Arthur D Little' : '',
-    'Atos Group' : '', # Unsure on what the ticker is? Mentioned it is public in excel by Simon
-    'Atos SE' : 'ATO.PA',
-    'Avanade Inc.' : '',
-    'Bain & Company' : '',
-    'Baringa' : '',
-    'Billigence' : '',
-    'BJSS' : '',
-    'Blueberry Consultants Ltd.' : '',
-    'Booz Allen Hamilton Holding Corp' : 'BAH',
-    'Boston Consulting Group' : '',
-    'Broadstones Tech' : '',
-    'Cambridge Design Partnership' : '',
-    'Canon Inc.' : '7751.T',
-    'Capita' : 'CPI.L',
-    'Centric Consulting' : '',
-    'CGI' : '',
-    'CIGNITI Technologies Ltd' : 'CIGNITITEC.BO',
-    'Clarasys' : '',
-    'Cognifide' : '',
-    'Contino Ltd.' : '',
-    'Credo Consulting' : '',
-    'Deloitte' : '',
-    'Designit' : '',
-    'Digital Workplace Group' : '',
-    'DXC Technology' : 'DXC',
-    'Eclature Technologies' : '',
-    'Eden McCallum' : '',
-    'Edge Testing Solutions' : '',
-    'Elixirr International Plc' : 'ELIX.L',
-    'EPAM Systems Inc' : 'EPAM',
-    'Equal Experts' : '',
-    'EY' : '',
-    'Faculty AI' : '',
-    'Frog Design' : '',
-    'Frontier Economics' : '',
-    'GeekTek' : '',
-    'Genpact Ltd' : 'G',
-    'HCL Technologies Ltd' : 'HCLTECH.BO',
-    'Hexaware Technologies Ltd' : '',
-    'HP Inc' : 'HPQ',
-    'Icon PLC' : 'ICLR',
-    'IDEO' : '',
-    'Infostretch Corp' : '',
-    'International Business Machines Corp' : 'IBM',
-    'JMAN Group' : '',
-    'Kainos' : 'KNOS.L',
-    'Kearney' : '',
-    'KONICA MINOLTA INC' : 'KNCAF',
-    'KPMG' : '',
-    'Laboratory Corp Of America Holdings' : 'LAB.F',
-    'LockPath, Inc.' : '',
-    'LogicManager' : '',
-    'LogicSource, Inc.' : '',
-    'Lovelytics' : '',
-    'Lunar' : '',
-    'Made Tech Group Plc ' : 'MTEC.L',
-    'Mason Advisory' : '',
-    'McKinsey' : '',
-    'METRICSTREAM INC' : '',
-    'MindTree Ltd' : '',
-    'Mosaic Island' : '',
-    'Mphasis Ltd' : 'MPHASIS.BO',
-    'mthree' : '',
-    'Neoris' : '',
-    'NexInfo' : '',
-    'North Highland' : '',
-    'OC&C Strategy Consultants' : '',
-    'Oliver Wyman' : '',
-    'OpenCredo' : '',
-    'Oracle Consulting' : '',
-    'PA Consulting Group' : '',
-    'Parexel International Corp' : '',
-    'Peru Consulting' : '',
-    'Planit Testing' : '',
-    'PPD Inc' : '',
-    'PRA Health Sciences Inc' : '',
-    'Project One' : '',
-    'Projective' : '',
-    'Prolifics' : '',
-    'PwC' : '',
-    'RICOH CO LTD' : 'RICO.L',
-    'Roland Berger' : '',
-    'SEIKO EPSON CORP' : 'SEKEY',
-    'Simon Kutcher & Partners' : '',
-    'SkillStorm' : '',
-    'Softwire' : '',
-    'Spring Studios' : '',
-    'Strategy & London' : '',
-    'Sutherland' : '',
-    'Switchfast Technologies' : '',
-    'Syneos Health Inc' : '',
-    'TAG Solutions' : '',
-    'Tech Mahindra Ltd' : 'TECHM.BO',
-    'Terillium' : '',
-    'Testhouse Ltd' : '',
-    'The Berkeley Partnership' : '',
-    'The PSC' : '',
-    'Thoughtworks' : '7W8.F',
-    'Ultimus Fund Solutions' : '',
-    'Verisk Analytics Inc' : 'VRSK',
-    'Wavestone' : 'WAVE.PA',
-    'Xerox Corp' : '',
-    'Zoonou' : '',
-    'ZS' : '',
-    'Digital Futures' : '',
-    'Rockborne Limited' : '',
-    'Grayce Group Limited' : ''
-
-}
-
- 
 class App(CTk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -641,7 +76,7 @@ class App(CTk):
             self.pPercentage_price.configure(text=f'{int(progress*100)}%')
             self.update_idletasks()                   
 
-    def get_webscrape(self, row, company_df, template_file_path, file_path):
+    def get_webscrape(self, row, company_df):
 
         self.currentCompanyLabel_scrape = CTkLabel(self, text="Current Company: None")
         self.currentCompanyLabel_scrape.grid(row=row, column=0, pady=5, sticky="ew")
@@ -659,16 +94,23 @@ class App(CTk):
             i += 1
             self.currentCompanyLabel_scrape.configure(text=f"Current Company: {company_name}")
             company_url, scraper, status, ticker = SupportFunctions.get_company_metadata(company_name, company_df)
+            sanitized_name = re.sub(r'[<>:"/\\|?*]', '_', company_name).strip()
+            file_path = SupportFunctions.get_data_file_path(f'{sanitized_name} webscrape.csv', f'database/output\{sanitized_name}')
+            midiff_file_path = SupportFunctions.get_data_file_path(f'{sanitized_name} diff.csv', f'database/output\{sanitized_name}')
+            template_file_path = SupportFunctions.get_data_file_path('Template.csv')
+
             try:
                 scraped_data = SupportFunctions.get_scraped_company_data(scraper)
                 yahoo_json = SupportFunctions.get_company_details2(status, ticker)
                 final_df = SupportFunctions.create_final_df2(company_name, company_url, status, yahoo_json, scraped_data, template_file_path)
-                old_df = SupportFunctions.read_from_excel(file_path, company_name, template_file_path)
-                SupportFunctions.log_new_and_modified_rows2(final_df, old_df, company_name, file_path)
-                SupportFunctions.write_to_excel(final_df, file_path, company_name)
-            except:
+                old_df = SupportFunctions.read_from_csv(file_path, company_name, template_file_path)
+                SupportFunctions.log_new_and_modified_rows2(final_df, old_df, midiff_file_path, company_name)
+                SupportFunctions.write_to_csv(final_df, file_path, company_name)
+            except Exception as e:
                 scraping_dict['error_num'] +=1
                 scraping_dict['company_list'].append(company_name)
+                SupportFunctions.log_error(f'Error webscraping for company {company_name} : {e}')
+                logger.error(f"An error occurred: {str(e)}", exc_info=True)
 
             progress = i / total_companies
             self.after(0, self.update_progress, progress, company_name, 'scrape')
@@ -697,7 +139,7 @@ class App(CTk):
         i=0
         intel_dict = {'error_num':0, 'company_list':[]}
         total_companies = len(company_df["company_name"])
-        for company_name in company_dict["company_name"]:
+        for company_name in company_df["company_name"]:
             i += 1
             self.currentCompanyLabel_intel.configure(text=f"Current Company: {company_name}")
             company_url, scraper, status, ticker = SupportFunctions.get_company_metadata(company_name, company_df)
@@ -705,6 +147,7 @@ class App(CTk):
             if not company_intel_success:
                 intel_dict['error_num'] +=1
                 intel_dict['company_list'].append(company_name)
+                logger.error(f"An error occurred for intel data for company : {str(company_name)}", exc_info=True)
 
             progress = i / total_companies
             self.after(0, self.update_progress, progress, company_name, 'intel')
@@ -741,6 +184,7 @@ class App(CTk):
                 if temp_data["Error"]:
                     pricing_dict['error_num'] +=1
                     pricing_dict['company_list'].append(full_company_name)
+                    logger.error(f"An error occurred for price report for : {str(full_company_name)}", exc_info=True)
                     break
                 temp_data.pop("Error", None)
                 SupportFunctions.update_excel(temp_data, file_path)
@@ -768,6 +212,7 @@ class App(CTk):
             tk.messagebox.showwarning("No Option Selected", "Please select at least one option before starting.")
             return
         
+        logger.info(f'New run starting at {datetime.now()}')
         self.title.grid_remove()
         self.webscrape_button.grid_remove()
         self.price_report_button.grid_remove()
@@ -776,30 +221,37 @@ class App(CTk):
 
         row = 0
         
-        file_path = SupportFunctions.get_data_file_path('Kubrick MI Data.xlsx')
-        midiff_file_path = SupportFunctions.get_data_file_path('Kubrick MI Diff.xlsx')
-        intel_file_path = SupportFunctions.get_data_file_path('kubrick_mi_company_intel.csv')
-        template_file_path = SupportFunctions.get_data_file_path('Template.xlsx')
+        intel_file_path = SupportFunctions.get_data_file_path('kubrick_mi_company_intel.csv', 'database\output')
+        price_report_file_path = SupportFunctions.get_data_file_path('price_report.csv', f'database\output')
 
         price_report_run = False
-        temporary_df = pd.read_excel(file_path, sheet_name="Price Report")
-        temporary_df['Date of Collection'] = pd.to_datetime(temporary_df['Date of Collection'], format='%Y-%m-%d')
-        current_date = pd.to_datetime(datetime.now().strftime('%Y-%m-%d'), format='%Y-%m-%d')
 
+        try:
+            temporary_df = pd.read_csv(price_report_file_path)
+            try:
+                temporary_df['Date of Collection'] = pd.to_datetime(temporary_df['Date of Collection'], format='mixed')
+            except ValueError:
+                temporary_df['Date of Collection'] = pd.to_datetime(temporary_df['Date of Collection'], format='%d/%m/%Y')
+        
+            current_date = pd.to_datetime(datetime.now().strftime('%Y-%m-%d'))
 
-        if min(temporary_df['Date of Collection']) < current_date:
-            price_report_run = True
+            if min(temporary_df['Date of Collection']) < current_date:
+                price_report_run = True
+            
+        except FileNotFoundError:
+            price_report_run = False
+            SupportFunctions.log_error('Price Report file could not be found. Starting a price report from scratch.')
 
         if self.price_report_var.get() and not price_report_run:
             SupportFunctions.log_error("Price Report cannot run in the same day, please try run tomorrow.")
 
         if self.webscrape_var.get():
-            scrape_thread = threading.Thread(target=self.get_webscrape, args=(row, company_df, template_file_path, file_path))
+            scrape_thread = threading.Thread(target=self.get_webscrape, args=(row, company_df))
             row += 2
             scrape_thread.start()
             
         if self.price_report_var.get():
-            price_thread = threading.Thread(target=self.get_pricing, args=(row, file_path, full_company_list, price_report_run))
+            price_thread = threading.Thread(target=self.get_pricing, args=(row, price_report_file_path, full_company_list, price_report_run))
             row += 2
             price_thread.start()
 

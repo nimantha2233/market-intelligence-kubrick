@@ -29,7 +29,12 @@ def get_data_file_path(filename, folder = 'database'):
         application_path = os.path.dirname(os.path.abspath(__file__))
 
     # Build the full path to the data file
-    return os.path.join(application_path, folder, filename)
+    full_path = os.path.join(application_path, folder, filename)
+
+    # Ensure the directory exists
+    os.makedirs(os.path.dirname(full_path), exist_ok=True)
+
+    return full_path
 
 def sheet_exists(file_path, sheet_name):
     """
@@ -95,38 +100,23 @@ def company_intel_table(company_name, url, file_path="kubrick_mi_company_intel.c
     new_data.to_csv(file_path, index=False)
     return True
 
-def write_to_excel(df, file_path, sheet_name):
+def write_to_csv(df, file_path, company_name):
     """
     Saves the df in the sheet in the excel workbook.
     
     Args:
     df (pd.DataFrame): Dataframe to be stored
     file_path (str): Location of xlsx file
-    sheet_name (str): The name of the sheet to update or delete.
 
     Returns:
 
     """
     try:
-        if sheet_exists(file_path, sheet_name):
-            # If the sheet exists, overwrite all the data in that sheet
-            workbook = openpyxl.load_workbook(file_path)
-            if sheet_name in workbook.sheetnames:
-                sheet = workbook[sheet_name]
-                workbook.remove(sheet)
-                workbook.save(file_path)  # Save the workbook without the sheet
-            
-            # Reopen the workbook with pd.ExcelWriter and add the new sheet
-            with pd.ExcelWriter(file_path, engine='openpyxl', mode='a') as writer:
-                df.to_excel(writer, sheet_name=sheet_name, index=False)
-        else:
-            # If the sheet doesn't exist, append a new sheet with the data
-            with pd.ExcelWriter(file_path, engine='openpyxl', mode='a') as writer:
-                df.to_excel(writer, sheet_name=sheet_name, index=False)
+        df.to_csv(file_path, index=False)
     except Exception as e:
-        log_error(f"Unable to save data for {sheet_name} : {e}")
+        log_error(f"Unable to save webscrape data for {company_name} : {e}")
 
-def read_from_excel(file_path, sheet_name, template_file_path):
+def read_from_csv(file_path, company_name,  template_file_path):
     """
     Reads a specific sheet from the excel workbook and
     returns it as a dataframe
@@ -138,11 +128,16 @@ def read_from_excel(file_path, sheet_name, template_file_path):
     Returns:
     df (pd.DataFrame): Dataframe from the sheet in excel. If the sheet doesn't exist, returns an empty DataFrame.
     """
-    try:
-        df = pd.read_excel(file_path, sheet_name=sheet_name)
-        df = table_sorter(df)
-    except ValueError:
-        return read_template(template_file_path)
+    if os.path.exists(file_path):
+        try:
+            df = pd.read_csv(file_path)
+            df = table_sorter(df)  # Assuming table_sorter is defined elsewhere
+        except Exception as e:
+            log_error(f'Error reading CSV data for {company_name}: {e}')
+            df = read_template(template_file_path)  # Return an empty DataFrame on error
+    else:
+        df = read_template(template_file_path)  # Assuming read_template is defined elsewhere
+    
     return df
 
 def read_template(template_file_path):
@@ -156,10 +151,10 @@ def read_template(template_file_path):
     """
     try:
         # Read the Excel file into a DataFrame
-        df = pd.read_excel(template_file_path, sheet_name='Template')
+        df = pd.read_csv(template_file_path)
         return df
     except FileNotFoundError:
-        print("Template.xlsx not found. Make sure the file exists in the current directory.")
+        print("Template.csv not found. Make sure the file exists in the current directory.")
 
 def get_company_status(symbol):
     """
@@ -324,7 +319,7 @@ def log_differences(action, sheet_name, num_differences):
     sheet_name (str): The name of the sheet.
     num_differences (int): The number of differences found.
     """
-    path_file = get_data_file_path('log_diff.txt', "logs")
+    path_file = get_data_file_path('log_diff.txt', "database/logs")
     time_today = datetime.now().strftime("%Y-%m-%d")
     if num_differences == 0:
         log_message = f"{time_today}: No new data for company: '{sheet_name}'"
@@ -337,7 +332,7 @@ def log_differences(action, sheet_name, num_differences):
 
 def log_error(message):
 
-    path_file = get_data_file_path('log_error.txt', "logs")
+    path_file = get_data_file_path('log_error.txt', "database/logs")
 
     with open(path_file, "a") as log_file:
         log_file.write(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - {message}\n")
@@ -406,14 +401,14 @@ def log_new_and_modified_rows(df1, df2, sheet_name):
             pass
         log_differences("No differences found", sheet_name, 0)
 
-def log_new_and_modified_rows2(final_df, old_df, sheet_name, excel_file):
+def log_new_and_modified_rows2(final_df, old_df, path_file, company_name):
     """
     Find rows that are new or modified in df1 compared to df2 and handle Excel file updates.
     
     Args:
     df1 (pd.DataFrame): The most up-to-date dataframe.
     df2 (pd.DataFrame): The older dataframe to compare against.
-    sheet_name (str): The name of the sheet to update or delete.
+    path_file (str): path file to save csv.
     """
     # Convert columns to the same data type
     df1 = final_df.copy()
@@ -438,29 +433,15 @@ def log_new_and_modified_rows2(final_df, old_df, sheet_name, excel_file):
     new_and_modified_df.drop_duplicates(subset=cols, keep=False,inplace=True)
     new_and_modified_df.reset_index(inplace=True)
 
-
-
-    if not os.path.exists(excel_file):
-        # Create an empty Excel file with just the specified sheet
-        with pd.ExcelWriter(excel_file, engine='openpyxl', mode='w') as writer:
-            pd.DataFrame().to_excel(writer, sheet_name="Sheet 1", index=False)
-
     if not new_and_modified_df.empty:
-        # If there are new or modified rows, write them to the specified sheet
-        with pd.ExcelWriter(excel_file, engine='openpyxl', mode='a', if_sheet_exists='replace') as writer:
-            new_and_modified_df.to_excel(writer, sheet_name=sheet_name, index=False)
-        log_differences("Changed", sheet_name, len(new_and_modified_df))
+        # If there are new or modified rows, write them to the CSV file
+        new_and_modified_df.to_csv(path_file, index=False)
+        log_differences("Changed", company_name, len(new_and_modified_df))
     else:
-        # If there are no new or modified rows, remove the sheet if it exists
-        try:
-            workbook = openpyxl.load_workbook(excel_file)
-            if sheet_name in workbook.sheetnames:
-                del workbook[sheet_name]
-                workbook.save(excel_file)
-        except FileNotFoundError:
-            # If the file doesn't exist, do nothing
-            pass
-        log_differences("No differences found", sheet_name, 0)
+        # If there are no new or modified rows, delete the CSV file if it exists
+        if os.path.exists(path_file):
+            os.remove(path_file)
+        log_differences("No differences found", company_name, 0)
 
 def get_company_info_pricereport(company_name, ticker, file_path):
     """
@@ -555,7 +536,6 @@ def get_company_info_pricereport2(company_name, ticker, file_path):
     Return:
     (json) : Financial Data to produce the price report
     """
-    sheet_name = "Price Report"
 
     if ticker == "":
         return {
@@ -604,23 +584,25 @@ def get_company_info_pricereport2(company_name, ticker, file_path):
                 "Error" : True
             }
         
+        try: 
+            df = pd.read_csv(file_path)
+            # Check if 'company_name' and the relevant close column exist in the DataFrame
+            if 'Company Name' in df.columns and 'Previous Close' in df.columns:
+                # Filter the rows where the company_name matches and the close value is a number
+                filtered_df = df[(df['Company Name'] == company_name) & (df['Previous Close'].apply(lambda x: x != 'Private'))]
 
-        # Open the Excel file and check for previous close
-        wb = openpyxl.load_workbook(file_path)
-        if sheet_name in wb.sheetnames:
-            ws = wb[sheet_name]
-            last_close = None
-            for row in ws.iter_rows(min_row=2, max_col=ws.max_column):
-                if row[1].value == company_name and isinstance(row[2].value, (int, float)):
-                    last_close = row[2].value
-                    break
-            if last_close is None:
-                percent_change = 0
+                if not filtered_df.empty:
+                    # Get the last close value
+                    last_close = float(filtered_df['Previous Close'].iloc[-1])
+                    # Calculate the percentage change
+                    percent_change = abs(round(((previous_close - last_close) / last_close) * 100, 4))
+                else:
+                    percent_change = 0
             else:
-                percent_change = abs(round(((previous_close - last_close) / last_close) * 100, 4))
-        else:
+                percent_change = 0
+        except FileNotFoundError:
             percent_change = 0
-        wb.close()
+        
         return {
             "Date of Collection": datetime.now().strftime("%Y-%m-%d"),
             "Company Name": company_name,
@@ -654,33 +636,27 @@ def update_excel(data, file_path):
     data (json) : Financial Company data
     """
 
-    sheet_name = "Price Report"
-
     try:
-        # Load workbook and check for sheet
-        wb = openpyxl.load_workbook(file_path)
-        if sheet_name not in wb.sheetnames:
-            ws = wb.create_sheet(sheet_name)
-            # Add headers
-            headers = list(data.keys())
-            ws.append(headers)
+        # Check if the file exists
+        if os.path.exists(file_path):
+            # Load existing CSV file
+            df = pd.read_csv(file_path)
         else:
-            ws = wb[sheet_name]
-        
-        # Find if the company already exists and remove the row if it does
-        company_col = 2  # Assuming "Company Name" is in column B (index 1)
-        for row in ws.iter_rows(min_row=2, max_col=ws.max_column):
-            if row[company_col - 1].value == data["Company Name"]:
-                ws.delete_rows(row[0].row)
-                break
-        
-        # Append new data
-        ws.append(list(data.values()))
+            # If the file does not exist, create an empty DataFrame with the appropriate columns
+            df = pd.DataFrame(columns=data.keys())
 
-        # Save workbook
-        wb.save(file_path)
+        # Remove the row if the company already exists
+        df = df[df['Company Name'] != data["Company Name"]]
+
+        # Append the new data
+        new_data = pd.DataFrame([data])
+        df = pd.concat([df, new_data], ignore_index=True)
+
+        # Save the updated DataFrame back to the CSV file
+        df.to_csv(file_path, index=False)
+
     except Exception as e:
-        print(f"Error updating Excel file: {e}")
+        print(f"Error updating CSV file: {e}")
 
 def get_scraped_company_data(scraper):
     function_name = scraper
