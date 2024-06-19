@@ -48,6 +48,8 @@ def selenium_scrape(url : str) -> BeautifulSoup:
     options = webdriver.ChromeOptions()
     options.add_experimental_option("detach", True)
     options.add_argument('--headless')  # Run in headless mode
+    options.add_argument('--disable-gpu')  # Applicable to Windows OS only
+    options.add_argument('log-level=3')  # Suppress console messages
     driver=webdriver.Chrome(options=options)
     driver.get(url=url)
     time.sleep(2)
@@ -1084,6 +1086,8 @@ def scraper_avanade() -> pd.DataFrame:
     options = webdriver.ChromeOptions()
     options.add_experimental_option("detach", True)
     options.add_argument('--headless')  # Run in headless mode
+    options.add_argument('--disable-gpu')  # Applicable to Windows OS only
+    options.add_argument('log-level=3')  # Suppress console messages
 
     driver=webdriver.Chrome(options=options)
     # Standard window size has different HTML and services bar doesn't exist in the same way as full screen
@@ -3212,6 +3216,9 @@ def scraper_nexinfo():
     options = webdriver.ChromeOptions()
     options.add_experimental_option("detach", True)
     options.add_argument('--headless')  # Run in headless mode
+    options.add_argument('--disable-gpu')  # Applicable to Windows OS only
+    options.add_argument('log-level=3')  # Suppress console messages
+
 
     driver=webdriver.Chrome(options=options)
     try:
@@ -3417,6 +3424,9 @@ def scraper_softwire():
     options = webdriver.ChromeOptions()
     options.add_experimental_option("detach", True)
     options.add_argument('--headless')  # Run in headless mode
+    options.add_argument('--disable-gpu')  # Applicable to Windows OS only
+    options.add_argument('log-level=3')  # Suppress console messages
+
 
     driver=webdriver.Chrome(options=options)
     try:
@@ -3945,6 +3955,8 @@ def scraper_prolifics():
 
     options = webdriver.ChromeOptions()
     options.add_argument("--headless")
+    options.add_argument('--disable-gpu')  # Applicable to Windows OS only
+    options.add_argument('log-level=3')  # Suppress console messages
 
     company_dict = defaultdict(list)
     home_url = 'https://prolifics.com/uk'
@@ -4018,6 +4030,9 @@ def scraper_oracle():
 
     options = webdriver.ChromeOptions()
     options.add_argument("--headless")
+    options.add_argument('--disable-gpu')  # Applicable to Windows OS only
+    options.add_argument('log-level=3')  # Suppress console messages
+
 
     company_dict = defaultdict(list)
     practices= 'Cloud Infrastructure'
@@ -4277,6 +4292,9 @@ def scraper_logicmanager():
 
     options = webdriver.ChromeOptions()
     options.add_argument("--headless")
+    options.add_argument('--disable-gpu')  # Applicable to Windows OS only
+    options.add_argument('log-level=3')  # Suppress console messages
+
 
     driver = webdriver.Chrome(options=options)
     driver.get(home_url)
@@ -4339,6 +4357,9 @@ def scraper_kpmg():
         elif service[0] == 'Consulting':
             options = webdriver.ChromeOptions()
             options.add_argument("--headless")
+            options.add_argument('--disable-gpu')  # Applicable to Windows OS only
+            options.add_argument('log-level=3')  # Suppress console messages
+
             driver = webdriver.Chrome(options=options)
             driver.get(service_url)
             time.sleep(2)
