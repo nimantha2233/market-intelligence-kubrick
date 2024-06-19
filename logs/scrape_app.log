@@ -1,0 +1,726 @@
+2024-06-18 18:53:12,817 - __main__ - INFO - New run starting at 2024-06-18 18:53:12.817890
+2024-06-18 18:53:12,876 - __main__ - ERROR - An error occurred: module 'scrapers_legacy' has no attribute 'to complete'
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 239, in get_webscrape
+    scraped_data = SupportFunctions.get_scraped_company_data(scraper)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 692, in get_scraped_company_data
+    func = getattr(scrapers_legacy, function_name)
+AttributeError: module 'scrapers_legacy' has no attribute 'to complete'
+2024-06-18 18:53:12,895 - __main__ - ERROR - An error occurred: module 'scrapers_legacy' has no attribute 'to complete'
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 239, in get_webscrape
+    scraped_data = SupportFunctions.get_scraped_company_data(scraper)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 692, in get_scraped_company_data
+    func = getattr(scrapers_legacy, function_name)
+AttributeError: module 'scrapers_legacy' has no attribute 'to complete'
+2024-06-18 18:53:12,912 - __main__ - ERROR - An error occurred: module 'scrapers_legacy' has no attribute 'https://www.boxuk.com'
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 239, in get_webscrape
+    scraped_data = SupportFunctions.get_scraped_company_data(scraper)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 692, in get_scraped_company_data
+    func = getattr(scrapers_legacy, function_name)
+AttributeError: module 'scrapers_legacy' has no attribute 'https://www.boxuk.com'
+2024-06-18 18:53:12,930 - __main__ - ERROR - An error occurred: module 'scrapers_legacy' has no attribute 'to complete'
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 239, in get_webscrape
+    scraped_data = SupportFunctions.get_scraped_company_data(scraper)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 692, in get_scraped_company_data
+    func = getattr(scrapers_legacy, function_name)
+AttributeError: module 'scrapers_legacy' has no attribute 'to complete'
+2024-06-18 18:53:12,940 - __main__ - ERROR - An error occurred: module 'scrapers_legacy' has no attribute 'https://www.cgi.com/'
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 239, in get_webscrape
+    scraped_data = SupportFunctions.get_scraped_company_data(scraper)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 692, in get_scraped_company_data
+    func = getattr(scrapers_legacy, function_name)
+AttributeError: module 'scrapers_legacy' has no attribute 'https://www.cgi.com/'
+2024-06-18 18:54:01,724 - __main__ - INFO - New run starting at 2024-06-18 18:54:01.724571
+2024-06-18 18:54:01,775 - __main__ - ERROR - An error occurred: name 'scrapers_legacy' is not defined
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 239, in get_webscrape
+    scraped_data = SupportFunctions.get_scraped_company_data(scraper)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 693, in get_scraped_company_data
+    func = getattr(scrapers_legacy, function_name)
+NameError: name 'scrapers_legacy' is not defined
+2024-06-18 18:54:01,796 - __main__ - ERROR - An error occurred: name 'scrapers_legacy' is not defined
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 239, in get_webscrape
+    scraped_data = SupportFunctions.get_scraped_company_data(scraper)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 693, in get_scraped_company_data
+    func = getattr(scrapers_legacy, function_name)
+NameError: name 'scrapers_legacy' is not defined
+2024-06-18 18:54:01,811 - __main__ - ERROR - An error occurred: name 'scrapers_legacy' is not defined
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 239, in get_webscrape
+    scraped_data = SupportFunctions.get_scraped_company_data(scraper)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 693, in get_scraped_company_data
+    func = getattr(scrapers_legacy, function_name)
+NameError: name 'scrapers_legacy' is not defined
+2024-06-18 18:54:01,828 - __main__ - ERROR - An error occurred: name 'scrapers_legacy' is not defined
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 239, in get_webscrape
+    scraped_data = SupportFunctions.get_scraped_company_data(scraper)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 693, in get_scraped_company_data
+    func = getattr(scrapers_legacy, function_name)
+NameError: name 'scrapers_legacy' is not defined
+2024-06-18 18:54:01,845 - __main__ - ERROR - An error occurred: name 'scrapers_legacy' is not defined
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 239, in get_webscrape
+    scraped_data = SupportFunctions.get_scraped_company_data(scraper)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 693, in get_scraped_company_data
+    func = getattr(scrapers_legacy, function_name)
+NameError: name 'scrapers_legacy' is not defined
+2024-06-18 18:55:02,694 - __main__ - INFO - New run starting at 2024-06-18 18:55:02.694631
+2024-06-18 18:55:02,758 - __main__ - ERROR - An error occurred: module 'scrapers' has no attribute 'to complete'
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 239, in get_webscrape
+    scraped_data = SupportFunctions.get_scraped_company_data(scraper)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 693, in get_scraped_company_data
+    func = getattr(scrapers, function_name)
+AttributeError: module 'scrapers' has no attribute 'to complete'
+2024-06-18 18:55:02,777 - __main__ - ERROR - An error occurred: module 'scrapers' has no attribute 'to complete'
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 239, in get_webscrape
+    scraped_data = SupportFunctions.get_scraped_company_data(scraper)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 693, in get_scraped_company_data
+    func = getattr(scrapers, function_name)
+AttributeError: module 'scrapers' has no attribute 'to complete'
+2024-06-18 18:55:02,791 - __main__ - ERROR - An error occurred: module 'scrapers' has no attribute 'https://www.boxuk.com'
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 239, in get_webscrape
+    scraped_data = SupportFunctions.get_scraped_company_data(scraper)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 693, in get_scraped_company_data
+    func = getattr(scrapers, function_name)
+AttributeError: module 'scrapers' has no attribute 'https://www.boxuk.com'
+2024-06-18 18:55:02,808 - __main__ - ERROR - An error occurred: module 'scrapers' has no attribute 'to complete'
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 239, in get_webscrape
+    scraped_data = SupportFunctions.get_scraped_company_data(scraper)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 693, in get_scraped_company_data
+    func = getattr(scrapers, function_name)
+AttributeError: module 'scrapers' has no attribute 'to complete'
+2024-06-18 18:55:02,829 - __main__ - ERROR - An error occurred: module 'scrapers' has no attribute 'https://www.cgi.com/'
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 239, in get_webscrape
+    scraped_data = SupportFunctions.get_scraped_company_data(scraper)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 693, in get_scraped_company_data
+    func = getattr(scrapers, function_name)
+AttributeError: module 'scrapers' has no attribute 'https://www.cgi.com/'
+2024-06-18 19:03:47,850 - __main__ - INFO - New run starting at 2024-06-18 19:03:47.850604
+2024-06-18 19:03:47,905 - __main__ - ERROR - An error occurred: module 'scrapers' has no attribute 'https://www.capco.com'
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 241, in get_webscrape
+    scraped_data = SupportFunctions.get_scraped_company_data(scraper)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 693, in get_scraped_company_data
+    func = getattr(scrapers, function_name)
+AttributeError: module 'scrapers' has no attribute 'https://www.capco.com'
+2024-06-18 19:03:47,961 - __main__ - ERROR - An error occurred: module 'scrapers' has no attribute 'https://www.capgemini.com/'
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 241, in get_webscrape
+    scraped_data = SupportFunctions.get_scraped_company_data(scraper)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 693, in get_scraped_company_data
+    func = getattr(scrapers, function_name)
+AttributeError: module 'scrapers' has no attribute 'https://www.capgemini.com/'
+2024-06-18 19:03:47,978 - __main__ - ERROR - An error occurred: module 'scrapers' has no attribute 'https://centricconsulting.com/'
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 241, in get_webscrape
+    scraped_data = SupportFunctions.get_scraped_company_data(scraper)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 693, in get_scraped_company_data
+    func = getattr(scrapers, function_name)
+AttributeError: module 'scrapers' has no attribute 'https://centricconsulting.com/'
+2024-06-18 19:03:48,015 - __main__ - ERROR - An error occurred: module 'scrapers' has no attribute 'https://www.clarasys.com/'
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 241, in get_webscrape
+    scraped_data = SupportFunctions.get_scraped_company_data(scraper)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 693, in get_scraped_company_data
+    func = getattr(scrapers, function_name)
+AttributeError: module 'scrapers' has no attribute 'https://www.clarasys.com/'
+2024-06-18 19:03:48,045 - __main__ - ERROR - An error occurred: module 'scrapers' has no attribute 'https://www.vml.com'
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 241, in get_webscrape
+    scraped_data = SupportFunctions.get_scraped_company_data(scraper)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 693, in get_scraped_company_data
+    func = getattr(scrapers, function_name)
+AttributeError: module 'scrapers' has no attribute 'https://www.vml.com'
+2024-06-18 20:07:41,176 - __main__ - INFO - New run starting at 2024-06-18 20:07:41.176357
+2024-06-18 20:11:27,199 - __main__ - INFO - New run starting at 2024-06-18 20:11:27.199786
+2024-06-18 20:11:27,257 - __main__ - ERROR - An error occurred: module 'scrapers' has no attribute 'scraper_11fs'
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 241, in get_webscrape
+    scraped_data = SupportFunctions.get_scraped_company_data(scraper)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 693, in get_scraped_company_data
+    func = getattr(scrapers, function_name)
+AttributeError: module 'scrapers' has no attribute 'scraper_11fs'
+2024-06-18 20:11:30,222 - __main__ - ERROR - An error occurred: unconverted data remains when parsing with format "%Y-%m-%d": " 01:00:45.442", at position 1. You might want to try:
+    - passing `format` if your strings have a consistent format;
+    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 245, in get_webscrape
+    SupportFunctions.log_new_and_modified_rows2(final_df, old_df, company_name, file_path)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 436, in log_new_and_modified_rows2
+    new_and_modified_df['Date of Collection'] = pd.to_datetime(new_and_modified_df['Date of Collection'])
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 1063, in to_datetime
+    cache_array = _maybe_cache(arg, format, cache, convert_listlike)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 247, in _maybe_cache
+    cache_dates = convert_listlike(unique_dates, format)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 433, in _convert_listlike_datetimes
+    return _array_strptime_with_fallback(arg, name, utc, format, exact, errors)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 467, in _array_strptime_with_fallback
+    result, tz_out = array_strptime(arg, fmt, exact=exact, errors=errors, utc=utc)
+  File "strptime.pyx", line 501, in pandas._libs.tslibs.strptime.array_strptime
+  File "strptime.pyx", line 451, in pandas._libs.tslibs.strptime.array_strptime
+  File "strptime.pyx", line 587, in pandas._libs.tslibs.strptime._parse_with_format
+ValueError: unconverted data remains when parsing with format "%Y-%m-%d": " 01:00:45.442", at position 1. You might want to try:
+    - passing `format` if your strings have a consistent format;
+    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
+2024-06-18 20:13:04,539 - __main__ - ERROR - An error occurred: list index out of range
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 241, in get_webscrape
+    scraped_data = SupportFunctions.get_scraped_company_data(scraper)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 694, in get_scraped_company_data
+    return func()
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\scrapers.py", line 1053, in scraper_arthur
+    sols_html_block = sols_html_block[0].find_all('div', class_ = "field field--name-field-title field--type-string field--label-hidden field__item")
+IndexError: list index out of range
+2024-06-18 20:14:56,412 - __main__ - ERROR - An error occurred: unconverted data remains when parsing with format "%Y-%m-%d": " 01:00:45.442", at position 1. You might want to try:
+    - passing `format` if your strings have a consistent format;
+    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 245, in get_webscrape
+    SupportFunctions.log_new_and_modified_rows2(final_df, old_df, company_name, file_path)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 436, in log_new_and_modified_rows2
+    new_and_modified_df['Date of Collection'] = pd.to_datetime(new_and_modified_df['Date of Collection'])
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 1063, in to_datetime
+    cache_array = _maybe_cache(arg, format, cache, convert_listlike)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 247, in _maybe_cache
+    cache_dates = convert_listlike(unique_dates, format)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 433, in _convert_listlike_datetimes
+    return _array_strptime_with_fallback(arg, name, utc, format, exact, errors)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 467, in _array_strptime_with_fallback
+    result, tz_out = array_strptime(arg, fmt, exact=exact, errors=errors, utc=utc)
+  File "strptime.pyx", line 501, in pandas._libs.tslibs.strptime.array_strptime
+  File "strptime.pyx", line 451, in pandas._libs.tslibs.strptime.array_strptime
+  File "strptime.pyx", line 587, in pandas._libs.tslibs.strptime._parse_with_format
+ValueError: unconverted data remains when parsing with format "%Y-%m-%d": " 01:00:45.442", at position 1. You might want to try:
+    - passing `format` if your strings have a consistent format;
+    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
+2024-06-18 20:16:39,625 - __main__ - ERROR - An error occurred: unconverted data remains when parsing with format "%Y-%m-%d": " 01:00:45.442", at position 1. You might want to try:
+    - passing `format` if your strings have a consistent format;
+    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 245, in get_webscrape
+    SupportFunctions.log_new_and_modified_rows2(final_df, old_df, company_name, file_path)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 436, in log_new_and_modified_rows2
+    new_and_modified_df['Date of Collection'] = pd.to_datetime(new_and_modified_df['Date of Collection'])
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 1063, in to_datetime
+    cache_array = _maybe_cache(arg, format, cache, convert_listlike)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 247, in _maybe_cache
+    cache_dates = convert_listlike(unique_dates, format)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 433, in _convert_listlike_datetimes
+    return _array_strptime_with_fallback(arg, name, utc, format, exact, errors)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 467, in _array_strptime_with_fallback
+    result, tz_out = array_strptime(arg, fmt, exact=exact, errors=errors, utc=utc)
+  File "strptime.pyx", line 501, in pandas._libs.tslibs.strptime.array_strptime
+  File "strptime.pyx", line 451, in pandas._libs.tslibs.strptime.array_strptime
+  File "strptime.pyx", line 587, in pandas._libs.tslibs.strptime._parse_with_format
+ValueError: unconverted data remains when parsing with format "%Y-%m-%d": " 01:00:45.442", at position 1. You might want to try:
+    - passing `format` if your strings have a consistent format;
+    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
+2024-06-18 20:17:12,569 - __main__ - ERROR - An error occurred: unconverted data remains when parsing with format "%Y-%m-%d": " 01:00:45.442", at position 1. You might want to try:
+    - passing `format` if your strings have a consistent format;
+    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 245, in get_webscrape
+    SupportFunctions.log_new_and_modified_rows2(final_df, old_df, company_name, file_path)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 436, in log_new_and_modified_rows2
+    new_and_modified_df['Date of Collection'] = pd.to_datetime(new_and_modified_df['Date of Collection'])
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 1063, in to_datetime
+    cache_array = _maybe_cache(arg, format, cache, convert_listlike)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 247, in _maybe_cache
+    cache_dates = convert_listlike(unique_dates, format)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 433, in _convert_listlike_datetimes
+    return _array_strptime_with_fallback(arg, name, utc, format, exact, errors)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 467, in _array_strptime_with_fallback
+    result, tz_out = array_strptime(arg, fmt, exact=exact, errors=errors, utc=utc)
+  File "strptime.pyx", line 501, in pandas._libs.tslibs.strptime.array_strptime
+  File "strptime.pyx", line 451, in pandas._libs.tslibs.strptime.array_strptime
+  File "strptime.pyx", line 587, in pandas._libs.tslibs.strptime._parse_with_format
+ValueError: unconverted data remains when parsing with format "%Y-%m-%d": " 01:00:45.442", at position 1. You might want to try:
+    - passing `format` if your strings have a consistent format;
+    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
+2024-06-18 20:17:24,920 - __main__ - ERROR - An error occurred: unconverted data remains when parsing with format "%Y-%m-%d": " 01:00:45.442", at position 1. You might want to try:
+    - passing `format` if your strings have a consistent format;
+    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 245, in get_webscrape
+    SupportFunctions.log_new_and_modified_rows2(final_df, old_df, company_name, file_path)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 436, in log_new_and_modified_rows2
+    new_and_modified_df['Date of Collection'] = pd.to_datetime(new_and_modified_df['Date of Collection'])
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 1063, in to_datetime
+    cache_array = _maybe_cache(arg, format, cache, convert_listlike)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 247, in _maybe_cache
+    cache_dates = convert_listlike(unique_dates, format)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 433, in _convert_listlike_datetimes
+    return _array_strptime_with_fallback(arg, name, utc, format, exact, errors)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 467, in _array_strptime_with_fallback
+    result, tz_out = array_strptime(arg, fmt, exact=exact, errors=errors, utc=utc)
+  File "strptime.pyx", line 501, in pandas._libs.tslibs.strptime.array_strptime
+  File "strptime.pyx", line 451, in pandas._libs.tslibs.strptime.array_strptime
+  File "strptime.pyx", line 587, in pandas._libs.tslibs.strptime._parse_with_format
+ValueError: unconverted data remains when parsing with format "%Y-%m-%d": " 01:00:45.442", at position 1. You might want to try:
+    - passing `format` if your strings have a consistent format;
+    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
+2024-06-18 20:19:36,136 - __main__ - ERROR - An error occurred: unconverted data remains when parsing with format "%Y-%m-%d": " 01:00:45.442", at position 1. You might want to try:
+    - passing `format` if your strings have a consistent format;
+    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 245, in get_webscrape
+    SupportFunctions.log_new_and_modified_rows2(final_df, old_df, company_name, file_path)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 436, in log_new_and_modified_rows2
+    new_and_modified_df['Date of Collection'] = pd.to_datetime(new_and_modified_df['Date of Collection'])
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 1063, in to_datetime
+    cache_array = _maybe_cache(arg, format, cache, convert_listlike)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 247, in _maybe_cache
+    cache_dates = convert_listlike(unique_dates, format)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 433, in _convert_listlike_datetimes
+    return _array_strptime_with_fallback(arg, name, utc, format, exact, errors)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 467, in _array_strptime_with_fallback
+    result, tz_out = array_strptime(arg, fmt, exact=exact, errors=errors, utc=utc)
+  File "strptime.pyx", line 501, in pandas._libs.tslibs.strptime.array_strptime
+  File "strptime.pyx", line 451, in pandas._libs.tslibs.strptime.array_strptime
+  File "strptime.pyx", line 587, in pandas._libs.tslibs.strptime._parse_with_format
+ValueError: unconverted data remains when parsing with format "%Y-%m-%d": " 01:00:45.442", at position 1. You might want to try:
+    - passing `format` if your strings have a consistent format;
+    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
+2024-06-18 20:20:26,350 - __main__ - ERROR - An error occurred: unconverted data remains when parsing with format "%Y-%m-%d": " 01:00:45.442", at position 1. You might want to try:
+    - passing `format` if your strings have a consistent format;
+    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 245, in get_webscrape
+    SupportFunctions.log_new_and_modified_rows2(final_df, old_df, company_name, file_path)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 436, in log_new_and_modified_rows2
+    new_and_modified_df['Date of Collection'] = pd.to_datetime(new_and_modified_df['Date of Collection'])
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 1063, in to_datetime
+    cache_array = _maybe_cache(arg, format, cache, convert_listlike)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 247, in _maybe_cache
+    cache_dates = convert_listlike(unique_dates, format)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 433, in _convert_listlike_datetimes
+    return _array_strptime_with_fallback(arg, name, utc, format, exact, errors)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 467, in _array_strptime_with_fallback
+    result, tz_out = array_strptime(arg, fmt, exact=exact, errors=errors, utc=utc)
+  File "strptime.pyx", line 501, in pandas._libs.tslibs.strptime.array_strptime
+  File "strptime.pyx", line 451, in pandas._libs.tslibs.strptime.array_strptime
+  File "strptime.pyx", line 587, in pandas._libs.tslibs.strptime._parse_with_format
+ValueError: unconverted data remains when parsing with format "%Y-%m-%d": " 01:00:45.442", at position 1. You might want to try:
+    - passing `format` if your strings have a consistent format;
+    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
+2024-06-18 20:21:33,119 - __main__ - ERROR - An error occurred: list index out of range
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 241, in get_webscrape
+    scraped_data = SupportFunctions.get_scraped_company_data(scraper)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 694, in get_scraped_company_data
+    return func()
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\scrapers.py", line 1431, in scraper_deloitte
+    for service_soup in soup.select('div[id="promo-container--daa217c6"]')[0].select('div[id]'):
+IndexError: list index out of range
+2024-06-18 20:22:35,785 - __main__ - ERROR - An error occurred: unconverted data remains when parsing with format "%Y-%m-%d": " 01:00:45.442", at position 22. You might want to try:
+    - passing `format` if your strings have a consistent format;
+    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 245, in get_webscrape
+    SupportFunctions.log_new_and_modified_rows2(final_df, old_df, company_name, file_path)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 436, in log_new_and_modified_rows2
+    new_and_modified_df['Date of Collection'] = pd.to_datetime(new_and_modified_df['Date of Collection'])
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 1067, in to_datetime
+    values = convert_listlike(arg._values, format)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 433, in _convert_listlike_datetimes
+    return _array_strptime_with_fallback(arg, name, utc, format, exact, errors)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 467, in _array_strptime_with_fallback
+    result, tz_out = array_strptime(arg, fmt, exact=exact, errors=errors, utc=utc)
+  File "strptime.pyx", line 501, in pandas._libs.tslibs.strptime.array_strptime
+  File "strptime.pyx", line 451, in pandas._libs.tslibs.strptime.array_strptime
+  File "strptime.pyx", line 587, in pandas._libs.tslibs.strptime._parse_with_format
+ValueError: unconverted data remains when parsing with format "%Y-%m-%d": " 01:00:45.442", at position 22. You might want to try:
+    - passing `format` if your strings have a consistent format;
+    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
+2024-06-18 20:26:41,990 - __main__ - ERROR - An error occurred: unconverted data remains when parsing with format "%Y-%m-%d": " 01:00:45.442", at position 23. You might want to try:
+    - passing `format` if your strings have a consistent format;
+    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 245, in get_webscrape
+    SupportFunctions.log_new_and_modified_rows2(final_df, old_df, company_name, file_path)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 436, in log_new_and_modified_rows2
+    new_and_modified_df['Date of Collection'] = pd.to_datetime(new_and_modified_df['Date of Collection'])
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 1067, in to_datetime
+    values = convert_listlike(arg._values, format)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 433, in _convert_listlike_datetimes
+    return _array_strptime_with_fallback(arg, name, utc, format, exact, errors)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 467, in _array_strptime_with_fallback
+    result, tz_out = array_strptime(arg, fmt, exact=exact, errors=errors, utc=utc)
+  File "strptime.pyx", line 501, in pandas._libs.tslibs.strptime.array_strptime
+  File "strptime.pyx", line 451, in pandas._libs.tslibs.strptime.array_strptime
+  File "strptime.pyx", line 587, in pandas._libs.tslibs.strptime._parse_with_format
+ValueError: unconverted data remains when parsing with format "%Y-%m-%d": " 01:00:45.442", at position 23. You might want to try:
+    - passing `format` if your strings have a consistent format;
+    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
+2024-06-18 20:26:53,005 - __main__ - ERROR - An error occurred: unconverted data remains when parsing with format "%Y-%m-%d": " 01:00:45.442", at position 14. You might want to try:
+    - passing `format` if your strings have a consistent format;
+    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 245, in get_webscrape
+    SupportFunctions.log_new_and_modified_rows2(final_df, old_df, company_name, file_path)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 436, in log_new_and_modified_rows2
+    new_and_modified_df['Date of Collection'] = pd.to_datetime(new_and_modified_df['Date of Collection'])
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 1067, in to_datetime
+    values = convert_listlike(arg._values, format)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 433, in _convert_listlike_datetimes
+    return _array_strptime_with_fallback(arg, name, utc, format, exact, errors)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 467, in _array_strptime_with_fallback
+    result, tz_out = array_strptime(arg, fmt, exact=exact, errors=errors, utc=utc)
+  File "strptime.pyx", line 501, in pandas._libs.tslibs.strptime.array_strptime
+  File "strptime.pyx", line 451, in pandas._libs.tslibs.strptime.array_strptime
+  File "strptime.pyx", line 587, in pandas._libs.tslibs.strptime._parse_with_format
+ValueError: unconverted data remains when parsing with format "%Y-%m-%d": " 01:00:45.442", at position 14. You might want to try:
+    - passing `format` if your strings have a consistent format;
+    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
+2024-06-18 20:29:20,279 - __main__ - ERROR - An error occurred: unconverted data remains when parsing with format "%Y-%m-%d": " 01:00:45.442", at position 1. You might want to try:
+    - passing `format` if your strings have a consistent format;
+    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 245, in get_webscrape
+    SupportFunctions.log_new_and_modified_rows2(final_df, old_df, company_name, file_path)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 436, in log_new_and_modified_rows2
+    new_and_modified_df['Date of Collection'] = pd.to_datetime(new_and_modified_df['Date of Collection'])
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 1063, in to_datetime
+    cache_array = _maybe_cache(arg, format, cache, convert_listlike)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 247, in _maybe_cache
+    cache_dates = convert_listlike(unique_dates, format)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 433, in _convert_listlike_datetimes
+    return _array_strptime_with_fallback(arg, name, utc, format, exact, errors)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 467, in _array_strptime_with_fallback
+    result, tz_out = array_strptime(arg, fmt, exact=exact, errors=errors, utc=utc)
+  File "strptime.pyx", line 501, in pandas._libs.tslibs.strptime.array_strptime
+  File "strptime.pyx", line 451, in pandas._libs.tslibs.strptime.array_strptime
+  File "strptime.pyx", line 587, in pandas._libs.tslibs.strptime._parse_with_format
+ValueError: unconverted data remains when parsing with format "%Y-%m-%d": " 01:00:45.442", at position 1. You might want to try:
+    - passing `format` if your strings have a consistent format;
+    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
+2024-06-18 20:29:57,236 - __main__ - ERROR - An error occurred: unconverted data remains when parsing with format "%Y-%m-%d": " 01:00:45.442", at position 10. You might want to try:
+    - passing `format` if your strings have a consistent format;
+    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 245, in get_webscrape
+    SupportFunctions.log_new_and_modified_rows2(final_df, old_df, company_name, file_path)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 436, in log_new_and_modified_rows2
+    new_and_modified_df['Date of Collection'] = pd.to_datetime(new_and_modified_df['Date of Collection'])
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 1067, in to_datetime
+    values = convert_listlike(arg._values, format)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 433, in _convert_listlike_datetimes
+    return _array_strptime_with_fallback(arg, name, utc, format, exact, errors)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 467, in _array_strptime_with_fallback
+    result, tz_out = array_strptime(arg, fmt, exact=exact, errors=errors, utc=utc)
+  File "strptime.pyx", line 501, in pandas._libs.tslibs.strptime.array_strptime
+  File "strptime.pyx", line 451, in pandas._libs.tslibs.strptime.array_strptime
+  File "strptime.pyx", line 587, in pandas._libs.tslibs.strptime._parse_with_format
+ValueError: unconverted data remains when parsing with format "%Y-%m-%d": " 01:00:45.442", at position 10. You might want to try:
+    - passing `format` if your strings have a consistent format;
+    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
+2024-06-18 20:30:06,178 - __main__ - ERROR - An error occurred: unconverted data remains when parsing with format "%Y-%m-%d": " 01:00:45.442", at position 1. You might want to try:
+    - passing `format` if your strings have a consistent format;
+    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 245, in get_webscrape
+    SupportFunctions.log_new_and_modified_rows2(final_df, old_df, company_name, file_path)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 436, in log_new_and_modified_rows2
+    new_and_modified_df['Date of Collection'] = pd.to_datetime(new_and_modified_df['Date of Collection'])
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 1063, in to_datetime
+    cache_array = _maybe_cache(arg, format, cache, convert_listlike)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 247, in _maybe_cache
+    cache_dates = convert_listlike(unique_dates, format)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 433, in _convert_listlike_datetimes
+    return _array_strptime_with_fallback(arg, name, utc, format, exact, errors)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 467, in _array_strptime_with_fallback
+    result, tz_out = array_strptime(arg, fmt, exact=exact, errors=errors, utc=utc)
+  File "strptime.pyx", line 501, in pandas._libs.tslibs.strptime.array_strptime
+  File "strptime.pyx", line 451, in pandas._libs.tslibs.strptime.array_strptime
+  File "strptime.pyx", line 587, in pandas._libs.tslibs.strptime._parse_with_format
+ValueError: unconverted data remains when parsing with format "%Y-%m-%d": " 01:00:45.442", at position 1. You might want to try:
+    - passing `format` if your strings have a consistent format;
+    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
+2024-06-18 20:33:10,755 - __main__ - ERROR - An error occurred: unconverted data remains when parsing with format "%Y-%m-%d": " 01:00:45.442", at position 1. You might want to try:
+    - passing `format` if your strings have a consistent format;
+    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 245, in get_webscrape
+    SupportFunctions.log_new_and_modified_rows2(final_df, old_df, company_name, file_path)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 436, in log_new_and_modified_rows2
+    new_and_modified_df['Date of Collection'] = pd.to_datetime(new_and_modified_df['Date of Collection'])
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 1063, in to_datetime
+    cache_array = _maybe_cache(arg, format, cache, convert_listlike)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 247, in _maybe_cache
+    cache_dates = convert_listlike(unique_dates, format)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 433, in _convert_listlike_datetimes
+    return _array_strptime_with_fallback(arg, name, utc, format, exact, errors)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 467, in _array_strptime_with_fallback
+    result, tz_out = array_strptime(arg, fmt, exact=exact, errors=errors, utc=utc)
+  File "strptime.pyx", line 501, in pandas._libs.tslibs.strptime.array_strptime
+  File "strptime.pyx", line 451, in pandas._libs.tslibs.strptime.array_strptime
+  File "strptime.pyx", line 587, in pandas._libs.tslibs.strptime._parse_with_format
+ValueError: unconverted data remains when parsing with format "%Y-%m-%d": " 01:00:45.442", at position 1. You might want to try:
+    - passing `format` if your strings have a consistent format;
+    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
+2024-06-18 20:36:04,178 - __main__ - ERROR - An error occurred: unconverted data remains when parsing with format "%Y-%m-%d": " 01:00:45.442", at position 1. You might want to try:
+    - passing `format` if your strings have a consistent format;
+    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 245, in get_webscrape
+    SupportFunctions.log_new_and_modified_rows2(final_df, old_df, company_name, file_path)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 436, in log_new_and_modified_rows2
+    new_and_modified_df['Date of Collection'] = pd.to_datetime(new_and_modified_df['Date of Collection'])
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 1063, in to_datetime
+    cache_array = _maybe_cache(arg, format, cache, convert_listlike)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 247, in _maybe_cache
+    cache_dates = convert_listlike(unique_dates, format)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 433, in _convert_listlike_datetimes
+    return _array_strptime_with_fallback(arg, name, utc, format, exact, errors)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 467, in _array_strptime_with_fallback
+    result, tz_out = array_strptime(arg, fmt, exact=exact, errors=errors, utc=utc)
+  File "strptime.pyx", line 501, in pandas._libs.tslibs.strptime.array_strptime
+  File "strptime.pyx", line 451, in pandas._libs.tslibs.strptime.array_strptime
+  File "strptime.pyx", line 587, in pandas._libs.tslibs.strptime._parse_with_format
+ValueError: unconverted data remains when parsing with format "%Y-%m-%d": " 01:00:45.442", at position 1. You might want to try:
+    - passing `format` if your strings have a consistent format;
+    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
+2024-06-19 08:20:28,440 - __main__ - ERROR - An error occurred: Invalid URL '______': No scheme supplied. Perhaps you meant https://______?
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 241, in get_webscrape
+    scraped_data = SupportFunctions.get_scraped_company_data(scraper)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 694, in get_scraped_company_data
+    return func()
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\scrapers.py", line 3399, in scraper_seikoepson
+    r = requests.get(url)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\requests\api.py", line 73, in get
+    return request("get", url, params=params, **kwargs)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\requests\api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\requests\sessions.py", line 575, in request
+    prep = self.prepare_request(req)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\requests\sessions.py", line 484, in prepare_request
+    p.prepare(
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\requests\models.py", line 367, in prepare
+    self.prepare_url(url, params)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\requests\models.py", line 438, in prepare_url
+    raise MissingSchema(
+requests.exceptions.MissingSchema: Invalid URL '______': No scheme supplied. Perhaps you meant https://______?
+2024-06-19 08:21:13,500 - __main__ - ERROR - An error occurred: unconverted data remains when parsing with format "%Y-%m-%d": " 01:00:45.442", at position 1. You might want to try:
+    - passing `format` if your strings have a consistent format;
+    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 245, in get_webscrape
+    SupportFunctions.log_new_and_modified_rows2(final_df, old_df, company_name, file_path)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 436, in log_new_and_modified_rows2
+    new_and_modified_df['Date of Collection'] = pd.to_datetime(new_and_modified_df['Date of Collection'])
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 1063, in to_datetime
+    cache_array = _maybe_cache(arg, format, cache, convert_listlike)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 247, in _maybe_cache
+    cache_dates = convert_listlike(unique_dates, format)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 433, in _convert_listlike_datetimes
+    return _array_strptime_with_fallback(arg, name, utc, format, exact, errors)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 467, in _array_strptime_with_fallback
+    result, tz_out = array_strptime(arg, fmt, exact=exact, errors=errors, utc=utc)
+  File "strptime.pyx", line 501, in pandas._libs.tslibs.strptime.array_strptime
+  File "strptime.pyx", line 451, in pandas._libs.tslibs.strptime.array_strptime
+  File "strptime.pyx", line 587, in pandas._libs.tslibs.strptime._parse_with_format
+ValueError: unconverted data remains when parsing with format "%Y-%m-%d": " 01:00:45.442", at position 1. You might want to try:
+    - passing `format` if your strings have a consistent format;
+    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
+2024-06-19 08:21:55,718 - __main__ - ERROR - An error occurred: unconverted data remains when parsing with format "%Y-%m-%d": " 01:00:45.442", at position 8. You might want to try:
+    - passing `format` if your strings have a consistent format;
+    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 245, in get_webscrape
+    SupportFunctions.log_new_and_modified_rows2(final_df, old_df, company_name, file_path)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 436, in log_new_and_modified_rows2
+    new_and_modified_df['Date of Collection'] = pd.to_datetime(new_and_modified_df['Date of Collection'])
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 1067, in to_datetime
+    values = convert_listlike(arg._values, format)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 433, in _convert_listlike_datetimes
+    return _array_strptime_with_fallback(arg, name, utc, format, exact, errors)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 467, in _array_strptime_with_fallback
+    result, tz_out = array_strptime(arg, fmt, exact=exact, errors=errors, utc=utc)
+  File "strptime.pyx", line 501, in pandas._libs.tslibs.strptime.array_strptime
+  File "strptime.pyx", line 451, in pandas._libs.tslibs.strptime.array_strptime
+  File "strptime.pyx", line 587, in pandas._libs.tslibs.strptime._parse_with_format
+ValueError: unconverted data remains when parsing with format "%Y-%m-%d": " 01:00:45.442", at position 8. You might want to try:
+    - passing `format` if your strings have a consistent format;
+    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
+2024-06-19 08:24:48,863 - __main__ - ERROR - An error occurred: unconverted data remains when parsing with format "%Y-%m-%d": " 01:00:45.442", at position 1. You might want to try:
+    - passing `format` if your strings have a consistent format;
+    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 245, in get_webscrape
+    SupportFunctions.log_new_and_modified_rows2(final_df, old_df, company_name, file_path)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 436, in log_new_and_modified_rows2
+    new_and_modified_df['Date of Collection'] = pd.to_datetime(new_and_modified_df['Date of Collection'])
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 1063, in to_datetime
+    cache_array = _maybe_cache(arg, format, cache, convert_listlike)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 247, in _maybe_cache
+    cache_dates = convert_listlike(unique_dates, format)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 433, in _convert_listlike_datetimes
+    return _array_strptime_with_fallback(arg, name, utc, format, exact, errors)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 467, in _array_strptime_with_fallback
+    result, tz_out = array_strptime(arg, fmt, exact=exact, errors=errors, utc=utc)
+  File "strptime.pyx", line 501, in pandas._libs.tslibs.strptime.array_strptime
+  File "strptime.pyx", line 451, in pandas._libs.tslibs.strptime.array_strptime
+  File "strptime.pyx", line 587, in pandas._libs.tslibs.strptime._parse_with_format
+ValueError: unconverted data remains when parsing with format "%Y-%m-%d": " 01:00:45.442", at position 1. You might want to try:
+    - passing `format` if your strings have a consistent format;
+    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
+2024-06-19 08:25:42,283 - __main__ - ERROR - An error occurred: unconverted data remains when parsing with format "%Y-%m-%d": " 01:00:45.442", at position 1. You might want to try:
+    - passing `format` if your strings have a consistent format;
+    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 245, in get_webscrape
+    SupportFunctions.log_new_and_modified_rows2(final_df, old_df, company_name, file_path)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 436, in log_new_and_modified_rows2
+    new_and_modified_df['Date of Collection'] = pd.to_datetime(new_and_modified_df['Date of Collection'])
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 1063, in to_datetime
+    cache_array = _maybe_cache(arg, format, cache, convert_listlike)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 247, in _maybe_cache
+    cache_dates = convert_listlike(unique_dates, format)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 433, in _convert_listlike_datetimes
+    return _array_strptime_with_fallback(arg, name, utc, format, exact, errors)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 467, in _array_strptime_with_fallback
+    result, tz_out = array_strptime(arg, fmt, exact=exact, errors=errors, utc=utc)
+  File "strptime.pyx", line 501, in pandas._libs.tslibs.strptime.array_strptime
+  File "strptime.pyx", line 451, in pandas._libs.tslibs.strptime.array_strptime
+  File "strptime.pyx", line 587, in pandas._libs.tslibs.strptime._parse_with_format
+ValueError: unconverted data remains when parsing with format "%Y-%m-%d": " 01:00:45.442", at position 1. You might want to try:
+    - passing `format` if your strings have a consistent format;
+    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
+2024-06-19 08:31:39,203 - __main__ - ERROR - An error occurred: unconverted data remains when parsing with format "%Y-%m-%d": " 01:00:45.442", at position 1. You might want to try:
+    - passing `format` if your strings have a consistent format;
+    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 245, in get_webscrape
+    SupportFunctions.log_new_and_modified_rows2(final_df, old_df, company_name, file_path)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 436, in log_new_and_modified_rows2
+    new_and_modified_df['Date of Collection'] = pd.to_datetime(new_and_modified_df['Date of Collection'])
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 1063, in to_datetime
+    cache_array = _maybe_cache(arg, format, cache, convert_listlike)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 247, in _maybe_cache
+    cache_dates = convert_listlike(unique_dates, format)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 433, in _convert_listlike_datetimes
+    return _array_strptime_with_fallback(arg, name, utc, format, exact, errors)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 467, in _array_strptime_with_fallback
+    result, tz_out = array_strptime(arg, fmt, exact=exact, errors=errors, utc=utc)
+  File "strptime.pyx", line 501, in pandas._libs.tslibs.strptime.array_strptime
+  File "strptime.pyx", line 451, in pandas._libs.tslibs.strptime.array_strptime
+  File "strptime.pyx", line 587, in pandas._libs.tslibs.strptime._parse_with_format
+ValueError: unconverted data remains when parsing with format "%Y-%m-%d": " 01:00:45.442", at position 1. You might want to try:
+    - passing `format` if your strings have a consistent format;
+    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
+2024-06-19 09:58:03,109 - __main__ - INFO - New run starting at 2024-06-19 09:58:03.109621
+2024-06-19 09:58:03,205 - __main__ - ERROR - An error occurred: module 'scrapers' has no attribute 'scraper_11fs'
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 241, in get_webscrape
+    scraped_data = SupportFunctions.get_scraped_company_data(scraper)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 693, in get_scraped_company_data
+    func = getattr(scrapers, function_name)
+AttributeError: module 'scrapers' has no attribute 'scraper_11fs'
+2024-06-19 09:58:05,247 - __main__ - ERROR - An error occurred: unconverted data remains when parsing with format "%Y-%m-%d": " 01:00:25.569", at position 1. You might want to try:
+    - passing `format` if your strings have a consistent format;
+    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 245, in get_webscrape
+    SupportFunctions.log_new_and_modified_rows2(final_df, old_df, company_name, file_path)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 436, in log_new_and_modified_rows2
+    new_and_modified_df['Date of Collection'] = pd.to_datetime(new_and_modified_df['Date of Collection'])
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 1063, in to_datetime
+    cache_array = _maybe_cache(arg, format, cache, convert_listlike)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 247, in _maybe_cache
+    cache_dates = convert_listlike(unique_dates, format)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 433, in _convert_listlike_datetimes
+    return _array_strptime_with_fallback(arg, name, utc, format, exact, errors)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 467, in _array_strptime_with_fallback
+    result, tz_out = array_strptime(arg, fmt, exact=exact, errors=errors, utc=utc)
+  File "strptime.pyx", line 501, in pandas._libs.tslibs.strptime.array_strptime
+  File "strptime.pyx", line 451, in pandas._libs.tslibs.strptime.array_strptime
+  File "strptime.pyx", line 587, in pandas._libs.tslibs.strptime._parse_with_format
+ValueError: unconverted data remains when parsing with format "%Y-%m-%d": " 01:00:25.569", at position 1. You might want to try:
+    - passing `format` if your strings have a consistent format;
+    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
+2024-06-19 10:26:39,256 - __main__ - INFO - New run starting at 2024-06-19 10:26:39.256817
+2024-06-19 10:26:39,314 - __main__ - ERROR - An error occurred: module 'scrapers' has no attribute 'scraper_11fs'
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 244, in get_webscrape
+    scraped_data = SupportFunctions.get_scraped_company_data(scraper)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 693, in get_scraped_company_data
+    func = getattr(scrapers, function_name)
+AttributeError: module 'scrapers' has no attribute 'scraper_11fs'
+2024-06-19 10:26:41,488 - __main__ - ERROR - An error occurred: unconverted data remains when parsing with format "%Y-%m-%d": " 01:00:25.569", at position 1. You might want to try:
+    - passing `format` if your strings have a consistent format;
+    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
+Traceback (most recent call last):
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\main copy.py", line 248, in get_webscrape
+    SupportFunctions.log_new_and_modified_rows2(final_df, old_df, company_name, file_path)
+  File "c:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\MI\SupportFunctions.py", line 436, in log_new_and_modified_rows2
+    new_and_modified_df['Date of Collection'] = pd.to_datetime(new_and_modified_df['Date of Collection'])
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 1063, in to_datetime
+    cache_array = _maybe_cache(arg, format, cache, convert_listlike)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 247, in _maybe_cache
+    cache_dates = convert_listlike(unique_dates, format)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 433, in _convert_listlike_datetimes
+    return _array_strptime_with_fallback(arg, name, utc, format, exact, errors)
+  File "C:\Users\NimanthaFernando\Innovation_Team_Projects\Market_Intelligence\venv\lib\site-packages\pandas\core\tools\datetimes.py", line 467, in _array_strptime_with_fallback
+    result, tz_out = array_strptime(arg, fmt, exact=exact, errors=errors, utc=utc)
+  File "strptime.pyx", line 501, in pandas._libs.tslibs.strptime.array_strptime
+  File "strptime.pyx", line 451, in pandas._libs.tslibs.strptime.array_strptime
+  File "strptime.pyx", line 587, in pandas._libs.tslibs.strptime._parse_with_format
+ValueError: unconverted data remains when parsing with format "%Y-%m-%d": " 01:00:25.569", at position 1. You might want to try:
+    - passing `format` if your strings have a consistent format;
+    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.

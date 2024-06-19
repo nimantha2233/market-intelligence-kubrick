@@ -1,0 +1,140 @@
+,company_name,company_url,status,ticker,scraper
+0,11:FS,https://www.11fs.com/,Private,,scraper_11fs
+1,AND Digital,https://www.and.digital/,Private,,scraper_digital
+2,Accenture PLC,https://www.accenture.com/gb-en,Public,ACN,scraper_accenture
+3,Adatis,https://adatis.co.uk/,Private,,scraper_adatis
+4,Afiniti,to complete,Private,,to complete
+5,Airwalk Reply,https://airwalkreply.com/,Private,,scraper_airwalkreply
+6,Alchemmy,https://alchemmy.com/,Private,,scraper_alchemmy
+7,Alix Partners,https://www.alixpartners.com,Private,,scraper_alix
+8,Apexon,https://www.apexon.com/,Private,,scraper_apexon
+9,Arthur D Little,https://www.adlittle.com,Private,,scraper_arthur
+10,Atos Group,https://atos.net,Private,,scraper_atos
+11,Atos SE,https://atos.net/en/,Public,ATO.PA,scraper_atosse
+12,Avanade Inc.,https://www.avanade.com,Private,,scraper_avanade
+13,BJSS,https://www.bjss.com/,Private,,scraper_bjss
+14,BMC,https://www.bmc.com,Private,,scraper_bmc
+15,Bain & Company,https://www.bain.com,Private,,scraper_bain
+16,Baringa,https://www.baringa.com/en/,Private,,scraper_baringa
+17,BetterGov,https://www.bettergov.co.uk/,Private,,scraper_bettergov
+18,Billigence,https://billigence.com,Private,,scraper_billigence
+19,Blueberry Consultants Ltd.,https://www.bbconsult.co.uk/,Private,,scraper_blueberry
+20,Booz Allen Hamilton Holding Corp,https://www.boozallen.com,Public,BAH,scraper_boozallen
+21,Boston Consulting Group,https://www.bcg.com,Private,,scraper_boston
+22,Box UK,https://www.boxuk.com,Private,,scraper_box
+23,Broadstones Tech,https://broadstones.tech,Private,,scraper_broadstones
+24,CGI,https://www.cgi.com/,Private,,scraper_cgi
+25,CIGNITI Technologies Ltd,https://www.cigniti.com,Public,CIGNITITEC.BO,scraper_cigniti
+26,Cambridge Consultants Limited,https://www.cambridgeconsultants.com/,Private,,scraper_cambridge
+27,Cambridge Design Partnership,https://www.cambridge-design.com/,Private,,scraper_cambridgedesign
+28,Canon Inc.,https://www.canon.co.uk,Public,7751.T,scraper_canon
+29,Capco Limited,https://www.capco.com,Private,,scraper_capco
+30,Capgemini SE,https://www.capgemini.com/,Public,CAP.PA,scraper_capgemini
+31,Capita,https://www.capita.com,Public,CPI.L,scraper_capita
+32,Centric Consulting,https://centricconsulting.com/,Private,,scraper_centric
+33,Clarasys,https://www.clarasys.com/,Private,,scraper_clarasys
+34,Cognifide,https://www.vml.com,Private,,scraper_vml
+35,Cognizant Technology Solutions Corporation,https://www.cognizant.com,Public,CTSH,scraper_cognizant
+36,Contino Ltd.,https://www.contino.io,Private,,scraper_contino
+37,Credera,https://www.credera.com/en-gb,Private,,scraper_credera
+38,Credo Consulting,https://www.credoconsultancy.co.uk/,Private,,scraper_credo
+39,DXC Technology,https://dxc.com/uk/en,Public,DXC,scraper_dxc
+40,Deloitte,https://www.deloitte.com/global/en.html,Private,,scraper_deloitte
+41,Designit,https://www.designit.com/services,Private,,scraper_designit
+42,Digital Futures,https://digitalfutures.com/,Private,,scraper_digitalfutures
+43,Digital Workplace Group,https://digitalworkplacegroup.com/,Private,,scraper_digitalworkplace
+44,Dufrain,https://www.dufrain.co.uk/,Private,,scraper_dufrain
+45,EPAM Systems Inc,https://www.epam.com/,Public,EPAM,scraper_epam
+46,EY,https://www.ey.com/en_uk,Private,,scraper_ey
+47,Eclature Technologies,https://eclature.com/,Private,,scraper_eclature
+48,Eden McCallum,https://edenmccallum.com/,Private,,scraper_edenmccallum
+49,Edge Testing Solutions,https://www.resillion.com/,Private,,scraper_resillion
+50,Elixirr International Plc,https://www.elixirr.com,Public,ELIX.L,scraper_elixirr
+51,Enfuse Group,https://www.enfusegroup.com/,Private,,scraper_enfuse
+52,Equal Experts,https://www.equalexperts.com,Private,,scraper_equalexperts
+53,FDM Group (Holdings) Ltd,https://www.fdmgroup.com/,Public,FDM.L,scraper_fdmgroup
+54,Faculty AI,to complete,Private,,to complete
+55,Fjord Consulting Group,https://fjordconsultinggroup.com,Private,,scraper_fjord
+56,Frog Design,to complete,Private,,to complete
+57,Frontier Economics,https://www.frontier-economics.com/uk/en/home/,Private,,scraper_frontiereconomics
+58,GeekTek,to complete,Private,,to complete
+59,Genpact Ltd,https://www.genpact.com,Public,G,scraper_genpact
+60,Grayce Group Limited,https://www.grayce.co.uk,Private,,scraper_grayce
+61,HCL Technologies Ltd,https://www.hcltech.com/,Public,HCLTECH.BO,scraper_hcltech
+62,HP Inc,to complete,Public,HPQ,to complete
+63,Hexaware Technologies Ltd,https://hexaware.com/,Private,,scraper_hexaware
+64,IDEO,to complete,Private,,to complete
+65,IQVIA Holdings Inc,https://iqvia.com/en,Public,IQV,scraper_iqvia
+66,Icon PLC,https://www.iconplc.com/,Public,ICLR,scraper_iconplc
+67,Infinite Lambda,https://infinitelambda.com,Private,,scraper_infinitelambda
+68,Infostretch Corp,to complete,Private,,to complete
+69,Infosys Limited,https://www.infosys.com/,Public,INFY,scraper_infosys
+70,International Business Machines Corp,https://www.ibm.com/uk-en,Public,IBM,scraper_ibm
+71,JMAN Group,https://jmangroup.com/,Private,,scraper_jman
+72,KONICA MINOLTA INC,https://www.konicaminolta.co.uk/en-gb,Public,4902.T,scraper_konica
+73,KPMG,https://kpmg.com,Private,,scraper_kpmg
+74,Kainos,https://www.kainos.com,Public,KNOS.L,scraper_kainos
+75,Kearney,https://www.kearney.com/,Private,,scraper_kerney
+76,Kubrick Group Limited,https://www.kubrickgroup.com,Private,,scraper_kubrick
+77,Laboratory Corp Of America Holdings,https://biopharma.labcorp.com/,Public,LAB.F,scraper_labcorp
+78,"LockPath, Inc.",https://www.navex.com/en-gb/,Private,,scraper_lockpath
+79,"LogicSource, Inc.",https://logicsource.com/,Private,,scraper_logicsource
+80,Lovelytics,https://lovelytics.com,Private,,scraper_lovelytics
+81,Lunar,to complete,Private,,to complete
+82,METRICSTREAM INC,https://www.metricstream.com/,Private,,scraper_metricstream
+83,Made Tech Group Plc,https://www.madetech.com/,Public,MTEC.L,scraper_madetech
+84,Mason Advisory,https://masonadvisory.com/services/,Private,,scraper_mason
+85,McKinsey,https://www.mckinsey.com,Private,,scraper_mckinsey
+86,Mesh AI,https://www.mesh-ai.com/,Private,,scraper_meshai
+87,MindTree Ltd,https://www.mindtreeitsolutions.com/,Private,,scraper_mindtree
+88,Mosaic Island,https://www.mosaicisland.co.uk,Private,,scraper_mosaicisland
+89,Mphasis Ltd,https://www.mphasis.com/,Public,MPHASIS.BO,scraper_mphasis
+90,Neoris,https://neoris.com,Private,,scraper_neoris
+91,NexInfo,https://nexinfo.com/,Private,,scraper_nexinfo
+92,North Highland,https://www.northhighland.com/,Private,,scraper_highland
+93,OC&C Strategy Consultants,https://www.occstrategy.com,Private,,scraper_occstrategy
+94,Oliver Wyman,https://www.oliverwyman.com/,Private,,scraper_oliverwyman
+95,OpenCredo,https://opencredo.com/,Private,,scraper_opencredo
+96,Oracle Consulting,https://www.oracle.com/uk/cloud/,Private,,scraper_oracle
+97,PA Consulting Group,https://www.paconsulting.com/,Private,,scraper_paconsulting
+98,PPD Inc,https://www.ppd.com/,Private,,scraper_ppd
+99,PRA Health Sciences Inc,to complete,Private,,to complete
+100,Parexel International Corp,to complete,Private,,to complete
+101,Peru Consulting,https://peruconsulting.co.uk,Private,,scraper_peruconsulting
+102,Planit Testing,https://www.planit.com/au/home,Private,,scraper_planittesting
+103,Project One,https://projectone.com/,Private,,scraper_projectone
+104,Projective,https://www.projectivegroup.com/,Private,,scraper_projective
+105,Prolifics,https://prolifics.com/uk,Private,,scraper_prolifics
+106,PwC,https://www.pwc.co.uk,Private,,scraper_pwc
+107,RICOH CO LTD,https://www.ricoh.co.uk,Public,RICO.L,scraper_ricoh
+108,Rockborne Limited,https://rockborne.com/,Private,,scraper_rockborne
+109,Roland Berger,https://www.rolandberger.com,Private,,scraper_rolandberger
+110,SEIKO EPSON CORP,https://corporate.epson/en/,Public,6724.T,scraper_seikoepson
+111,Simon Kutcher & Partners,https://www.simon-kucher.com/en,Private,,scraper_simonkutcher
+112,SkillStorm,to complete,Private,,to complete
+113,Slalom,https://www.slalom.com/,Private,,scraper_slalom
+114,Softwire,https://www.softwire.com,Private,,scraper_softwire
+115,Sparta Global,https://www.spartaglobal.com,Private,,scraper_spartaglobal
+116,Spring Studios,to complete,Private,,to complete
+117,Strategy & London,to complete,Private,,scraper_strategyand
+118,Sutherland,https://www.sutherlandglobal.com/,Private,,scraper_sutherland
+119,Switchfast Technologies,https://teamascend.com/,Private,,scraper_ascend
+120,Syneos Health Inc,https://www.syneoshealth.com,Private,,scraper_syneos
+121,TAG Solutions,https://tagsolutions.com/,Private,,scraper_tagsolutions
+122,Tata Consultancy Services Limited,https://www.tcs.com,Public,TCS.BO,scraper_tcs
+123,Tech Mahindra Ltd,https://www.techmahindra.com,Public,TECHM.BO,scraper_mahindra
+124,Ten10,https://ten10.com,Private,,scraper_ten10
+125,Terillium,https://terillium.com,Private,,scraper_terillium
+126,Testhouse Ltd,https://www.testhouse.net/,Private,,scraper_testhouse
+127,The Berkeley Partnership,https://www.berkeleypartnership.com,Private,,scraper_berkeley
+128,The PSC,https://thepsc.co.uk,Private,,scraper_psc
+129,Thoughtworks,https://www.thoughtworks.com/en-gb,Private,,scraper_thoughtworks
+130,Ultimus Fund Solutions,to complete,Private,,to complete
+131,Verisk Analytics Inc,https://www.verisk.com/en-gb,Public,VRSK,scraper_verisk
+132,Wavestone,https://www.wavestone.com/en/,Private,,scraper_wavestone
+133,Wipro Limited,https://www.wipro.com/,Public,WIT,scraper_wipro
+134,Xerox Corp,https://www.xerox.co.uk/en-gb',Private,,scraper_xerox
+135,ZS,https://www.zs.com/,Private,,scraper_zs
+136,Zoonou,https://zoonou.com,Private,,scraper_zoonou
+137,a1qa,https://www.a1qa.com,Private,,scraper_a1qa
+138,mthree,https://mthree.com/,Private,,scraper_mthree
