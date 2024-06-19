@@ -9,6 +9,8 @@ from collections import defaultdict
 
 # Get the directory path of main.py
 current_dir = os.path.dirname(os.path.abspath(__file__))
+info_filepath = SupportFunctions.get_data_file_path(filename = 'company_info.csv')
+
 
 company_dict = {'company_name':['Capgemini SE', 'AND Digital', 'Dufrain', 'FDM Group (Holdings) Ltd', 'Slalom', 'Tata Consultancy Services Limited', 'Wipro Limited', 'Infosys Limited', 'Credera', 'Infinite Lambda', 'Mesh AI', 'Sparta Global', 'Ten10', 'Fjord Consulting Group', 'BetterGov', 'Cambridge Consultants Limited', 'Capco Limited', 'Cognizant Technology Solutions Corporation', 'IQVIA Holdings Inc', 'Kubrick Group Limited'],
         'company_url':['https://www.capgemini.com/','https://www.and.digital/','https://www.dufrain.co.uk/','https://www.fdmgroup.com/','https://www.slalom.com/','https://www.tcs.com','https://www.wipro.com/', 'https://www.infosys.com/', 'https://www.credera.com/en-gb', 'https://infinitelambda.com', 'https://www.mesh-ai.com/', 'https://www.spartaglobal.com', 'https://ten10.com', 'https://fjordconsultinggroup.com', 'https://www.bettergov.co.uk/', 'https://www.cambridgeconsultants.com/', 'https://www.capco.com', 'https://www.cognizant.com', 'https://www.iqvia.com/', 'https://www.kubrickgroup.com'],
@@ -17,6 +19,10 @@ company_dict = {'company_name':['Capgemini SE', 'AND Digital', 'Dufrain', 'FDM G
         'scraper':['scraper_capgemini','scraper_digital','scraper_dufrain','scraper_fdmgroup','scraper_slalom','scraper_tcs','scraper_wipro', 'scraper_infosys', 'scraper_credera', 'scraper_infinitelambda', 'scraper_meshai', 'scraper_spartaglobal', 'scraper_ten10', 'scraper_fjord', 'scraper_bettergov', 'scraper_cambridge', 'scraper_capco', 'scraper_cognizant', 'scraper_iqvia', 'scraper_kubrick']}
 
 company_df = pd.DataFrame(company_dict)
+
+company_df  = pd.read_csv(info_filepath)
+company_df = company_df.iloc[1:4]
+
 
 full_company_list = {
     'Capgemini SE' : 'CAP.PA',
@@ -270,7 +276,7 @@ def main_scrape(app, title, currentCompanyLabel, pPercentage, progressBar,
     template_file_path = os.path.join(current_dir, 'Template.xlsx')
 
     price_report_run = False
-    temporary_df = pd.read_excel(file_path, sheet_name="Price Report")
+    temporary_df = pd.read_excel(file_path, sheet_name="Price Report", engine= 'openpyxl')
     temporary_df['Date of Collection'] = pd.to_datetime(temporary_df['Date of Collection'], format='%Y-%m-%d')
     current_date = pd.to_datetime(datetime.now().strftime('%Y-%m-%d'), format='%Y-%m-%d')
     df_list = []

@@ -5,12 +5,38 @@ import json
 import datetime
 import openpyxl
 from datetime import datetime, date
+# import scrapers_legacy as scrapers_legacy
 import scrapers
 import numpy as np
 from collections import defaultdict
 import logging
+import sys
+
 
 logger = logging.getLogger(__name__)
+
+
+
+def get_data_file_path(filename, folder = 'database'):
+    """
+    Get the full path to a file located in the 'data' directory.
+
+    Parameters:
+    - filename: The name of the file in the 'data' directory.
+
+    Returns:
+    - The full path to the file.
+    """
+    if getattr(sys, 'frozen', False):  # Check if the script is running as a compiled executable
+        # If running as an executable, use the executable directory
+        application_path = os.path.dirname(sys.executable)
+    else:
+        # If running as a script, use the script directory
+        application_path = os.path.dirname(os.path.abspath(__file__))
+
+    # Build the full path to the data file
+    return os.path.join(application_path, folder, filename)
+
 
 def sheet_exists(file_path, sheet_name):
     """
