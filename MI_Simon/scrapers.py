@@ -4508,40 +4508,46 @@ def scraper_elixirr():
     home_url = 'https://www.elixirr.com/en-gb/services/'
     r = requests.get(home_url)
     soup = BeautifulSoup(r.content, 'lxml')
-    tab = soup.find('section', attrs={'class': 'four-columns grey four-columns--simple'})
-    services = [(link.text.replace('\n', '').strip(), link.get('href')) for link in tab.findAll('a')]
+    titles = soup.findAll('h2', attrs={'class': 'accordion__title'})
+    practices = [title.text.replace('Discover all our ', '').replace(' services\t\n\n\n', '').title() for title in titles]
+    tabs = soup.findAll('div', attrs={'class': 'accordion__content style-links-1'})
+    for i in range(len(tabs)):
+        practice = practices[i]
+        services = [(link.get('title'), link.get('href')) for link in tabs[i].findAll('a')]
 
 
-    for service in services:
-        service_url = service[1]
-        r = requests.get(service_url)
-        soup = BeautifulSoup(r.content, 'lxml')
-        solutions = []
 
-        tab = soup.find('div', attrs={'class': 'repeating-text__grid'})
-        if tab != None:
-            solutions1 = [title.text.replace('\n', '').replace('\t', '') for title in tab.findAll('h3')]
-            solutions += solutions1
+        for service in services:
+            service_url = service[1]
+            r = requests.get(service_url)
+            soup = BeautifulSoup(r.content, 'lxml')
+            solutions = []
 
-        block = soup.findAll('div', attrs={'class': 'narrow'})
-        if block != None and block != []:
-            solutions2 = [title.text.replace('\n', '').replace('\t', '') for title in block[-1].findAll('ul')]
-            if len(solutions2) == 1:
-                try:
-                    bullet_list = block[-1].find('ul')
-                    solutions2 = [title.text for title in bullet_list.findAll('li')]
-                except:
-                    pass
+            grids = soup.findAll('div', attrs={'class': 'repeating-text__grid'})
+            if grids != []:
+                for grid in grids:
+                    solutions1 = [title.text.replace('\n', '').replace('\t', '') for title in grid.findAll('h3')]
+                    solutions += solutions1
 
-            solutions += solutions2
+            block = soup.findAll('div', attrs={'class': 'narrow'})
+            if block != []:
+                solutions2 = [title.text.replace('\n', '').replace('\t', '') for title in block[-1].findAll('ul')]
+                if len(solutions2) == 1:
+                    try:
+                        bullet_list = block[-1].find('ul')
+                        solutions2 = [title.text for title in bullet_list.findAll('li')]
+                    except:
+                        pass
 
-        for solution in solutions:
-            company_dict['Practices'].append('')
-            company_dict['Practices_URL'].append('')
-            company_dict['Services'].append(service[0])
-            company_dict['Services_URL'].append(service[1])
-            company_dict['Solutions'].append(solution)
-            company_dict['Solutions_URL'].append('')
+                solutions += solutions2
+
+            for solution in solutions:
+                company_dict['Practices'].append(practice)
+                company_dict['Practices_URL'].append('')
+                company_dict['Services'].append(service[0])
+                company_dict['Services_URL'].append(service[1])
+                company_dict['Solutions'].append(solution)
+                company_dict['Solutions_URL'].append('')
 
     df = pd.DataFrame(company_dict)
     return df
