@@ -1455,8 +1455,11 @@ def scraper_deloitte():
 
     soup = BeautifulSoup(requests.get(SERVICES_URL).content, 'html5lib')
 
+    services_section = soup.select_one('div[class="responsivegrid dcom-theme2-11 aem-GridColumn aem-GridColumn--default--12"]')\
+                    .select('div[class="cmp-promo-container-wrapper"]')
+
     # For each service on top level services webpage
-    for service_soup in soup.select('div[id="promo-container--daa217c6"]')[0].select('div[id]'):
+    for service_soup in services_section[0].select('div[id]'):
         # Ghost elements exist in services section grid (could be new areas in future)
         if service_soup.select('h3'):
             service_url = BASE_URL + service_soup.select('a[href]')[0]['href'].strip()
