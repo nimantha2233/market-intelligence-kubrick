@@ -11,28 +11,7 @@ from selenium.webdriver.chrome.service import Service
 import time
 import json
 
-def remove_duplicates(soup_list) -> list:
-        """
-        Find duplicate soup objects and remove them 
-        
-        Args:
-        soup_list (list): list of bs4.element.ResultSet objects 
-        """
-        unique_soups = []
-        unique_strings = set()
-        for soup in soup_list:
-            soup_str = str(soup)
-            if soup_str not in unique_strings:
-                unique_soups.append(soup)
-                unique_strings.add(soup_str)
-        return unique_soups
 
-def clean_url(url, home_url):
-    if home_url in url:
-        return url
-    else:
-        return home_url + url
-import json
 
 def remove_duplicates(soup_list) -> list:
         """
@@ -1455,8 +1434,11 @@ def scraper_deloitte():
 
     soup = BeautifulSoup(requests.get(SERVICES_URL).content, 'html5lib')
 
+    services_section = soup.select_one('div[class="responsivegrid dcom-theme2-11 aem-GridColumn aem-GridColumn--default--12"]')\
+                    .select('div[class="cmp-promo-container-wrapper"]')
+
     # For each service on top level services webpage
-    for service_soup in soup.select('div[id="promo-container--daa217c6"]')[0].select('div[id]'):
+    for service_soup in services_section[0].select('div[id]'):
         # Ghost elements exist in services section grid (could be new areas in future)
         if service_soup.select('h3'):
             service_url = BASE_URL + service_soup.select('a[href]')[0]['href'].strip()
