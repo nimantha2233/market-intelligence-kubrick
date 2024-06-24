@@ -1,0 +1,42 @@
+2024-06-20 12:23:47,778 - __main__ - INFO - New run starting at 2024-06-20 12:23:47.778035
+2024-06-20 12:23:47,821 - __main__ - ERROR - An error occurred: module 'scrapers' has no attribute 'scraper_11fs'
+Traceback (most recent call last):
+  File "c:\Users\Jack\Documents\VS Code\market-intelligence-kubrick\MI_Simon\main.py", line 103, in get_webscrape
+    scraped_data = SupportFunctions.get_scraped_company_data(scraper)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Jack\Documents\VS Code\market-intelligence-kubrick\MI_Simon\SupportFunctions.py", line 663, in get_scraped_company_data
+    func = getattr(scrapers, function_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'scrapers' has no attribute 'scraper_11fs'
+  2024-06-21 11:47:49,263 - __main__ - INFO - New run starting at 2024-06-21 11:47:49.263526
+2024-06-21 11:47:49,303 - __main__ - ERROR - An error occurred: module 'scrapers' has no attribute 'scraper_11fs'
+Traceback (most recent call last):
+  File "c:\Users\Jack\Documents\VS Code\market-intelligence-kubrick\MI_Simon\main.py", line 103, in get_webscrape
+    scraped_data = SupportFunctions.get_scraped_company_data(scraper)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Jack\Documents\VS Code\market-intelligence-kubrick\MI_Simon\SupportFunctions.py", line 663, in get_scraped_company_data
+    func = getattr(scrapers, function_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'scrapers' has no attribute 'scraper_11fs'
+2024-06-21 15:24:51,704 - __main__ - INFO - New run starting at 2024-06-21 15:24:51.704105
+2024-06-21 15:24:51,745 - __main__ - ERROR - An error occurred: module 'scrapers' has no attribute 'scraper_11fs'
+Traceback (most recent call last):
+  File "c:\Users\Jack\Documents\VS Code\market-intelligence-kubrick\MI_Simon\main.py", line 103, in get_webscrape
+    scraped_data = SupportFunctions.get_scraped_company_data(scraper)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Jack\Documents\VS Code\market-intelligence-kubrick\MI_Simon\SupportFunctions.py", line 663, in get_scraped_company_data
+    func = getattr(scrapers, function_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'scrapers' has no attribute 'scraper_11fs'
+2024-06-21 15:30:49,022 - __main__ - ERROR - An error occurred: 'NoneType' object has no attribute 'findAll'
+Traceback (most recent call last):
+  File "c:\Users\Jack\Documents\VS Code\market-intelligence-kubrick\MI_Simon\main.py", line 103, in get_webscrape
+    scraped_data = SupportFunctions.get_scraped_company_data(scraper)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Jack\Documents\VS Code\market-intelligence-kubrick\MI_Simon\SupportFunctions.py", line 664, in get_scraped_company_data
+    return func()
+           ^^^^^^
+  File "c:\Users\Jack\Documents\VS Code\market-intelligence-kubrick\MI_Simon\scrapers.py", line 9774, in scraper_elixirr
+    services = [(link.text.replace('\n', '').strip(), link.get('href')) for link in tab.findAll('a')]
+                                                                                    ^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'findAll'

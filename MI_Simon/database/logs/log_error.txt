@@ -1,0 +1,4 @@
+2024-06-20 12:23:47 - Error webscraping for company 11:FS : module 'scrapers' has no attribute 'scraper_11fs'
+2024-06-21 11:47:49 - Error webscraping for company 11:FS : module 'scrapers' has no attribute 'scraper_11fs'
+2024-06-21 15:24:51 - Error webscraping for company 11:FS : module 'scrapers' has no attribute 'scraper_11fs'
+2024-06-21 15:30:49 - Error webscraping for company Elixirr International Plc : 'NoneType' object has no attribute 'findAll'
