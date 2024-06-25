@@ -10,6 +10,20 @@ import scrapers
 import numpy as np
 from collections import defaultdict
 import openpyxl as xl
+import glob
+import re
+
+def reallocate_old_df(old_df, file_path, sanitized_name):
+    if old_df.empty:
+        return
+    else:
+        history_file_path = get_data_file_path(os.path.basename(file_path), f'database\archives\{sanitized_name}')
+        # Remove the directory containing the csv_file
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        else:
+            pass
+        old_df.to_csv(history_file_path, index=False)
 
 def get_data_file_path(filename, folder = 'database'):
     """
@@ -53,10 +67,10 @@ def sheet_exists(file_path, sheet_name):
     else:
         return False
 
-def company_intel_table(company_name, url, file_path="kubrick_mi_company_intel.csv"):
+def company_intel_table(company_name, file_path="kubrick_mi_company_intel.csv"):
 
     if not os.path.exists(file_path):
-        empty_df = pd.DataFrame(columns=['Date Collected', 'Company Name', 'URL','Training Program Duration',
+        empty_df = pd.DataFrame(columns=['Date Collected', 'Company Name', 'URL','Training Program Duration'
                                          'Anecdotal Views of Quality', 'Consultant Pricing'])  # Assuming these are your column names
         empty_df.to_csv(file_path, index=False)
 
@@ -112,6 +126,18 @@ def write_to_csv(df, file_path, company_name):
 
     """
     try:
+        # Get current month and year
+        current_date = datetime.now()
+        month_year = current_date.strftime('%B_%Y')  # Format as Month-Year
+        
+        folder_path = os.path.dirname(file_path)
+
+        # Construct the full filename
+        filename = f'{company_name}_webscrape_{month_year}.csv'
+
+        # Construct the full file path
+        file_path = os.path.join(folder_path, filename)
+        # Save the dataframe to CSV
         df.to_csv(file_path, index=False)
     except Exception as e:
         log_error(f"Unable to save webscrape data for {company_name} : {e}")
@@ -154,7 +180,7 @@ def read_template(template_file_path):
         df = pd.read_csv(template_file_path)
         return df
     except FileNotFoundError:
-        print("Template.csv not found. Make sure the file exists in the current directory.")
+        log_error("Template.csv not found. Make sure the file exists in the current directory.")
 
 def get_company_status(symbol):
     """
@@ -443,6 +469,66 @@ def log_new_and_modified_rows2(final_df, old_df, path_file, company_name):
             os.remove(path_file)
         log_differences("No differences found", company_name, 0)
 
+def log_new_and_modified_rows3(final_df, old_df, path_file, company_name):
+    """
+    Compare rows between final_df and old_df, update or remove rows accordingly, 
+    and handle Excel file updates.
+
+    Args:
+    final_df (pd.DataFrame): The most up-to-date dataframe.
+    old_df (pd.DataFrame): The older dataframe to compare against.
+    path_file (str): Path to save the CSV file.
+    company_name (str): Name of the company for logging purposes.
+    """
+    # Subset to relevant columns
+    columns_of_interest = ['Practices', 'Practices_URL', 'Services', 'Services_URL', 'Solutions', 'Solutions_URL']
+    df1 = final_df[columns_of_interest].copy()
+    df2 = old_df[columns_of_interest].copy()
+
+    # Convert columns to the same data type (string) for comparison
+    for column in columns_of_interest:
+        df1[column] = df1[column].astype(str)
+        df2[column] = df2[column].astype(str)
+
+    # Initialize the temporary DataFrame to store unmatched rows with their status
+    temp_df = pd.DataFrame(columns=['Status'] + list(final_df.columns))
+
+    # Keep track of original indices before dropping rows
+    original_idx1 = df1.index.tolist()
+    original_idx2 = df2.index.tolist()
+
+    # Compare each row in df1 with each row in df2
+    for idx1, row1 in df1.iterrows():
+        matched = False
+        for idx2, row2 in df2.iterrows():
+            if row1.equals(row2):
+                # If a match is found, remove the row from both dataframes
+                df1.drop(idx1, inplace=True)
+                df2.drop(idx2, inplace=True)
+                matched = True
+                break
+        if not matched:
+            # If no match is found, mark the row as 'Added' and store in temp_df
+            full_row1 = final_df.loc[original_idx1[idx1]].copy()
+            full_row1['Status'] = 'Added'
+            temp_df = pd.concat([temp_df, pd.DataFrame([full_row1])], ignore_index=True)
+
+    # Any remaining rows in df2 are 'Removed'
+    for idx2, row2 in df2.iterrows():
+        full_row2 = old_df.loc[original_idx2[idx2]].copy()
+        full_row2['Status'] = 'Removed'
+        temp_df = pd.concat([temp_df, pd.DataFrame([full_row2])], ignore_index=True)
+
+    # If there are any changes, write them to the CSV file
+    if not temp_df.empty:
+        temp_df.to_csv(path_file, index=False)
+        log_differences("Changed", company_name, len(temp_df))
+    else:
+        # If there are no new or modified rows, delete the CSV file if it exists
+        if os.path.exists(path_file):
+            os.remove(path_file)
+        log_differences("No differences found", company_name, 0)
+
 def get_company_info_pricereport(company_name, ticker, file_path):
     """
     Produces price report for a given company
@@ -515,7 +601,7 @@ def get_company_info_pricereport(company_name, ticker, file_path):
             "52 Week Range": f'{info.get("fiftyTwoWeekLow", np.nan)} - {info.get("fiftyTwoWeekHigh", np.nan)}'
         }
     except:
-        print(f"Error while retrieving financial data for: {ticker}.")
+        log_error(f"Error while retrieving financial data for: {ticker}.")
         return {
             "Date of Collection": datetime.now().strftime("%Y-%m-%d"),
             "Company Name": company_name,
@@ -656,7 +742,7 @@ def update_excel(data, file_path):
         df.to_csv(file_path, index=False)
 
     except Exception as e:
-        print(f"Error updating CSV file: {e}")
+        log_error(f"Error updating CSV file: {e}")
 
 def get_scraped_company_data(scraper):
     function_name = scraper
@@ -670,8 +756,12 @@ def column_cleaner(df):
     
     return df
 
+# def table_sorter(df):
+#     return df.sort_values(by=df.columns.tolist()).reset_index(drop=True)
+
 def table_sorter(df):
-    return df.sort_values(by=df.columns.tolist()).reset_index(drop=True)
+    df_sorted = df.map(lambda x: x.strip() if isinstance(x, str) else x)
+    return df_sorted.sort_values(by=df_sorted.columns.tolist()).reset_index(drop=True)
 
 def create_final_df2(company_name, url, status, json_data, df, template_file_path):
     """

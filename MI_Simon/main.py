@@ -3,11 +3,12 @@ from customtkinter import *
 import pandas as pd
 import SupportFunctions
 import threading
+import queue
 from datetime import datetime
 import os
 import re
 import logging
-from collections import defaultdict
+import glob
 
 logger_filepath = SupportFunctions.get_data_file_path(filename='scrape_app.log', folder='database\logs')
 logging.basicConfig(filename=logger_filepath, level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -33,7 +34,24 @@ class App(CTk):
 
         set_appearance_mode("dark")
         self.title("Kubrick MI Webscrape")
- 
+
+        # Set the window size (width x height)
+        window_width = 310
+        window_height = 200
+
+        # Get the screen width and height
+        screen_width = self.winfo_screenwidth()
+        screen_height = self.winfo_screenheight()
+
+        # Calculate the position to center the window
+        position_right = int(screen_width/2 - window_width/2)
+        position_down = int(screen_height/2 - window_height/2)
+
+        # Set the geometry with the calculated position
+        self.geometry(f"{window_width}x{window_height}+{position_right}+{position_down}")
+
+        self.grid_columnconfigure(0, weight=1)
+
         # Login Window title
         self.title = CTkLabel(self, text="Select an option and click Start.")
         self.title.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
@@ -54,7 +72,6 @@ class App(CTk):
         # Play button
         self.play_button = CTkButton(self, text="Start", command=self.start_scraping_thread)
         self.play_button.grid(row=4, column=0, pady=10, sticky="ew")
-
 
     def update_progress(self, progress, company_name, bar):
         # Update the progress bar and label
@@ -77,6 +94,15 @@ class App(CTk):
             self.update_idletasks()                   
 
     def get_webscrape(self, row, company_df):
+        # Partition the company names into chunks
+        total_companies = len(company_df["company_name"])
+        chunk_size = total_companies // 5  # Number of companies per chunk
+        chunks = [company_df["company_name"][i:i+chunk_size] for i in range(0, total_companies, chunk_size)]
+
+        threads = []
+        self.lock = threading.Lock()  # Create a lock for thread-safe operations
+        self.progress_counter = 0  # Shared progress counter
+        error_queue = queue.Queue()  # Queue to collect errors from threads
 
         self.currentCompanyLabel_scrape = CTkLabel(self, text="Current Company: None")
         self.currentCompanyLabel_scrape.grid(row=row, column=0, pady=5, sticky="ew")
@@ -87,42 +113,67 @@ class App(CTk):
         self.progressBar_scrape.set(0)
         self.progressBar_scrape.grid(row=row+1, column=0, sticky="ew")
         self.update()
-        i=0
-        scraping_dict = {'error_num':0, 'company_list':[]}
-        total_companies = len(company_df["company_name"])
-        for company_name in company_df["company_name"]:
+
+        # Create and start a thread for each chunk
+        for chunk in chunks:
+            scrape_thread = threading.Thread(target=self.scrape_chunk, args=(row, chunk, company_df, total_companies, error_queue))
+            threads.append(scrape_thread)
+            scrape_thread.start()
+            row += 2  # Update the row for the next thread
+
+        # Wait for all threads to complete
+        for thread in threads:
+            thread.join()
+
+        # Collect error information from the queue
+        error_dict = {'error_num': 0, 'company_list': []}
+        while not error_queue.empty():
+            errors = error_queue.get()
+            error_dict['error_num'] += errors['error_num']
+            error_dict['company_list'].extend(errors['company_list'])
+
+            # Display the final message
+        if error_dict['error_num'] > 0:
+            text = f"Scraping finished with {error_dict['error_num']} error(s). Please check the log files for a list of the companies with errors."
+        else:
+            text = "Scraping completed successfully. No errors found."
+        self.currentCompanyLabel_scrape.configure(text=text)
+
+    def scrape_chunk(self, row, chunk, company_df, total_companies, error_queue):
+        i = 0
+        scraping_dict = {'error_num': 0, 'company_list': []}
+        for company_name in chunk:
             i += 1
-            self.currentCompanyLabel_scrape.configure(text=f"Current Company: {company_name}")
             company_url, scraper, status, ticker = SupportFunctions.get_company_metadata(company_name, company_df)
             sanitized_name = re.sub(r'[<>:"/\\|?*]', '_', company_name).strip()
-            file_path = SupportFunctions.get_data_file_path(f'{sanitized_name} webscrape.csv', f'database/output\{sanitized_name}')
-            midiff_file_path = SupportFunctions.get_data_file_path(f'{sanitized_name} diff.csv', f'database/output\{sanitized_name}')
+            file_paths = SupportFunctions.get_data_file_path(f'*webscrape*.csv', f'database\output\{sanitized_name}')
+            file_paths = glob.glob(file_paths)
+            if len(file_paths) > 0:
+                file_path = file_paths[0]
+            else:
+                file_path = SupportFunctions.get_data_file_path(f'file_not_found.csv', f'database\output\{sanitized_name}')
+            midiff_file_path = SupportFunctions.get_data_file_path(f'{sanitized_name} diff.csv', f'database\output\{sanitized_name}')
             template_file_path = SupportFunctions.get_data_file_path('Template.csv')
-
             try:
                 scraped_data = SupportFunctions.get_scraped_company_data(scraper)
                 yahoo_json = SupportFunctions.get_company_details2(status, ticker)
                 final_df = SupportFunctions.create_final_df2(company_name, company_url, status, yahoo_json, scraped_data, template_file_path)
                 old_df = SupportFunctions.read_from_csv(file_path, company_name, template_file_path)
-                SupportFunctions.log_new_and_modified_rows2(final_df, old_df, midiff_file_path, company_name)
-                SupportFunctions.write_to_csv(final_df, file_path, company_name)
+                SupportFunctions.reallocate_old_df(old_df, file_path, sanitized_name)
+                SupportFunctions.log_new_and_modified_rows3(final_df, old_df, midiff_file_path, company_name)
+                SupportFunctions.write_to_csv(final_df, file_path, sanitized_name)
             except Exception as e:
-                scraping_dict['error_num'] +=1
+                scraping_dict['error_num'] += 1
                 scraping_dict['company_list'].append(company_name)
                 SupportFunctions.log_error(f'Error webscraping for company {company_name} : {e}')
                 logger.error(f"An error occurred: {str(e)}", exc_info=True)
 
-            progress = i / total_companies
-            self.after(0, self.update_progress, progress, company_name, 'scrape')
-
-        if scraping_dict['error_num'] > 0:
-            text = f"Scraping finished with {scraping_dict['error_num']} error(s). Please check for changes in the company website for the following companies: {scraping_dict['company_list']}."
-            self.currentCompanyLabel_scrape.configure(text=text)
-
-        else:
-            text = "Scraping completed successfully. No errors found."
-            self.currentCompanyLabel_scrape.configure(text=text)
-        
+            with self.lock:  # Use lock to update the shared progress counter safely
+                self.progress_counter += 1
+                progress = self.progress_counter / total_companies
+                self.after(0, self.update_progress, progress, company_name, 'scrape')
+        # Put the error information into the queue
+        error_queue.put(scraping_dict)
         return
 
     def get_intel(self, row, company_df, intel_file_path):
@@ -201,7 +252,6 @@ class App(CTk):
 
         return
             
-
     def start_scraping_thread(self):
     # Start the long-running task in a separate thread
         threading.Thread(target=self.main_scrape).start()
@@ -212,6 +262,7 @@ class App(CTk):
             tk.messagebox.showwarning("No Option Selected", "Please select at least one option before starting.")
             return
         
+
         logger.info(f'New run starting at {datetime.now()}')
         self.title.grid_remove()
         self.webscrape_button.grid_remove()
@@ -235,12 +286,15 @@ class App(CTk):
         
             current_date = pd.to_datetime(datetime.now().strftime('%Y-%m-%d'))
 
-            if min(temporary_df['Date of Collection']) < current_date:
+            if max(temporary_df['Date of Collection']) < current_date:
                 price_report_run = True
             
         except FileNotFoundError:
             price_report_run = False
             SupportFunctions.log_error('Price Report file could not be found. Starting a price report from scratch.')
+
+        # Set the geometry with the calculated position
+        self.geometry(f"400x{20 + 100*((self.price_report_var.get() and price_report_run) + self.webscrape_var.get() + self.price_report_var.get())}")
 
         if self.price_report_var.get() and not price_report_run:
             SupportFunctions.log_error("Price Report cannot run in the same day, please try run tomorrow.")
@@ -248,14 +302,14 @@ class App(CTk):
         if self.webscrape_var.get():
             scrape_thread = threading.Thread(target=self.get_webscrape, args=(row, company_df))
             row += 2
-            scrape_thread.start()
-            
+            scrape_thread.start()  
+
         if self.price_report_var.get():
             price_thread = threading.Thread(target=self.get_pricing, args=(row, price_report_file_path, full_company_list, price_report_run))
             row += 2
             price_thread.start()
 
-        if self.company_intel_var.get():
+        if self.company_intel_var.get() and price_report_run:
             intel_thread = threading.Thread(target=self.get_intel, args=(row, company_df, intel_file_path))
             row += 2
             intel_thread.start()

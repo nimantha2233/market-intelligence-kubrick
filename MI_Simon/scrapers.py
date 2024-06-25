@@ -1613,7 +1613,7 @@ def scraper_dxc():
           
     return df
 
-def scraper_fs():
+def scraper_11fs():
     '''
     11:fs: https://www.11fs.com/
 
