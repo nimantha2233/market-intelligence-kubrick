@@ -1,6 +1,9 @@
-# Web-scrape script format + template
+# Web-scraping
 
-## Intro
+Jump to: 
+
+- [Scraper Layout](#coding-layout)  
+- [Web-scraping Special Cases](webscrape_help.md)
 
 This page explains what standards we've adhered to when web-scraping competitor websites for data on their practices, services, and solutions. Naming conventions for variables are listed below as well as filenames, and more.
 
@@ -12,7 +15,8 @@ Each competitor has a function that web-scrapes their website, and functions sho
 - Function output is a **Pandas DataFrame**
 
 
- and returns a dataframe with the following **column names**, they exist:  
+ and returns a dataframe with the following **column names**, they exist: 
+
 - Practices  
 - Practices_URL  
 - Services  
@@ -22,7 +26,7 @@ Each competitor has a function that web-scrapes their website, and functions sho
 
 NOTE: If Solutions exist but no URL for a solution then the Solution_URL should be left as 'No Solution URL'
 
-# Determining what goes in Practices/Services/Solutions
+### Determining what goes in Practices/Services/Solutions
 Not all companies have all 3 what some say are practices may be listed as services however when scraping no interpration should be made. However the company lists their offerings is how they will be placed, e.g. Company A lists Data Engineering under the 'Practices' section then thats the column where Data Engineering appears in the data, while Company B lists Data Engineering under 'Services', therefore Company B's dataframe should display Data Engineering under the 'Services' column.
 
 Generally companies do contain services and a subset of companies will have a solutions header within a service however solutions that arent explicitly named as solutions are placed into the 'Solutions' column. Cases exist also where Solutions are the top level (normally this is services), in this case leave the other two fields empty.
@@ -64,20 +68,27 @@ def scraper_cambridge() -> pd.DataFrame:
     '''
 
     url = r'https://www.cambridgeconsultants.com/'
+    # Initialise defaultdict
     company_dict = defaultdict(list)
 
     soup = BeautifulSoup(requests.get(url).content, 'html5lib')
 
+    # Each element in this list is HTML for a service
     services_html = soup.find_all('ul', attrs = {'id' : 'menu-deep-tech'})[0].select('a') # extracts all rows with links correspondong to dropdown menu "deep tech"
 
+    # Iterate through each services' HTML
     for service in services_html:
-
+        # Assign services url to new variable
         services_url = service['href']
+        # Carry out get request for service in this iteration
         solutions_soup = BeautifulSoup(requests.get(services_url).content, 'html5lib')
+        # On service page produce list of HTML blocks, each containing data about each solution. 
         solutions_html = solutions_soup.find_all('ul', attrs = {'class' : "et_pb_tabs_controls clearfix"})[0].select('li')
 
+        # Iterate through HTML elements (same idea as above)
         for solution in solutions_html:
-
+            
+            # This is the final level so append data here to defaultdict
             company_dict['Services'].append(service.text)
             company_dict['Solutions'].append(solution.text)
             company_dict['Services_URL'].append(services_url)
@@ -91,5 +102,8 @@ def scraper_cambridge() -> pd.DataFrame:
 
 ## Special cases and things to look out for
 
-- Some sites will only display required data in a dropdown menu that has to be interacted with via selenium (see scraper_infinitelambda, scraper_avanade)  
+- Some sites will only display required data in a dropdown menu that has to be interacted with via selenium see below example also  scraper_infinitelambda, scraper_avanade find a solution for this in the scrapers.py file.
 - relatively rare but some sites may be very sensitive to scraping and require a use-agent to scrape them (see scraper_billigence)
+
+Solutions to these common issues found on: [Web-scraping Special Cases](webscrape_help.md)
+

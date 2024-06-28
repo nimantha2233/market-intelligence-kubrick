@@ -1,1 +1,45 @@
-site_name: My Docs
+site_name: Kubrick Competitor Profiling
+nav:
+  - Home: index.md
+  - Webscraping: 
+    - Code Structure: webscrape.md
+    - Special Cases: webscrape_help.md
+  - pipeline.md
+  - data.md
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: teal
+      accent: indigo
+      toggle:
+        icon: material/lightbulb-outline
+        name: Switch to dark mode
+    - scheme: slate
+      primary: teal
+      accent: indigo
+      toggle:
+        icon: material/lightbulb
+        name: Switch to light mode
+  font:
+    text: Roboto
+    code: Roboto Mono
+  features:
+    - navigation.tabs
+    - search.highlight
+    - content.code.annotate
+    - palette.toggle
+
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - codehilite
+  - footnotes
+  - toc:
+      permalink: true
+
+
