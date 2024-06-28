@@ -6,9 +6,6 @@
 - [Features](#features)
 - [Requirements](#requirements)
 - [Installation](#installation)
-- [Pipeline](#pipeline)
-- [Coding Insight](#coding-insight)
-- [Data](#data)
 
 ## Introduction
 
