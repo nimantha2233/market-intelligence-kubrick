@@ -649,71 +649,67 @@ def scraper_wipro():
 
     soup = BeautifulSoup(r.content, 'html5lib') # If this line causes an error, run 'pip install html5lib' or install html5lib 
 
-    table_practises = soup.find('div', attrs = {'class':'dropdown-subnav'})
-    practises = [row.text for row in table_practises.findAll('a')]
-    links = [clean_url(row.get('href'), home_url) for row in table_practises.findAll('a')]
-    for i in range(len(links)):
-        r2 = requests.get(links[i])
-        soup2 = BeautifulSoup(r2.content, 'html5lib')
-        links2_a = [row.a.get('href') for row in soup2.findAll('div', attrs={'class':'cmp-nexus-iconteaser__title'})]
-        expertise_a = [row.span.text for row in soup2.findAll('div', attrs={'class':'cmp-nexus-iconteaser__title'})]
-        links2_b = [row.a.get('href') for row in soup2.findAll('div', attrs={'class':'quicklink dark'})][1:-1:]
-        expertise_b = [row.p.text.replace('\n', '').replace('.', '').strip() for row in soup2.findAll('div', attrs={'class':'quicklink dark'})][1:-4:]
-        if links[i] == '/analytics/':
-            tables = [table for table in soup2.findAll('div', attrs={'class':'service teaser'})]
-            links2_c = [table.find('a', attrs={'class':'cmp-teaser__action-link'}) for table in tables]
-            expertise_c = [table.find('h1', attrs={'class':'cmp-teaser__title  '}).text for table in tables]
-        else:
-            links2_c = []
-            expertise_c = []
-        table = soup2.find('div', attrs={'class':'container responsivegrid container--width-wide container--full-width'})
-        if table != None:
-            links2_d = [row.get('href') for row in table.findAll('a', attrs={'class':'cmp-teaser__action-link'})]
-            expertise_d = [row.text for row in table.findAll('div', attrs={'class':'cmp-teaser__title'})]
-        else:
-            links2_d = []
-            expertise_d = []
-        if links[i] == '/applications/':
-            links2_e = [row.a.get('href') for row in soup2.findAll('div', attrs={'class':'image-section micro-clickable'})]
-            expertise_e = ['' for row in soup2.findAll('div', attrs={'class':'image-section micro-clickable'})]
-        else:
-            links2_e = []
-            expertise_e = []
-        if links[i] == '/cybersecurity/':
-            table = soup2.findAll('div', attrs={'class','white img-position-image-left-image-top'})[2]
-            links2_f = [row.get('href') for row in table.findAll('a')]
-            expertise_f = [row.text for row in table.findAll('p')][1:]
-        else:
-            links2_f = []
-            expertise_f = []
-        links2_g = [row.a.get('href') for row in soup2.findAll('div', attrs={'class':'wipro-solutions-squares-content'})]
-        expertise_g = [row.h4.text.replace('\n', '').replace('.', '').strip() for row in soup2.findAll('div', attrs={'class':'wipro-solutions-squares-content'})]
-        links2 = links2_a + links2_b + links2_c + links2_d + links2_e + links2_f + links2_g
-        links2 = [clean_url(link, home_url) for link in links2]
-        expertise = expertise_a + expertise_b + expertise_c + expertise_d + expertise_e + expertise_f + expertise_g
-        for j in range(len(links2)):
-            url = links2[j]
-            r3 = requests.get(url)
-            soup3 = BeautifulSoup(r3.content, 'html5lib')
-            solutions = [row.h4.text for row in soup3.findAll('div', attrs={'class':'wipro-solutions-squares-content'})]
-            links3 = ['' if row.a == None else clean_url(row.a.get('href'), home_url) for row in soup3.findAll('div', attrs={'class':'wipro-solutions-squares-content'})]
-            for k in range(len(solutions)):
-                if solutions[k] == ' ':
-                    solutions[k] = ''
-                    links3[k] = ''
+    tab = soup.find('div', attrs = {'class':'dropdown-subnav'})
+    practices = [(row.text, home_url + row.get('href')) for row in tab.findAll('a')]
 
-            while '' in solutions:
-                solutions.remove('')
-                links3.remove('')
-            
-            for k in range(len(links3)):
-                company_dict['Practices'].append(practises[i])
-                company_dict['Practices_URL'].append(links[i])
-                company_dict['Services'].append(expertise[j])
-                company_dict['Services_URL'].append(links2[j])
-                company_dict['Solutions'].append(solutions[k])
-                company_dict['Solutions_URL'].append(links3[k])
+    for practice in practices:
+        link_parent = practice[1][practice[1][:-1].rfind('/'):]
+        r = requests.get(practice[1])
+        soup = BeautifulSoup(r.content, 'html5lib')
+        if practice[0] in ['Cloud', 'Consulting']:
+            buttons = soup.findAll('div', attrs={'class':'col-lg-3 col-md-3 col-sm-6 col-xs-12'})
+            services = [(button.span.text.replace('\n', ''), button.find('a').get('href')) if button.find('a') != None else (button.span.text, '') for button in buttons]
+        elif practice[0] in ['Applications', 'Digital Experiences']:
+            buttons = soup.findAll('div', attrs={'class':'wipro-solutions-squares-content'})
+            services = [(button.h4.text.replace('\n', ''), button.find('a').get('href')) if button.find('a') != None else (button.h4.text, '') for button in buttons]
+        elif practice[0] == 'Business Process':
+            buttons = soup.findAll('div', attrs={'class':'cmp-teaser__content-wrapper'})
+            services = [(button.h2.text.replace('\n', '').strip(), button.find('a').get('href')) if button.find('a') != None else (button.h2.text, '') for button in buttons]
+        elif practice[0] in ['Cybersecurity', 'Engineering']:
+            tab = soup.find('div', attrs={'class':'splitparsys aem-GridColumn aem-GridColumn--default--12'})
+            if tab == None:
+                tab = soup
+            buttons = tab.findAll('div', attrs={'class':'textContainer'})
+            services = [(button.p.text.replace('\n', '').strip(), button.find('a').get('href')) for button in buttons if button.find('a') != None]
+        elif practice[0] == 'Data & Analytics':
+            buttons = soup.findAll('div', attrs={'class':'service teaser'})
+            services0 = [(button, button.find('a').get('href')) if button.find('a') != None else (button, '') for button in buttons]
+            services = [(service[0].h1.text.replace('\n', '').strip(), service[1]) for service in services0 if link_parent in service[1]]
+        elif practice[0] == 'Sustainability':
+            buttons = soup.findAll('div', attrs={'class':'quicklink dark'})
+            services = [(button.p.text.replace('\n', '').replace('.', '').strip(), button.find('a').get('href')) if button.find('a') != None else (button.p.text.replace('\n', '').replace('.', '').strip(), '') for button in buttons][:-2]
+        else:
+            services = []
+        
+        services_filtered = [(service[0], service[1]) if 'https:' in service[1] else (service[0], home_url + service[1]) for service in services if link_parent in service[1]]
+        for service_url in services_filtered:
+            r = requests.get(service_url[1])
+            soup = BeautifulSoup(r.content, 'html5lib')
+            tabs = soup.findAll('div', attrs={'class':'wipro-solutions-squares-content'})
+            solutions = [(tab.h4.text.strip(), tab.find('a').get('href')) if tab.find('a') != None else (tab.h4.text, '') for tab in tabs]
+            if solutions == []:
+                solutions = [('', '')]
+            elif solutions[0] == ('', 'javascript:void(0)'):
+                solutions = [(tab.span.text.strip(), '') for tab in tabs]
 
+            for solution in solutions:
+                company_dict['Practices'].append(practice[0])
+                company_dict['Practices_URL'].append(practice[1])
+                company_dict['Services'].append(service_url[0])
+                company_dict['Services_URL'].append(service_url[1])
+                company_dict['Solutions'].append(solution[0])
+                company_dict['Solutions_URL'].append(solution[1])
+
+
+
+        if services_filtered == []:
+            company_dict['Practices'].append(practice[0])
+            company_dict['Practices_URL'].append(practice[1])
+            company_dict['Services'].append('')
+            company_dict['Services_URL'].append('')
+            company_dict['Solutions'].append('')
+            company_dict['Solutions_URL'].append('')
+        
     return pd.DataFrame(company_dict)
 
 def scraper_bettergov() -> pd.DataFrame:
