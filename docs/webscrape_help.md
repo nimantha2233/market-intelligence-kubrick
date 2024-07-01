@@ -1,15 +1,15 @@
-# Webscrape Help
-## Overview
-In this section help can be found for scraping, more specifically for cases where the standard GET rquest doesn't work.  
 
-## Possible Issues
+## Guide for dealing with special cases when scraping
+In this section help can be found for scraping, more specifically for cases where the standard GET request doesn't work.  
+
+### Possible Issues
 - 403 Error when printing soup or the status code for the request.  
 - Request successful (status code = 200) but can't find HTML using BS4 methods (e.g. soup.select())
 
-## 1. 403 Error solutions
+### 1. 403 Error solutions
 
 
-### 1. Use a User-Agent header to bypass anti-bot/scraping security.  See below for example of how to do this from scraper_resillion
+1. Use a User-Agent header to bypass anti-bot/scraping security.  See below for example of how to do this from scraper_resillion
 
 ```python
 HEADERS = {
@@ -21,11 +21,12 @@ soup = BeautifulSoup(requests.get(SERVICES_URL, headers=HEADERS).content, 'html5
 
 ```  
 
-## 2. Request successful solutions
+### 2. Request successful but can't find HTML using BS4
 
-### 1. Web page is dynamically loaded in therefore use selenium to load up page.  
+1. Web page is dynamically loaded in therefore use selenium to load up page.
+    - Get HTML content using driver.page_source. Alternatively a function named selenium_scrape() exists in **scrapers.py** file.
 
-### 2. HTML from interactive elements (e.g. drop-down menu) don't always show up so may have to interact with with it using selenium
+2. HTML from interactive elements (e.g. drop-down menu) don't always show up so may have to interact with with it using selenium
 
 ```python
 
@@ -60,7 +61,7 @@ dropdown_items = driver.find_elements(By.XPATH,
 Figure 2: Example of interacting with dropdown menu using selenium from scraper_avanade.  
 
 
-### 3. Shadow DOM exists (explained here: https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_shadow_DOM). 
+3. Shadow DOM exists (explained here: https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_shadow_DOM). 
 
 Figure 3.1 is an example of how to spot the presence of a Shadow DOM. The solution to fix this is as follows (refer to Figure 3.2):  
 1. Use selenium to open up the webpage.  
@@ -83,6 +84,3 @@ button = shadow_root.find_element(By.CSS_SELECTOR, 'button[data-testid="uc-deny-
 button.click()
 ```
 Figure 3.2: How to access HTML located in shadow DOM.
-
-
-

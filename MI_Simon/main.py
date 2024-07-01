@@ -131,8 +131,10 @@ class App(CTk):
             errors = error_queue.get()
             error_dict['error_num'] += errors['error_num']
             error_dict['company_list'].extend(errors['company_list'])
+        diff_paths = os.path.dirname(SupportFunctions.get_data_file_path(f'*webscrape*.csv', f'database\output'))
+        SupportFunctions.collect_diff_csv_files(diff_paths, logger)
 
-            # Display the final message
+        # Display the final message
         if error_dict['error_num'] > 0:
             text = f"Scraping finished with {error_dict['error_num']} error(s). Please check the log files for a list of the companies with errors."
         else:

@@ -13,11 +13,33 @@ import openpyxl as xl
 import glob
 import re
 
+def collect_diff_csv_files(main_directory, logger):
+    # Initialize an empty dataframe
+    main_df = pd.DataFrame()
+    
+    # Walk through each directory and subdirectory
+    for root, dirs, files in os.walk(main_directory):
+        for file in files:
+            # Check if the file is a csv and contains 'diff' in its name
+            if file.endswith('.csv') and 'diff' in file and 'summary' not in file:
+                file_path = os.path.join(root, file)
+                # Read the CSV file and append it to the main dataframe
+                temp_df = pd.read_csv(file_path)
+                main_df = pd.concat([main_df, temp_df], ignore_index=True)
+    
+    # If the main dataframe is not empty, save it to the original path directory
+    if not main_df.empty:
+        output_file = os.path.join(main_directory, f'summary_diff_files.csv')
+        main_df.to_csv(output_file, index=False)
+        logger.info(f'Summary diff dataframe saved to {output_file}')
+    else:
+        logger.info('No diff CSV files found.')
+
 def reallocate_old_df(old_df, file_path, sanitized_name):
     if old_df.empty:
         return
     else:
-        history_file_path = get_data_file_path(os.path.basename(file_path), f'database\archives\{sanitized_name}')
+        history_file_path = get_data_file_path(os.path.basename(file_path), rf'database\archives\{sanitized_name}')
         # Remove the directory containing the csv_file
         if os.path.exists(file_path):
             os.remove(file_path)
@@ -128,12 +150,12 @@ def write_to_csv(df, file_path, company_name):
     try:
         # Get current month and year
         current_date = datetime.now()
-        month_year = current_date.strftime('%B_%Y')  # Format as Month-Year
+        formatted_date = current_date.strftime('%d_%m_%Y')  # Format as dd_mm_yyyy
         
         folder_path = os.path.dirname(file_path)
 
         # Construct the full filename
-        filename = f'{company_name}_webscrape_{month_year}.csv'
+        filename = f'{company_name}_webscrape_{formatted_date}.csv'
 
         # Construct the full file path
         file_path = os.path.join(folder_path, filename)
@@ -346,7 +368,7 @@ def log_differences(action, sheet_name, num_differences):
     num_differences (int): The number of differences found.
     """
     path_file = get_data_file_path('log_diff.txt', "database/logs")
-    time_today = datetime.now().strftime("%Y-%m-%d")
+    time_today = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     if num_differences == 0:
         log_message = f"{time_today}: No new data for company: '{sheet_name}'"
     elif num_differences == 1:

@@ -129,9 +129,9 @@ def scraper_credera():
                     temp_dict2[title] = 'https://www.credera.com' + href
                 extracted_titles[block_name] = temp_dict2
             else:
-                print(f"No grid container found for {block_name}")
+                raise ValueError('Unable to find "grid_container"')
         else:
-            print(f"Failed to retrieve data from {block_url}")
+            raise ConnectionError('Unable to establish connection.')
 
     # Initialize an empty list to store the extracted data
     data = []
@@ -153,7 +153,7 @@ def scraper_credera():
                     # Append the extracted data to the list
                     data.append([practice, temp_dict[practice], service, url, title])
             else:
-                print(f"Failed to retrieve data from {url}")
+                raise ConnectionError('Unable to establish connection.')
 
     # Create a DataFrame from the extracted data
     df = pd.DataFrame(data, columns=['Practices', 'Practices_URL', 'Services', 'Services_URL', 'Solutions'])
@@ -221,8 +221,7 @@ def scraper_infinitelambda():
                 company_dict['Services'].append(heading.text.strip())
 
         except Exception as e:
-            print(f"An error occurred while processing {practice_name}: {e}")
-            driver.quit()  # Ensure the driver is closed in case of an error
+            driver.quit()
 
     # Transform expertise_dict into a DataFrame
     df = pd.DataFrame(company_dict)
@@ -261,7 +260,7 @@ def scraper_meshai():
                 company_dict['Solutions'].append(li.text.strip())
                 
         except Exception as e:
-            print(f"Error processing link: {link}. Error: {e}")
+            return None
 
     # Convert expertise_dict to DataFrame
     df = pd.DataFrame(company_dict)
@@ -451,9 +450,7 @@ def scraper_capgemini():
         table_expertise = soup2.findAll('div', attrs = {'class':'subnav-submenu'})[-1]
         expertise = [row.text for row in table_expertise.findAll('span')]
         links2 = [row.get('href') for row in table_expertise.findAll('a')]
-        #print(links2)
         for j in range(len(links2)):
-            #print(links2[j])
             r3 = requests.get(links2[j])
             soup3 = BeautifulSoup(r3.content, 'html5lib')
             if soup3.find('div', attrs = {'class':'section-content'}) == None:
@@ -973,8 +970,6 @@ def scraper_kubrick() -> pd.DataFrame:
         for solution in practice.find_all('li'):
             company_dict['Practices'].append(practice.find_all('h3')[0].text.strip())
             company_dict['Solutions'].append(solution.text.strip())
-            # print(f"{practice.find_all('h3')[0].text} ------- {service.text}")
-
 
     company_dict['Practices_URL'] = len(company_dict['Practices'])*company_dict['Practices_URL']
     company_dict['Solutions_URL'] = len(company_dict['Practices'])*company_dict['Solutions_URL']
@@ -1185,7 +1180,7 @@ def scraper_billigence() -> pd.DataFrame:
     r = requests.get(services_url, headers=HEADERS)
 
     if r.status_code != 200:
-        print(r.text)
+        raise ConnectionError(f'Unable to connect to {url}')
     soup = BeautifulSoup(requests.get(services_url, headers=HEADERS).content, 'html5lib')
 
     for service in soup.find_all('div', class_ = 'eael-tabs-nav')[0].find_all('span'):
@@ -1686,11 +1681,9 @@ def scraper_resillion():
                             company_dict['Solutions_URL'].append(offering.select('a[href]')[0]['href'].strip())
 
             # Case 2: Some services under the section tag with class containing "benefits"
-            elif sub_service_soup.select('section[class*="benefits py-5"]') and sub_service_soup.select('div[id="v-pills-tab"]'):
-                # print('<<<<<<<<< Benefits >>>>>>>>>>>')        
+            elif sub_service_soup.select('section[class*="benefits py-5"]') and sub_service_soup.select('div[id="v-pills-tab"]'):     
                 num_of_solutions = len(sub_service_soup.select('div[id="v-pills-tab"] > button') )
                 for idx in range(num_of_solutions):
-                    #print(sub_service_soup.select('div[id="v-pills-tab"] > button')[idx].text.strip())
                     if sub_service_soup.select('div[id="v-pills-tabContent"] > div')[idx].select('a[href]'):
                         company_dict['Practices'].append(service_group.select('a')[0].text.strip())
                         company_dict['Practices_URL'].append(service_group.select('a')[0]['href'].strip())
@@ -1891,8 +1884,7 @@ def scraper_epam()-> pd.DataFrame:
                             pass
                         if not flag:
                             # Throw exception here
-                            print('Capability exists but no matching if statement')
-                            pass
+                            raise ValueError('Unable to find any practices/services/solutions. Please ammend scraper function.')
 
 
     return pd.DataFrame(company_dict)
@@ -9005,13 +8997,13 @@ def scraper_zoonou():
     company_dict = defaultdict(list)
     home_url = 'https://zoonou.com/our-services/'
     r = requests.get(home_url)
-    soup = BeautifulSoup(r.content)
+    soup = BeautifulSoup(r.content, features="lxml")
     table = soup.find('section', attrs = {'class':'services-list extra-pad-b'})
     services = [row.a.h4.text.replace('\n', '') for row in table.findAll('div', attrs={'class', 'col-md-4'})]
     services_url = [row.a.get('href') for row in table.findAll('div', attrs={'class', 'col-md-4'})]
     for i in range(len(services_url)):
         r1 = requests.get(services_url[i])
-        soup1 = BeautifulSoup(r1.content)
+        soup1 = BeautifulSoup(r1.content, features="lxml")
         solutions = [row.a.h5.text for row in soup1.findAll('li', attrs = {'role':'presentation'})]
         for solution in solutions:
             company_dict['Practices'].append('')
@@ -9028,7 +9020,7 @@ def scraper_verisk():
     company_dict = defaultdict(list)
     home_url = 'https://www.verisk.com/en-gb'
     r = requests.get(home_url)
-    soup = BeautifulSoup(r.content)
+    soup = BeautifulSoup(r.content, features="lxml")
     table = soup.find('div', attrs = {'class':'mega-menu'})
 
     practice_list = table.find_all(class_=lambda x: x and x.startswith('menu-item item-1'))
@@ -9079,7 +9071,7 @@ def scraper_psc():
     company_dict = defaultdict(list)
     home_url = 'https://thepsc.co.uk/'
     r = requests.get(home_url)
-    soup = BeautifulSoup(r.content)
+    soup = BeautifulSoup(r.content, features="lxml")
     table = soup.find('ul', attrs = {'class':'sub'})
     services = [row.text for row in table.findAll('a')]
     services_url = [row.get('href') for row in table.findAll('a')]
@@ -9766,40 +9758,46 @@ def scraper_elixirr():
     home_url = 'https://www.elixirr.com/en-gb/services/'
     r = requests.get(home_url)
     soup = BeautifulSoup(r.content, 'lxml')
-    tab = soup.find('section', attrs={'class': 'four-columns grey four-columns--simple'})
-    services = [(link.text.replace('\n', '').strip(), link.get('href')) for link in tab.findAll('a')]
+    titles = soup.findAll('h2', attrs={'class': 'accordion__title'})
+    practices = [title.text.replace('Discover all our ', '').replace(' services\t\n\n\n', '').title() for title in titles]
+    tabs = soup.findAll('div', attrs={'class': 'accordion__content style-links-1'})
+    for i in range(len(tabs)):
+        practice = practices[i]
+        services = [(link.get('title'), link.get('href')) for link in tabs[i].findAll('a')]
 
 
-    for service in services:
-        service_url = service[1]
-        r = requests.get(service_url)
-        soup = BeautifulSoup(r.content, 'lxml')
-        solutions = []
 
-        tab = soup.find('div', attrs={'class': 'repeating-text__grid'})
-        if tab != None:
-            solutions1 = [title.text.replace('\n', '').replace('\t', '') for title in tab.findAll('h3')]
-            solutions += solutions1
+        for service in services:
+            service_url = service[1]
+            r = requests.get(service_url)
+            soup = BeautifulSoup(r.content, 'lxml')
+            solutions = []
 
-        block = soup.findAll('div', attrs={'class': 'narrow'})
-        if block != None and block != []:
-            solutions2 = [title.text.replace('\n', '').replace('\t', '') for title in block[-1].findAll('ul')]
-            if len(solutions2) == 1:
-                try:
-                    bullet_list = block[-1].find('ul')
-                    solutions2 = [title.text for title in bullet_list.findAll('li')]
-                except:
-                    pass
+            grids = soup.findAll('div', attrs={'class': 'repeating-text__grid'})
+            if grids != []:
+                for grid in grids:
+                    solutions1 = [title.text.replace('\n', '').replace('\t', '') for title in grid.findAll('h3')]
+                    solutions += solutions1
 
-            solutions += solutions2
+            block = soup.findAll('div', attrs={'class': 'narrow'})
+            if block != []:
+                solutions2 = [title.text.replace('\n', '').replace('\t', '') for title in block[-1].findAll('ul')]
+                if len(solutions2) == 1:
+                    try:
+                        bullet_list = block[-1].find('ul')
+                        solutions2 = [title.text for title in bullet_list.findAll('li')]
+                    except:
+                        pass
 
-        for solution in solutions:
-            company_dict['Practices'].append('')
-            company_dict['Practices_URL'].append('')
-            company_dict['Services'].append(service[0])
-            company_dict['Services_URL'].append(service[1])
-            company_dict['Solutions'].append(solution)
-            company_dict['Solutions_URL'].append('')
+                solutions += solutions2
+
+            for solution in solutions:
+                company_dict['Practices'].append(practice)
+                company_dict['Practices_URL'].append('')
+                company_dict['Services'].append(service[0])
+                company_dict['Services_URL'].append(service[1])
+                company_dict['Solutions'].append(solution)
+                company_dict['Solutions_URL'].append('')
 
     df = pd.DataFrame(company_dict)
     return df
@@ -10441,7 +10439,6 @@ def scraper_mahindra() -> pd.DataFrame:
                 # Slider with No tabs
                 elif sub_services_slider :
                     if service_name == 'Sustainability Service':
-                        print('here')
                         sub_services_slider = service_soup.select_one('div[aria-label="What We Offer"]')
 
                     for sub_service in sub_services_slider.select('div[class="row"]'):
