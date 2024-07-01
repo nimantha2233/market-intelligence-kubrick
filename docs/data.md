@@ -44,4 +44,4 @@ This is a csv containing metadata about each company. The metadata includes:
 - Ticker
 - scraper
 
-If a new company is to be added into the list, include it into this csv document, and also ensure that the new scraper function is in [scrapers.py](#scraperspy).
+If a new company is to be added into the list, include it into this csv document, and also ensure that the new scraper function is in scrapers.py.
