@@ -3,7 +3,7 @@
 
 This section aims to explain the pipeline of the project.
 
-![Screenshot](/images/profiling_pipeline.png)  
+![Screenshot](images/profiling_pipeline.png)  
 Figure 1: Pipeline diagram of the profiling Project
 
 ## Coding Insight
