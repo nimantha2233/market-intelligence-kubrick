@@ -853,30 +853,35 @@ def scraper_cognizant() -> pd.DataFrame:
     1. Services
     2. Solutions
 
-        
+    NOTE: Some of the solutions_url ares urls for a pdf.
+
     Scrape services from homepage page: https://www.cognizant.com
     '''
 
-    url = r'https://www.cognizant.com'
+    BASE_URL = r'https://www.cognizant.com'
     company_dict = defaultdict(list)
 
-    soup = BeautifulSoup(requests.get(url).content, 'html5lib')
+    soup = BeautifulSoup(requests.get(BASE_URL).content, 'html5lib')
     services_html = soup.find_all('a', href = lambda href: href and "/uk/en/services/" in href, target = True, class_ = False)
     for service in services_html:
         
-        solutions_url = url + service['href']
+        solutions_url = BASE_URL + service['href']
         solutions_soup = BeautifulSoup(requests.get(solutions_url).content, 'html5lib')
         solutions_html = solutions_soup.find_all('div', class_ = 'cmp-accordion__item')
 
         for solution in solutions_html:
             
             company_dict['Services'].append(service.text.strip())
-            company_dict['Services_URL'].append(url + service['href'])
+            company_dict['Services_URL'].append(BASE_URL + service['href'])
             company_dict['Solutions'].append(solution.find('h2').text.strip())
             
             #Not all solutions have a link
             if solution.find(href = True):
-                company_dict['Solutions_URL'].append(solution.find(href = True)['href'])
+                solution_url = solution.find(href = True)['href']
+                if 'https' not in solution_url:
+                    solution_url = BASE_URL + solution_url
+
+                company_dict['Solutions_URL'].append(solution_url)
             else:
                 company_dict['Solutions_URL'].append('No Solution URL')
             
