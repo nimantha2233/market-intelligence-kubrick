@@ -846,30 +846,35 @@ def scraper_cognizant() -> pd.DataFrame:
     1. Services
     2. Solutions
 
-        
+    NOTE: Some of the solutions_url ares urls for a pdf.
+
     Scrape services from homepage page: https://www.cognizant.com
     '''
 
-    url = r'https://www.cognizant.com'
+    BASE_URL = r'https://www.cognizant.com'
     company_dict = defaultdict(list)
 
-    soup = BeautifulSoup(requests.get(url).content, 'html5lib')
+    soup = BeautifulSoup(requests.get(BASE_URL).content, 'html5lib')
     services_html = soup.find_all('a', href = lambda href: href and "/uk/en/services/" in href, target = True, class_ = False)
     for service in services_html:
         
-        solutions_url = url + service['href']
+        solutions_url = BASE_URL + service['href']
         solutions_soup = BeautifulSoup(requests.get(solutions_url).content, 'html5lib')
         solutions_html = solutions_soup.find_all('div', class_ = 'cmp-accordion__item')
 
         for solution in solutions_html:
             
             company_dict['Services'].append(service.text.strip())
-            company_dict['Services_URL'].append(url + service['href'])
+            company_dict['Services_URL'].append(BASE_URL + service['href'])
             company_dict['Solutions'].append(solution.find('h2').text.strip())
             
             #Not all solutions have a link
             if solution.find(href = True):
-                company_dict['Solutions_URL'].append(solution.find(href = True)['href'])
+                solution_url = solution.find(href = True)['href']
+                if 'https' not in solution_url:
+                    solution_url = BASE_URL + solution_url
+
+                company_dict['Solutions_URL'].append(solution_url)
             else:
                 company_dict['Solutions_URL'].append('No Solution URL')
             
@@ -10417,7 +10422,6 @@ def scraper_mahindra() -> pd.DataFrame:
                 service_url = BASE_URL + service.find("a", href = True, recursive=False)['href'].strip()
                 # Get Soup from service page. More services on service page than on dropdown menu
                 service_soup = BeautifulSoup(requests.get(service_url).content, 'html5lib')
-
                 # Sub-services formatted as a sliding navigation pane under "Our Services"
                 sub_services_slider = service_soup.select('div[id*="slick-paragraph-bp-slick-bp-slick-content-slick-"]')[0]
 
@@ -10438,11 +10442,19 @@ def scraper_mahindra() -> pd.DataFrame:
                             company_dict['Services_URL'].append(sub_service_url)
                 # Slider with No tabs
                 elif sub_services_slider :
+                    # Special cases where services section isnt first or only section with tabs (e.g. industries might be beforehand)
                     if service_name == 'Sustainability Service':
                         sub_services_slider = service_soup.select_one('div[aria-label="What We Offer"]')
+                    elif service_name == 'Business Process Services': 
+                        sub_services_slider = service_soup.select('div[id*="slick-paragraph-bp-slick-bp-slick-content-slick-"]')[2]
 
                     for sub_service in sub_services_slider.select('div[class="row"]'):
-                        sub_service_name = sub_service.select_one('div[class*="title"]').text.strip()
+                        
+                        # Some sub-service titles under 'h3' others under 'div'
+                        if sub_service.select('h3'):
+                            sub_service_name = sub_service.select_one('h3').text.strip()
+                        else:
+                            sub_service_name = sub_service.select_one('div[class*="title"]').text.strip()
 
                         if sub_service.select_one('a[href]'):
                             sub_service_url = BASE_URL + sub_service.select_one('a[href]')['href']

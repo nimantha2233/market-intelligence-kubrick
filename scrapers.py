@@ -10441,7 +10441,6 @@ def scraper_mahindra() -> pd.DataFrame:
             else:
                 service_name = service.find("span",recursive=False).text.strip()
                 service_url = 'No Practices URL'
-                print(service_name)
                 sub_services = service.select('li')
                 for sub_service in sub_services:
                     sub_service_name = sub_service.select_one('a[href]').text.strip()
