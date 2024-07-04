@@ -10423,7 +10423,6 @@ def scraper_mahindra() -> pd.DataFrame:
                 service_url = BASE_URL + service.find("a", href = True, recursive=False)['href'].strip()
                 # Get Soup from service page. More services on service page than on dropdown menu
                 service_soup = BeautifulSoup(requests.get(service_url).content, 'html5lib')
-
                 # Sub-services formatted as a sliding navigation pane under "Our Services"
                 sub_services_slider = service_soup.select('div[id*="slick-paragraph-bp-slick-bp-slick-content-slick-"]')[0]
 
@@ -10444,12 +10443,19 @@ def scraper_mahindra() -> pd.DataFrame:
                             company_dict['Services_URL'].append(sub_service_url)
                 # Slider with No tabs
                 elif sub_services_slider :
+                    # Special cases where services section isnt first or only section with tabs (e.g. industries might be beforehand)
                     if service_name == 'Sustainability Service':
-                        print('here')
                         sub_services_slider = service_soup.select_one('div[aria-label="What We Offer"]')
+                    elif service_name == 'Business Process Services': 
+                        sub_services_slider = service_soup.select('div[id*="slick-paragraph-bp-slick-bp-slick-content-slick-"]')[2]
 
                     for sub_service in sub_services_slider.select('div[class="row"]'):
-                        sub_service_name = sub_service.select_one('div[class*="title"]').text.strip()
+                        
+                        # Some sub-service titles under 'h3' others under 'div'
+                        if sub_service.select('h3'):
+                            sub_service_name = sub_service.select_one('h3').text.strip()
+                        else:
+                            sub_service_name = sub_service.select_one('div[class*="title"]').text.strip()
 
                         if sub_service.select_one('a[href]'):
                             sub_service_url = BASE_URL + sub_service.select_one('a[href]')['href']
