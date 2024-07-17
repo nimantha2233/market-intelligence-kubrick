@@ -2,3 +2,5 @@ MI_Simon/dist/
 MI_Simon/build/
 MI_Simon/main.spec
 *.zip
+.env
+.csv
