@@ -6,6 +6,7 @@ nav:
     - Special Cases: webscrape_help.md
   - pipeline.md
   - data.md
+  - Azure Deployment: azure_migration.md
 
 theme:
   name: material
