@@ -30,11 +30,11 @@ Much of the data from this work is provided by webscrapers, which may need to be
 
 A few companies have been excluded from the initial proposed list. Possible reasons for this exclusion include the merging of companies on the list, where one or more company's websites are no longer available to view, or cases where the services provided by the company are not deemed relevant enough to compare with other competitors. Excluded companies include:
 
-# Dell
-# SkillShare
-# Spring studios
-# Frog Design
-# Lunar
-# Infostretch
-# PRA
-# Slalom
+* Dell
+* SkillShare
+* Spring studios
+* Frog Design
+* Lunar
+* Infostretch
+* PRA
+* Slalom
