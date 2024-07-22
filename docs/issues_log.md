@@ -17,3 +17,24 @@ Some of the websites cannot use Google Chrome in headless mode, meaning that the
 ### Azure Migration
 
 The Azure Migration procedure has been test in a free-trial account and has been documented under the docs folder in the project. The migration procedure should be easy to follow but I must highlight that the code is very different from the code used for the button. This resulted in some scraper functions currently not working (~5). These scrapers need to fixed and tested in a virtual environment (local docker image) for them to function properly. There also seems to be an issue with price_report.csv, where the information on some companies is currently not updated. This may be an issue with the yahoo finance API connection within the virtual environment.
+
+### Taxonomy
+
+An attempt has been made to categorise a large number of competitors services into a few, easy to understand labels. At the moment roughly 80% of the data has been fitted with one label. Due to the large variation in the services provided, there are often cases where the service can belong to some or none of the provided labels. In such cases, it may be worth implementing new labels or consulting with specialists if any existing labels are a close enough match. Due to continous maintenance of the webscraping pipeline. It is likely that new services will need to be added to the taxonomy and labelled over time.
+
+### Maintenance
+
+Much of the data from this work is provided by webscrapers, which may need to be altered as competitors websites are updated. See the webscrape help page if there are issues relating to errors or empty dataframes being outputted by the pipeline.
+
+### Missing Companies
+
+A few companies have been excluded from the initial proposed list. Possible reasons for this exclusion include the merging of companies on the list, where one or more company's websites are no longer available to view, or cases where the services provided by the company are not deemed relevant enough to compare with other competitors. Excluded companies include:
+
+# Dell
+# SkillShare
+# Spring studios
+# Frog Design
+# Lunar
+# Infostretch
+# PRA
+# Slalom
