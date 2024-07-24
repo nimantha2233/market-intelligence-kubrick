@@ -3,7 +3,7 @@
 This page explains how to migrate all the code into a virtual environment in Azure to then schedule a mensual scraping task. It will explain all the steps to go from the button into an automated script.
 
 Index:
-- [Code Changes](#coding-layout)  
+- [Code Changes](#code-changes)  
 - [Steps for deployment](#steps-to-deploy-to-azure)
 
 

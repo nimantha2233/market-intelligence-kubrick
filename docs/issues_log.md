@@ -26,6 +26,16 @@ An attempt has been made to categorise a large number of competitors services in
 
 Much of the data from this work is provided by webscrapers, which may need to be altered as competitors websites are updated. See the webscrape help page if there are issues relating to errors or empty dataframes being outputted by the pipeline.
 
+### Scraping notes on companies
+
+1. **CGI** (https://www.cgi.com/en) has a long list of products (e.g.CGI Trade360) listed as solutions (no link to services here) and so wasn’t included when scraping
+2. **Cognifide** (Now VML https://www.vml.com/): Cognifide changed name to  Wunderman Thompson Technology then a merger “WPP unites Wunderman Thompson and VMLY&R to become (VML).
+3. **Edge Testing Solutions** is found under Resillion URL (https://www.resillion.com/). Many if statements due to the unique layouts of service webpages.
+4. **Switchfast Technologies** was acquired by Ascend Technologies in 2021, so scrape data from (https://teamascend.com/)
+5. **Ultimus Fund Solutions** - Shows no technology services, is a “independent fund administration provider” so no scraping carried out (remove from list?)
+6. **Parexel International Corp** - A biopharma company, no tech services here only pharma services (Remove from list?)
+7. **IDEO** -  Doesnt have any info on tech services and doesnt look like its a tech consultancy. (Remove from list?)
+
 ### Missing Companies
 
 A few companies have been excluded from the initial proposed list. Possible reasons for this exclusion include the merging of companies on the list, where one or more company's websites are no longer available to view, or cases where the services provided by the company are not deemed relevant enough to compare with other competitors. Excluded companies include:
